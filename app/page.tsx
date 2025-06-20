@@ -23,9 +23,21 @@ export default function Home() {
       <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
         <div className="max-w-xl mx-auto">
           
-          {/* Large Number */}
-          <div className="text-6xl md:text-9xl font-bold text-foreground/10 mb-6 md:mb-8 tracking-tighter">
-            [ AP ]
+          {/* Large Number with Mobile Stack */}
+          <div className="flex items-start justify-between mb-6 md:mb-8">
+            <div className="text-6xl md:text-9xl font-bold text-foreground/10 tracking-tighter">
+              [ AP ]
+            </div>
+            
+            {/* Projects + Memos Stack */}
+            <div className="flex flex-col gap-2 text-right mt-2">
+              <div className="text-base md:text-lg font-bold text-foreground/80 tracking-wide">
+                Projects
+              </div>
+              <div className="text-base md:text-lg font-bold text-foreground/80 tracking-wide">
+                Memos
+              </div>
+            </div>
           </div>
 
           {/* Category */}
@@ -37,38 +49,32 @@ export default function Home() {
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4 md:mb-8 leading-tight tracking-tight">
             Alex Phan
           </h1>
-
-           {/* Category */}
-          {/* <div className="text-sm text-foreground/60 mb-2 tracking-wide">
-            Vibes: 
-          </div> */}
-
           {/* Retro Carousel */}
-          <div className="mb-8 md:mb-16">
+          <div className="mb-8 md:mb-8">
             <RetroCarousel items={videoItems} />
           </div>
 
           {/* Description Section */}
-          <div className="mb-8 md:mb-16">
-            <h3 className="text-sm text-foreground/60 mb-4 md:mb-6 tracking-wide">
+          <div className="mb-8 md:mb-8">
+            {/* <h3 className="text-sm text-foreground/60 mb-4 md:mb-6 tracking-wide">
               Description
-            </h3>
+            </h3> */}
             <p className="text-foreground text-base md:text-lg leading-relaxed">
               I spend a lot of my time thinking about what are the backdoors that are often overlooked or unseen.
             </p>
             <p className="text-foreground text-base md:text-lg leading-relaxed mt-4">
               I&apos;m also the first growth engineer at Browserbase, an exciting startup in San Francisco.
             </p>
-            <p className="text-foreground text-base md:text-lg leading-relaxed mt-4">
+            {/* <p className="text-foreground text-base md:text-lg leading-relaxed mt-4">
              DM if you&apos;d like to chat!
-            </p>
+            </p> */}
           </div>
 
           {/* Projects Section */}
           <div>
-            <h3 className="text-sm text-foreground/60 mb-4 md:mb-6 tracking-wide">
+            {/* <h3 className="text-sm text-foreground/60 mb-4 md:mb-6 tracking-wide">
               Current Focus
-            </h3>
+            </h3> */}
             <div className="space-y-2">
               <div className="text-foreground font-medium">Growth Engineering at Browserbase</div>
               <div className="text-foreground font-medium">Experimental Interface Design</div>

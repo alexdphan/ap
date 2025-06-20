@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { VolumeX, Volume2, MessageSquare } from "lucide-react";
+import { VolumeX, Volume2, MessageSquare, Menu } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
@@ -58,6 +58,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     [key: string]: number;
   }>({});
   const measurementRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const [showAllComments, setShowAllComments] = useState(true);
 
   // Prevent hydration mismatch and detect mobile
   useEffect(() => {
@@ -684,7 +685,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
                     {/* Dynamic Comment Components - Column Layout */}
                     <AnimatePresence mode="popLayout">
-                      {index === currentIndex && (
+                      {index === currentIndex && showAllComments && (
                         <div
                           ref={commentContainerRef}
                           className={`absolute top-4 bottom-4 pointer-events-none ${
@@ -857,13 +858,24 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
             </button>
           </div>
 
-          {/* Right - Mute Button */}
-          <div className="flex-shrink-0 pr-2">
+          {/* Right - Mute Button and Comment Toggle */}
+          <div className="flex-shrink-0 flex items-center gap-0">
             <button
               onClick={toggleMute}
               className="text-background/60 hover:text-background transition-colors p-2"
             >
               {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+            </button>
+            <button
+              onClick={() => setShowAllComments(!showAllComments)}
+              className={`transition-colors p-2 ${
+                showAllComments 
+                  ? "text-background hover:text-background/80" 
+                  : "text-background/40 hover:text-background/60"
+              }`}
+              title={showAllComments ? "Hide comments" : "Show comments"}
+            >
+              <Menu size={14} />
             </button>
           </div>
         </div>
@@ -994,15 +1006,20 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                   e.stopPropagation();
                                   handleGifSelect(gif);
                                 }}
-                                className="aspect-square bg-background/10 hover:bg-background/20 transition-colors overflow-hidden"
+                                className="relative w-full bg-background/10 hover:bg-background/20 transition-colors overflow-hidden border-0 p-0"
+                                style={{ 
+                                  aspectRatio: '1',
+                                  minHeight: '60px',
+                                  maxHeight: '80px'
+                                }}
                               >
                                 <Image
                                   src={gif.images.fixed_height_small.url}
                                   alt={gif.title}
-                                  width={32}
-                                  height={24}
+                                  fill
+                                  sizes="(max-width: 768px) 33vw, 25vw"
                                   unoptimized
-                                  className="w-full h-full object-cover"
+                                  className="object-cover"
                                 />
                               </button>
                             ))
