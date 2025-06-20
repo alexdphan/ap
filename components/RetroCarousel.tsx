@@ -968,8 +968,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden bg-accent-green-dark border-t border-accent-green"
                   >
-                    <div className="p-2 md:p-3">
-                      <div className="w-full max-w-sm md:max-w-lg mx-auto">
+                    <div className="p-3">
+                      <div className="w-full max-w-full">
                         <div className="flex items-center justify-between mb-3">
                           <input
                             type="text"
@@ -990,7 +990,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                             Done
                           </button>
                         </div>
-                        <div className="grid grid-cols-3 md:grid-cols-4 gap-1.5 md:gap-2 max-h-40 md:max-h-48 overflow-y-auto">
+                        <div className="grid grid-cols-3 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto overflow-x-hidden">
                           {loadingGifs ? (
                             <div className="col-span-3 md:col-span-4 flex items-center justify-center py-4">
                               <div className="text-xs text-background/60">
@@ -1006,11 +1006,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                   e.stopPropagation();
                                   handleGifSelect(gif);
                                 }}
-                                className="relative w-full bg-background/10 hover:bg-background/20 transition-colors overflow-hidden border-0 p-0 rounded-sm"
+                                className="block w-full h-0 relative bg-background/10 hover:bg-background/20 transition-colors overflow-hidden border-0 p-0 rounded-sm"
                                 style={{ 
-                                  aspectRatio: '1',
-                                  minHeight: '50px',
-                                  maxHeight: '70px'
+                                  paddingBottom: '100%' // Creates 1:1 aspect ratio
                                 }}
                               >
                                 <Image
@@ -1019,7 +1017,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                   fill
                                   sizes="(max-width: 768px) 33vw, 25vw"
                                   unoptimized
-                                  className="object-cover"
+                                  className="absolute inset-0 object-cover"
                                 />
                               </button>
                             ))
