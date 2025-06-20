@@ -572,7 +572,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                             {getCurrentComments()
                               .filter((comment) => currentTime >= comment.time)
                               .slice(-(isMobile ? 3 : 5))
-                              .map((comment, commentIndex) => {
+                              .map((comment) => {
                                 const formatTime = (seconds: number) => {
                                   const mins = Math.floor(seconds / 60);
                                   const secs = Math.floor(seconds % 60);
