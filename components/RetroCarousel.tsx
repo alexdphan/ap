@@ -719,7 +719,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               }}
               className="text-background/60 hover:text-background  transition-colors px-2 py-2 rounded-sm"
             >
-              <MessageSquare size={15} />
+              <MessageSquare size={14} />
             </button>
           </div>
 
@@ -729,7 +729,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               onClick={toggleMute}
               className="text-background/60 hover:text-background transition-colors p-2"
             >
-              {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+              {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
             </button>
           </div>
         </div>
