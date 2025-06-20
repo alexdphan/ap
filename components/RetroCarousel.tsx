@@ -54,6 +54,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   const lastToggleTime = useRef(0);
   const [commentContainerHeight, setCommentContainerHeight] = useState(0);
   const commentContainerRef = useRef<HTMLDivElement>(null);
+  const [measuredComments, setMeasuredComments] = useState<{
+    [key: string]: number;
+  }>({});
+  const measurementRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // Prevent hydration mismatch and detect mobile
   useEffect(() => {
@@ -122,43 +126,43 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
   // Function to render comment content with GIFs
   const renderCommentContent = (text: string) => {
-    console.log('Comment text:', text); // Debug
-    
+    console.log("Comment text:", text); // Debug
+
     // If text contains GIF marker, extract and show the actual GIF
-    if (text.includes('[GIF|')) {
-      console.log('Found GIF marker! Extracting GIF'); // Debug
-      
+    if (text.includes("[GIF|")) {
+      console.log("Found GIF marker! Extracting GIF"); // Debug
+
       // Extract the URL from [GIF|url|title] format
       const gifMatch = text.match(/\[GIF\|([^|]+)\|([^\]]*)\]/);
-      
+
       if (gifMatch) {
         const gifUrl = gifMatch[1];
         const gifTitle = gifMatch[2];
-        console.log('Extracted URL:', gifUrl); // Debug
-        
+        console.log("Extracted URL:", gifUrl); // Debug
+
         // Get text before and after the GIF
-        const textBefore = text.substring(0, text.indexOf('[GIF|'));
-        const textAfter = text.substring(text.indexOf(']') + 1);
-        
+        const textBefore = text.substring(0, text.indexOf("[GIF|"));
+        const textAfter = text.substring(text.indexOf("]") + 1);
+
         return (
           <div className="flex items-center">
             {textBefore && <span>{textBefore}</span>}
-            <Image 
+            <Image
               src={gifUrl}
               alt={gifTitle}
               width={80}
               height={80}
               unoptimized
               className="inline-block object-cover ml-1"
-              onLoad={() => console.log('GIF loaded:', gifUrl)}
-              onError={() => console.log('GIF failed to load:', gifUrl)}
+              onLoad={() => console.log("GIF loaded:", gifUrl)}
+              onError={() => console.log("GIF failed to load:", gifUrl)}
             />
             {textAfter && <span>{textAfter}</span>}
           </div>
         );
       }
     }
-    
+
     // For non-GIF text, return as-is
     return text;
   };
@@ -373,13 +377,13 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       ) as HTMLVideoElement;
       if (currentVideo) {
         currentVideo.muted = isMuted;
-        
+
         // Safari-specific handling
         if (isPlaying) {
           // Wait for the video to be ready to play
           const playWhenReady = () => {
             currentVideo.play().catch((error) => {
-              console.log('Autoplay failed:', error);
+              console.log("Autoplay failed:", error);
               // For Safari, we might need user interaction first
             });
           };
@@ -389,7 +393,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
             playWhenReady();
           } else {
             // Wait for video to be ready
-            currentVideo.addEventListener('canplaythrough', playWhenReady, { once: true });
+            currentVideo.addEventListener("canplaythrough", playWhenReady, {
+              once: true,
+            });
           }
         } else {
           currentVideo.pause();
@@ -408,27 +414,74 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       };
 
       updateHeight();
-      window.addEventListener('resize', updateHeight);
-      return () => window.removeEventListener('resize', updateHeight);
+      window.addEventListener("resize", updateHeight);
+      return () => window.removeEventListener("resize", updateHeight);
     }
   }, [isClient]);
 
-  // Function to calculate how many comments fit in the container
+  // Enhanced function to calculate visible comments with precise measurements
   const getVisibleComments = () => {
-    const comments = getCurrentComments().filter((comment) => currentTime >= comment.time);
-    
-    if (!commentContainerHeight || comments.length === 0) {
-      return comments.slice(-(isMobile ? 3 : 5));
+    const allComments = getCurrentComments().filter(
+      (comment) => currentTime >= comment.time
+    );
+
+    if (!commentContainerHeight || allComments.length === 0) {
+      return allComments.slice(-(isMobile ? 3 : 5)); // Conservative fallback
     }
 
-    // Estimate comment height (this is approximate)
-    const estimatedCommentHeight = isMobile ? 60 : 70; // pixels per comment including gap
-    const maxComments = Math.floor((commentContainerHeight - 16) / estimatedCommentHeight); // -16 for padding
-    
-    // Ensure we don't show more than our previous limits
-    const limit = Math.min(maxComments, isMobile ? 3 : 5);
-    
-    return comments.slice(-Math.max(1, limit)); // Always show at least 1 comment if available
+    // Available height accounting for padding and gaps
+    const availableHeight = commentContainerHeight - 16; // Account for top/bottom padding
+    const gapHeight = 8; // gap-2 = 8px
+
+    let totalHeight = 0;
+    const visibleComments = [];
+
+    // Work backwards from the most recent comments
+    for (let i = allComments.length - 1; i >= 0; i--) {
+      const comment = allComments[i];
+      const commentKey = `${comment.id}-${comment.time}`;
+
+      // Get measured height or use estimated height as fallback
+      const commentHeight =
+        measuredComments[commentKey] || (isMobile ? 55 : 65);
+
+      // Check if adding this comment would exceed available height
+      const heightNeeded =
+        totalHeight +
+        commentHeight +
+        (visibleComments.length > 0 ? gapHeight : 0);
+
+      if (heightNeeded <= availableHeight) {
+        visibleComments.unshift(comment); // Add to beginning since we're working backwards
+        totalHeight = heightNeeded;
+      } else {
+        // Stop adding comments if this one would be cut off
+        break;
+      }
+    }
+
+    return visibleComments;
+  };
+
+  // Function to measure comment height after render
+  const measureComment = (
+    commentId: string,
+    commentTime: number,
+    element: HTMLDivElement | null
+  ) => {
+    if (element) {
+      const commentKey = `${commentId}-${commentTime}`;
+      measurementRefs.current[commentKey] = element;
+
+      // Measure the height including margins
+      const rect = element.getBoundingClientRect();
+      const height = rect.height;
+
+      setMeasuredComments((prev) => ({
+        ...prev,
+        [commentKey]: height,
+      }));
+    }
   };
 
   // Reset video time only when switching to a new video
@@ -585,13 +638,28 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     <video
                       src={item.videoUrl}
                       autoPlay
-                      muted={isMuted}
+                      muted // Use boolean attribute instead of muted={isMuted} for autoplay
                       loop
                       playsInline
-                      webkit-playsinline="true"  // For older Safari versions
-                      preload="metadata"         // Help with Safari loading
+                      webkit-playsinline="true"
+                      preload="auto" // Changed from "metadata" to "auto" for mobile Safari
+                      controls={false} // Explicitly disable controls
                       className="w-full h-full object-cover border-0 outline-0"
                       poster={item.thumbnailUrl}
+                      onLoadedData={() => {
+                        // Force play when video is loaded on mobile Safari
+                        if (index === currentIndex && isPlaying) {
+                          const video = document.querySelector(
+                            `[data-video-index="${index}"] video`
+                          ) as HTMLVideoElement;
+                          if (video) {
+                            video.muted = true; // Ensure it's muted
+                            video.play().catch(() => {
+                              // Silent fail for autoplay restrictions
+                            });
+                          }
+                        }
+                      }}
                     />
 
                     {/* Simple Play/Pause Overlay for Testing */}
@@ -617,13 +685,15 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     {/* Dynamic Comment Components - Column Layout */}
                     <AnimatePresence mode="popLayout">
                       {index === currentIndex && (
-                        <div 
+                        <div
                           ref={commentContainerRef}
                           className={`absolute top-4 bottom-4 pointer-events-none ${
-                            isMobile ? 'right-1 w-auto max-w-[70%]' : 'right-2 w-auto max-w-[40%]'
+                            isMobile
+                              ? "right-1 w-auto max-w-[70%]"
+                              : "right-2 w-auto max-w-[40%]"
                           }`}
                         >
-                          <div className="flex flex-col gap-2 h-full overflow-hidden items-end justify-end">
+                          <div className="flex flex-col gap-2 h-full items-end justify-end">
                             {getVisibleComments().map((comment) => {
                               const formatTime = (seconds: number) => {
                                 const mins = Math.floor(seconds / 60);
@@ -636,16 +706,16 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                 maxLength: number
                               ) => {
                                 if (text.length <= maxLength) return text;
-                                
+
                                 // Check if there are GIF markers
                                 const gifRegex = /\[GIF\|([^|]+)\|([^\]]*)\]/g;
                                 const hasGifs = gifRegex.test(text);
-                                
+
                                 if (hasGifs) {
                                   // If there are GIFs, don't truncate - show the full text with GIFs
                                   return text;
                                 }
-                                
+
                                 return text.substring(0, maxLength) + "...";
                               };
 
@@ -656,13 +726,23 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                               return (
                                 <motion.div
                                   key={comment.id}
+                                  ref={(el) =>
+                                    measureComment(
+                                      comment.id.toString(),
+                                      comment.time,
+                                      el
+                                    )
+                                  }
                                   className={`bg-black/60 backdrop-blur-sm rounded px-3 py-2 text-xs text-white w-auto inline-block ${
-                                    isMobile ? 'max-w-[160px]' : 'max-w-[200px]'
+                                    isMobile ? "max-w-[160px]" : "max-w-[200px]"
                                   }`}
                                   initial={{ x: 30, opacity: 0 }}
                                   animate={{ x: 0, opacity: 1 }}
                                   exit={{ x: -30, opacity: 0 }}
-                                  transition={{ duration: 0.2, ease: "easeOut" }}
+                                  transition={{
+                                    duration: 0.2,
+                                    ease: "easeOut",
+                                  }}
                                 >
                                   <div className="leading-tight break-words">
                                     <div className="flex items-start gap-1 text-xs">
@@ -671,12 +751,14 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                       </span>
                                       {comment.author && (
                                         <span className="text-white/80 flex-shrink-0 text-[10px]">
-                                          {comment.author}:
+                                          {comment.author}
                                         </span>
                                       )}
                                     </div>
                                     <div className="mt-1">
-                                      {renderCommentContent(isMobile ? truncatedText : comment.text)}
+                                      {renderCommentContent(
+                                        isMobile ? truncatedText : comment.text
+                                      )}
                                     </div>
                                   </div>
                                 </motion.div>
