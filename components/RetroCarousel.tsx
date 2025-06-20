@@ -76,23 +76,27 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
   const toggleMute = () => {
     setIsMuted(!isMuted);
-    const video = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
-    if (video) {
-      video.muted = !isMuted;
+    if (typeof window !== 'undefined') {
+      const video = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
+      if (video) {
+        video.muted = !isMuted;
+      }
     }
   };
 
   const togglePlayPause = () => {
-    const video = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
-    if (video) {
-      if (isPlaying) {
-        video.pause();
-        setIsPlaying(false);
-      } else {
-        video.play().catch(() => {
-          // Handle play restrictions
-        });
-        setIsPlaying(true);
+    if (typeof window !== 'undefined') {
+      const video = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
+      if (video) {
+        if (isPlaying) {
+          video.pause();
+          setIsPlaying(false);
+        } else {
+          video.play().catch(() => {
+            // Handle play restrictions
+          });
+          setIsPlaying(true);
+        }
       }
     }
   };
@@ -101,67 +105,75 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     e.preventDefault();
     e.stopPropagation();
     
-    const progressBar = e.currentTarget as HTMLElement;
-    const rect = progressBar.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const percentage = clickX / rect.width;
-    
-    const video = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
-    if (video && video.duration) {
-      const newTime = percentage * video.duration;
-      video.currentTime = Math.max(0, Math.min(newTime, video.duration));
+    if (typeof window !== 'undefined') {
+      const progressBar = e.currentTarget as HTMLElement;
+      const rect = progressBar.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const percentage = clickX / rect.width;
+      
+      const video = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
+      if (video && video.duration) {
+        const newTime = percentage * video.duration;
+        video.currentTime = Math.max(0, Math.min(newTime, video.duration));
+      }
     }
   };
 
   // Auto-play videos when they become active
   useEffect(() => {
-    // First, pause all videos
-    const allVideos = document.querySelectorAll('[data-video-index] video') as NodeListOf<HTMLVideoElement>;
-    allVideos.forEach(video => {
-      video.pause();
-    });
+    if (typeof window !== 'undefined') {
+      // First, pause all videos
+      const allVideos = document.querySelectorAll('[data-video-index] video') as NodeListOf<HTMLVideoElement>;
+      allVideos.forEach(video => {
+        video.pause();
+      });
 
-    // Then play only the current video if it should be playing
-    const currentVideo = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
-    if (currentVideo) {
-      currentVideo.muted = isMuted;
-      if (isPlaying) {
-        currentVideo.play().catch(() => {
-          // Handle autoplay restrictions - some browsers require user interaction
-        });
+      // Then play only the current video if it should be playing
+      const currentVideo = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
+      if (currentVideo) {
+        currentVideo.muted = isMuted;
+        if (isPlaying) {
+          currentVideo.play().catch(() => {
+            // Handle autoplay restrictions - some browsers require user interaction
+          });
+        }
       }
     }
   }, [currentIndex, isMuted, isPlaying]);
 
   // Reset video time only when switching to a new video
   useEffect(() => {
-    const currentVideo = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
-    if (currentVideo) {
-      currentVideo.currentTime = 0;
-      setCurrentTime(0); // Reset comment timing
+    if (typeof window !== 'undefined') {
+      const currentVideo = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
+      if (currentVideo) {
+        currentVideo.currentTime = 0;
+        setCurrentTime(0); // Reset comment timing
+      }
     }
   }, [currentIndex]);
 
   // Track video progress
   useEffect(() => {
-    const video = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
-    if (!video) return;
+    if (typeof window !== 'undefined') {
+      const video = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
+      if (!video) return;
 
-    const updateProgress = () => {
-      if (video.duration) {
-        const progressPercent = (video.currentTime / video.duration) * 100;
-        setProgress(progressPercent);
-        setCurrentTime(video.currentTime);
-      }
-    };
+      const updateProgress = () => {
+        if (video.duration) {
+          const progressPercent = (video.currentTime / video.duration) * 100;
+          setProgress(progressPercent);
+          setCurrentTime(video.currentTime);
+        }
+      };
 
-    video.addEventListener('timeupdate', updateProgress);
-    video.addEventListener('loadedmetadata', updateProgress);
+      video.addEventListener('timeupdate', updateProgress);
+      video.addEventListener('loadedmetadata', updateProgress);
 
-    return () => {
-      video.removeEventListener('timeupdate', updateProgress);
-      video.removeEventListener('loadedmetadata', updateProgress);
-    };
+      return () => {
+        video.removeEventListener('timeupdate', updateProgress);
+        video.removeEventListener('loadedmetadata', updateProgress);
+      };
+    }
   }, [currentIndex]);
 
   // Mouse drag handlers
@@ -374,7 +386,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                 />
                 
                 {/* Comment Indicators on Progress Bar */}
-                {getCurrentComments().map((comment) => {
+                {typeof window !== 'undefined' && getCurrentComments().map((comment) => {
                   const video = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
                   const duration = video?.duration || 30; // fallback duration
                   const position = (comment.time / duration) * 100;
