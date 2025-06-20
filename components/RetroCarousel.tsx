@@ -52,6 +52,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   const carouselRef = useRef<HTMLDivElement>(null);
   const gifButtonRef = useRef<HTMLButtonElement>(null);
   const lastToggleTime = useRef(0);
+  const [commentContainerHeight, setCommentContainerHeight] = useState(0);
+  const commentContainerRef = useRef<HTMLDivElement>(null);
 
   // Prevent hydration mismatch and detect mobile
   useEffect(() => {
@@ -354,7 +356,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     }
   };
 
-  // Enhanced autoplay useEffect
+  // Enhanced autoplay useEffect with Safari-specific handling
   useEffect(() => {
     if (isClient) {
       // First, pause all videos
@@ -371,17 +373,63 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       ) as HTMLVideoElement;
       if (currentVideo) {
         currentVideo.muted = isMuted;
+        
+        // Safari-specific handling
         if (isPlaying) {
-          currentVideo.play().catch((error) => {
-            // Handle autoplay restrictions - some browsers require user interaction
-            console.log('Autoplay failed:', error);
-          });
+          // Wait for the video to be ready to play
+          const playWhenReady = () => {
+            currentVideo.play().catch((error) => {
+              console.log('Autoplay failed:', error);
+              // For Safari, we might need user interaction first
+            });
+          };
+
+          if (currentVideo.readyState >= 3) {
+            // Video is ready to play
+            playWhenReady();
+          } else {
+            // Wait for video to be ready
+            currentVideo.addEventListener('canplaythrough', playWhenReady, { once: true });
+          }
         } else {
           currentVideo.pause();
         }
       }
     }
   }, [currentIndex, isMuted, isPlaying, isClient]);
+
+  // Track comment container height
+  useEffect(() => {
+    if (isClient && commentContainerRef.current) {
+      const updateHeight = () => {
+        if (commentContainerRef.current) {
+          setCommentContainerHeight(commentContainerRef.current.offsetHeight);
+        }
+      };
+
+      updateHeight();
+      window.addEventListener('resize', updateHeight);
+      return () => window.removeEventListener('resize', updateHeight);
+    }
+  }, [isClient]);
+
+  // Function to calculate how many comments fit in the container
+  const getVisibleComments = () => {
+    const comments = getCurrentComments().filter((comment) => currentTime >= comment.time);
+    
+    if (!commentContainerHeight || comments.length === 0) {
+      return comments.slice(-(isMobile ? 3 : 5));
+    }
+
+    // Estimate comment height (this is approximate)
+    const estimatedCommentHeight = isMobile ? 60 : 70; // pixels per comment including gap
+    const maxComments = Math.floor((commentContainerHeight - 16) / estimatedCommentHeight); // -16 for padding
+    
+    // Ensure we don't show more than our previous limits
+    const limit = Math.min(maxComments, isMobile ? 3 : 5);
+    
+    return comments.slice(-Math.max(1, limit)); // Always show at least 1 comment if available
+  };
 
   // Reset video time only when switching to a new video
   useEffect(() => {
@@ -540,6 +588,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       muted={isMuted}
                       loop
                       playsInline
+                      webkit-playsinline="true"  // For older Safari versions
+                      preload="metadata"         // Help with Safari loading
                       className="w-full h-full object-cover border-0 outline-0"
                       poster={item.thumbnailUrl}
                     />
@@ -567,71 +617,71 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     {/* Dynamic Comment Components - Column Layout */}
                     <AnimatePresence mode="popLayout">
                       {index === currentIndex && (
-                        <div className={`absolute top-4 bottom-4 pointer-events-none ${
-                          isMobile ? 'right-1 w-auto max-w-[70%]' : 'right-2 w-auto max-w-[40%]'
-                        }`}>
-                          <div className="flex flex-col gap-2 h-full overflow-hidden items-end">
-                            {getCurrentComments()
-                              .filter((comment) => currentTime >= comment.time)
-                              .slice(-(isMobile ? 3 : 5))
-                              .map((comment) => {
-                                const formatTime = (seconds: number) => {
-                                  const mins = Math.floor(seconds / 60);
-                                  const secs = Math.floor(seconds % 60);
-                                  return `${mins}:${secs.toString().padStart(2, "0")}`;
-                                };
+                        <div 
+                          ref={commentContainerRef}
+                          className={`absolute top-4 bottom-4 pointer-events-none ${
+                            isMobile ? 'right-1 w-auto max-w-[70%]' : 'right-2 w-auto max-w-[40%]'
+                          }`}
+                        >
+                          <div className="flex flex-col gap-2 h-full overflow-hidden items-end justify-end">
+                            {getVisibleComments().map((comment) => {
+                              const formatTime = (seconds: number) => {
+                                const mins = Math.floor(seconds / 60);
+                                const secs = Math.floor(seconds % 60);
+                                return `${mins}:${secs.toString().padStart(2, "0")}`;
+                              };
 
-                                const truncateTextWithGifs = (
-                                  text: string,
-                                  maxLength: number
-                                ) => {
-                                  if (text.length <= maxLength) return text;
-                                  
-                                  // Check if there are GIF markers
-                                  const gifRegex = /\[GIF\|([^|]+)\|([^\]]*)\]/g;
-                                  const hasGifs = gifRegex.test(text);
-                                  
-                                  if (hasGifs) {
-                                    // If there are GIFs, don't truncate - show the full text with GIFs
-                                    return text;
-                                  }
-                                  
-                                  return text.substring(0, maxLength) + "...";
-                                };
+                              const truncateTextWithGifs = (
+                                text: string,
+                                maxLength: number
+                              ) => {
+                                if (text.length <= maxLength) return text;
+                                
+                                // Check if there are GIF markers
+                                const gifRegex = /\[GIF\|([^|]+)\|([^\]]*)\]/g;
+                                const hasGifs = gifRegex.test(text);
+                                
+                                if (hasGifs) {
+                                  // If there are GIFs, don't truncate - show the full text with GIFs
+                                  return text;
+                                }
+                                
+                                return text.substring(0, maxLength) + "...";
+                              };
 
-                                const truncatedText = isMobile
-                                  ? truncateTextWithGifs(comment.text, 30)
-                                  : comment.text;
+                              const truncatedText = isMobile
+                                ? truncateTextWithGifs(comment.text, 30)
+                                : comment.text;
 
-                                return (
-                                  <motion.div
-                                    key={comment.id}
-                                    className={`bg-black/60 backdrop-blur-sm rounded px-3 py-2 text-xs text-white w-auto inline-block ${
-                                      isMobile ? 'max-w-[160px]' : 'max-w-[200px]'
-                                    }`}
-                                    initial={{ x: 30, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    exit={{ x: -30, opacity: 0 }}
-                                    transition={{ duration: 0.2, ease: "easeOut" }}
-                                  >
-                                    <div className="leading-tight break-words">
-                                      <div className="flex items-start gap-1 text-xs">
-                                        <span className="text-white/60 flex-shrink-0 text-[10px]">
-                                          {formatTime(comment.time)}
+                              return (
+                                <motion.div
+                                  key={comment.id}
+                                  className={`bg-black/60 backdrop-blur-sm rounded px-3 py-2 text-xs text-white w-auto inline-block ${
+                                    isMobile ? 'max-w-[160px]' : 'max-w-[200px]'
+                                  }`}
+                                  initial={{ x: 30, opacity: 0 }}
+                                  animate={{ x: 0, opacity: 1 }}
+                                  exit={{ x: -30, opacity: 0 }}
+                                  transition={{ duration: 0.2, ease: "easeOut" }}
+                                >
+                                  <div className="leading-tight break-words">
+                                    <div className="flex items-start gap-1 text-xs">
+                                      <span className="text-white/60 flex-shrink-0 text-[10px]">
+                                        {formatTime(comment.time)}
+                                      </span>
+                                      {comment.author && (
+                                        <span className="text-white/80 flex-shrink-0 text-[10px]">
+                                          {comment.author}:
                                         </span>
-                                        {comment.author && (
-                                          <span className="text-white/80 flex-shrink-0 text-[10px]">
-                                            {comment.author}:
-                                          </span>
-                                        )}
-                                      </div>
-                                      <div className="mt-1">
-                                        {renderCommentContent(isMobile ? truncatedText : comment.text)}
-                                      </div>
+                                      )}
                                     </div>
-                                  </motion.div>
-                                );
-                              })}
+                                    <div className="mt-1">
+                                      {renderCommentContent(isMobile ? truncatedText : comment.text)}
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              );
+                            })}
                           </div>
                         </div>
                       )}
