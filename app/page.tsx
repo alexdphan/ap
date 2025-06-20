@@ -7,15 +7,13 @@ export default function Home() {
   const videoItems = [
     {
       id: '1',
-      title: 'Vibes',
-      description: 'Exploring new interaction patterns and visual interfaces',
-      videoUrl: 'https://pub-5018f734e2604654b16c6609e8c82280.r2.dev/Video-379.mp4',
+      title: 'One can only dream',
+      videoUrl: 'https://pub-5018f734e2604654b16c6609e8c82280.r2.dev/Video-437.mp4',
     },
     {
       id: '2',
-      title: 'Matches my aesthetic :)',
-      description: 'A rapid prototyping session with unconventional approaches',
-      videoUrl: 'https://pub-5018f734e2604654b16c6609e8c82280.r2.dev/Video-437.mp4',
+      title: 'When the boys are cookin',
+      videoUrl: 'https://pub-5018f734e2604654b16c6609e8c82280.r2.dev/Video-379.mp4',
     },
   ];
 

@@ -1,14 +1,30 @@
-'use client'
-import React, { useState, useRef, useEffect } from 'react';
-import { VolumeX, Volume2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+"use client";
+import React, { useState, useRef, useEffect } from "react";
+import { VolumeX, Volume2, MessageSquare } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 interface CarouselItem {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   videoUrl?: string;
   thumbnailUrl?: string;
+}
+
+interface GiphyGif {
+  id: string;
+  title: string;
+  images: {
+    fixed_height_small: {
+      url: string;
+      width: string;
+      height: string;
+    };
+    original: {
+      url: string;
+    };
+  };
 }
 
 interface RetroCarouselProps {
@@ -25,38 +41,239 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [dragStartTime, setDragStartTime] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [showCommentForm, setShowCommentForm] = useState(false);
+  const [newComment, setNewComment] = useState({ name: "", text: "" });
+  const [isClient, setIsClient] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [giphyGifs, setGiphyGifs] = useState<GiphyGif[]>([]);
+  const [loadingGifs, setLoadingGifs] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const carouselRef = useRef<HTMLDivElement>(null);
+  const gifButtonRef = useRef<HTMLButtonElement>(null);
+  const lastToggleTime = useRef(0);
 
-  // Comments data per video
-  const commentsData: Record<string, Array<{id: number, time: number, text: string, author: string}>> = {
-    '1': [
-      { id: 1, time: 1, text: "Amazing transition!", author: "viewer1" },
-      { id: 2, time: 3, text: "Love the colors here", author: "viewer2" },
-      { id: 3, time: 5, text: "How did you achieve this effect?", author: "viewer3" },
-      { id: 4, time: 7, text: "Smooth animation work", author: "viewer4" },
-      { id: 5, time: 9, text: "The timing is perfect", author: "viewer5" },
-      { id: 6, time: 11, text: "Beautiful visual design", author: "viewer6" },
-      { id: 7, time: 13, text: "This is so creative!", author: "viewer7" },
-      { id: 8, time: 15, text: "Great use of space", author: "viewer8" },
-      { id: 9, time: 17, text: "Love the attention to detail", author: "viewer9" },
-      { id: 10, time: 19, text: "Incredible work!", author: "viewer10" },
+  // Prevent hydration mismatch and detect mobile
+  useEffect(() => {
+    setIsClient(true);
+
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Comments data per video - using state so updates trigger re-renders
+  const [commentsData, setCommentsData] = useState<
+    Record<
+      string,
+      Array<{ id: number; time: number; text: string; author?: string }>
+    >
+  >({
+    "1": [
+      { id: 1, time: 1, text: "Amazing transition!", author: "anon" },
+      { id: 2, time: 3, text: "Love the colors here" },
+      {
+        id: 3,
+        time: 5,
+        text: "How did you achieve this effect?",
+        author: "designer123",
+      },
+      {
+        id: 4,
+        time: 7,
+        text: "[GIF|https://media.giphy.com/media/3o7btPCcdNniyf0ArS/giphy.gif|clap]",
+      },
+      { id: 5, time: 9, text: "The timing is perfect", author: "anon" },
+      { id: 6, time: 11, text: "Beautiful visual design" },
+      { id: 7, time: 13, text: "based", author: "creative_mind" },
+      { id: 8, time: 15, text: "Great use of space" },
+      { id: 9, time: 17, text: "Love the attention to detail", author: "anon" },
+      { id: 10, time: 19, text: "Incredible work!" },
     ],
-    '2': [
-      { id: 11, time: 2, text: "Great lighting setup", author: "viewer11" },
-      { id: 12, time: 4, text: "The pacing is perfect", author: "viewer12" },
-      { id: 13, time: 6, text: "Nice camera work!", author: "viewer13" },
-      { id: 14, time: 8, text: "Really clean execution", author: "viewer14" },
-      { id: 15, time: 10, text: "Love this aesthetic", author: "viewer15" },
-      { id: 16, time: 12, text: "Such smooth motion", author: "viewer16" },
-      { id: 17, time: 14, text: "The composition is spot on", author: "viewer17" },
-      { id: 18, time: 16, text: "This is inspiring!", author: "viewer18" },
-      { id: 19, time: 18, text: "Great choice of music", author: "viewer19" },
-      { id: 20, time: 20, text: "Phenomenal work overall", author: "viewer20" },
-    ]
-  };
+    "2": [
+      { id: 11, time: 2, text: "Great lighting setup", author: "filmmaker" },
+      { id: 12, time: 4, text: "The pacing is perfect " },
+      { id: 13, time: 6, text: "Nice camera work!", author: "videographer" },
+      { id: 14, time: 8, text: "Really clean execution" },
+      { id: 15, time: 10, text: "Love this aesthetic", author: "anon" },
+      { id: 16, time: 12, text: "Such smooth motion" },
+      {
+        id: 17,
+        time: 14,
+        text: "The composition is spot on",
+        author: "art_lover",
+      },
+      { id: 18, time: 16, text: "This is inspiring!" },
+      { id: 19, time: 18, text: "Great choice of music", author: "anon" },
+      { id: 20, time: 20, text: "Phenomenal work overall" },
+    ],
+  });
 
   const getCurrentComments = () => {
     return commentsData[displayItems[currentIndex]?.id] || [];
+  };
+
+  // Function to render comment content with GIFs
+  const renderCommentContent = (text: string) => {
+    console.log('Comment text:', text); // Debug
+    
+    // If text contains GIF marker, extract and show the actual GIF
+    if (text.includes('[GIF|')) {
+      console.log('Found GIF marker! Extracting GIF'); // Debug
+      
+      // Extract the URL from [GIF|url|title] format
+      const gifMatch = text.match(/\[GIF\|([^|]+)\|([^\]]*)\]/);
+      
+      if (gifMatch) {
+        const gifUrl = gifMatch[1];
+        const gifTitle = gifMatch[2];
+        console.log('Extracted URL:', gifUrl); // Debug
+        
+        // Get text before and after the GIF
+        const textBefore = text.substring(0, text.indexOf('[GIF|'));
+        const textAfter = text.substring(text.indexOf(']') + 1);
+        
+        return (
+          <div className="flex items-center">
+            {textBefore && <span>{textBefore}</span>}
+            <Image 
+              src={gifUrl}
+              alt={gifTitle}
+              width={80}
+              height={80}
+              unoptimized
+              className="inline-block object-cover ml-1"
+              onLoad={() => console.log('GIF loaded:', gifUrl)}
+              onError={() => console.log('GIF failed to load:', gifUrl)}
+            />
+            {textAfter && <span>{textAfter}</span>}
+          </div>
+        );
+      }
+    }
+    
+    // For non-GIF text, return as-is
+    return text;
+  };
+
+  // Fetch GIFs from Giphy (trending or search)
+  const fetchGifs = async (query: string | undefined = undefined) => {
+    setLoadingGifs(true);
+    try {
+      // Using Giphy's public API key for demo purposes
+      const endpoint = query
+        ? `https://api.giphy.com/v1/gifs/search?api_key=GlVGYHkr3WSBnllca54iNt0yFbjz7L65&q=${encodeURIComponent(query)}&limit=12`
+        : "https://api.giphy.com/v1/gifs/trending?api_key=GlVGYHkr3WSBnllca54iNt0yFbjz7L65&limit=12";
+
+      const response = await fetch(endpoint);
+      const data = await response.json();
+      setGiphyGifs(data.data || []);
+    } catch (error) {
+      console.error("Failed to fetch GIFs:", error);
+      setGiphyGifs([]);
+    } finally {
+      setLoadingGifs(false);
+    }
+  };
+
+  // Debounced search function
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Debounce search for 300ms
+    searchTimeoutRef.current = setTimeout(() => {
+      if (query.trim()) {
+        fetchGifs(query.trim());
+      } else {
+        fetchGifs(undefined); // Fetch trending when query is empty
+      }
+    }, 300);
+  };
+
+  const handleGifSelect = (gif: GiphyGif) => {
+    setNewComment((prev) => {
+      // Get the current cursor position in the text input
+      const textInput = document.querySelector(
+        'input[placeholder="Type text, add GIFs..."]'
+      ) as HTMLInputElement;
+      const cursorPosition = textInput?.selectionStart || prev.text.length;
+
+      // Insert GIF at cursor position
+      const beforeCursor = prev.text.substring(0, cursorPosition);
+      const afterCursor = prev.text.substring(cursorPosition);
+      const gifText = `[GIF|${gif.images.fixed_height_small.url}|${gif.title || "GIF"}]`;
+
+      return {
+        ...prev,
+        text: beforeCursor + gifText + afterCursor,
+      };
+    });
+
+    // Don't close the picker immediately - allow multiple GIF selections
+    // setShowGifPicker(false);  // Commented out to keep picker open
+  };
+
+  const toggleGifPicker = () => {
+    if (!showGifPicker) {
+      // Fetch GIFs when opening picker
+      if (giphyGifs.length === 0) {
+        fetchGifs(undefined);
+      }
+    } else {
+      // Clear search when closing picker
+      setSearchQuery("");
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    }
+    setShowGifPicker(!showGifPicker);
+  };
+
+  const handleAddComment = () => {
+    if (newComment.text.trim()) {
+      const timestamp = Math.floor(currentTime);
+      const comment: {
+        id: number;
+        time: number;
+        text: string;
+        author?: string;
+      } = {
+        id: Date.now(),
+        time: timestamp,
+        text: newComment.text,
+      };
+
+      // Only add author if name is provided
+      if (newComment.name.trim()) {
+        comment.author = newComment.name;
+      }
+
+      // Add to current video's comments using state setter
+      const videoId = displayItems[currentIndex]?.id;
+      if (videoId && commentsData[videoId]) {
+        setCommentsData((prev) => ({
+          ...prev,
+          [videoId]: [...prev[videoId], comment].sort(
+            (a, b) => a.time - b.time
+          ),
+        }));
+      }
+
+      // Reset form
+      setNewComment({ name: "", text: "" });
+      setShowCommentForm(false);
+    }
   };
 
   const nextSlide = () => {
@@ -65,7 +282,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   };
 
   const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + displayItems.length) % displayItems.length);
+    setCurrentIndex(
+      (prev) => (prev - 1 + displayItems.length) % displayItems.length
+    );
     setIsPlaying(true); // Auto-play new video
   };
 
@@ -76,8 +295,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
   const toggleMute = () => {
     setIsMuted(!isMuted);
-    if (typeof window !== 'undefined') {
-      const video = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
+    if (isClient) {
+      const video = document.querySelector(
+        `[data-video-index="${currentIndex}"] video`
+      ) as HTMLVideoElement;
       if (video) {
         video.muted = !isMuted;
       }
@@ -85,8 +306,20 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   };
 
   const togglePlayPause = () => {
-    if (typeof window !== 'undefined') {
-      const video = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
+    const now = Date.now();
+    const timeSinceLastToggle = now - lastToggleTime.current;
+
+    // Debounce rapid calls
+    if (timeSinceLastToggle < 100) {
+      return;
+    }
+
+    lastToggleTime.current = now;
+
+    if (isClient) {
+      const video = document.querySelector(
+        `[data-video-index="${currentIndex}"] video`
+      ) as HTMLVideoElement;
       if (video) {
         if (isPlaying) {
           video.pause();
@@ -104,14 +337,16 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   const handleProgressBarClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    if (typeof window !== 'undefined') {
+
+    if (isClient) {
       const progressBar = e.currentTarget as HTMLElement;
       const rect = progressBar.getBoundingClientRect();
       const clickX = e.clientX - rect.left;
       const percentage = clickX / rect.width;
-      
-      const video = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
+
+      const video = document.querySelector(
+        `[data-video-index="${currentIndex}"] video`
+      ) as HTMLVideoElement;
       if (video && video.duration) {
         const newTime = percentage * video.duration;
         video.currentTime = Math.max(0, Math.min(newTime, video.duration));
@@ -121,41 +356,51 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
   // Auto-play videos when they become active
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       // First, pause all videos
-      const allVideos = document.querySelectorAll('[data-video-index] video') as NodeListOf<HTMLVideoElement>;
-      allVideos.forEach(video => {
+      const allVideos = document.querySelectorAll(
+        "[data-video-index] video"
+      ) as NodeListOf<HTMLVideoElement>;
+      allVideos.forEach((video) => {
         video.pause();
       });
 
       // Then play only the current video if it should be playing
-      const currentVideo = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
+      const currentVideo = document.querySelector(
+        `[data-video-index="${currentIndex}"] video`
+      ) as HTMLVideoElement;
       if (currentVideo) {
         currentVideo.muted = isMuted;
         if (isPlaying) {
           currentVideo.play().catch(() => {
             // Handle autoplay restrictions - some browsers require user interaction
           });
+        } else {
+          currentVideo.pause(); // Explicitly pause when isPlaying is false
         }
       }
     }
-  }, [currentIndex, isMuted, isPlaying]);
+  }, [currentIndex, isMuted, isPlaying, isClient]);
 
   // Reset video time only when switching to a new video
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const currentVideo = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
+    if (isClient) {
+      const currentVideo = document.querySelector(
+        `[data-video-index="${currentIndex}"] video`
+      ) as HTMLVideoElement;
       if (currentVideo) {
         currentVideo.currentTime = 0;
         setCurrentTime(0); // Reset comment timing
       }
     }
-  }, [currentIndex]);
+  }, [currentIndex, isClient]);
 
   // Track video progress
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const video = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
+    if (isClient) {
+      const video = document.querySelector(
+        `[data-video-index="${currentIndex}"] video`
+      ) as HTMLVideoElement;
       if (!video) return;
 
       const updateProgress = () => {
@@ -166,15 +411,15 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         }
       };
 
-      video.addEventListener('timeupdate', updateProgress);
-      video.addEventListener('loadedmetadata', updateProgress);
+      video.addEventListener("timeupdate", updateProgress);
+      video.addEventListener("loadedmetadata", updateProgress);
 
       return () => {
-        video.removeEventListener('timeupdate', updateProgress);
-        video.removeEventListener('loadedmetadata', updateProgress);
+        video.removeEventListener("timeupdate", updateProgress);
+        video.removeEventListener("loadedmetadata", updateProgress);
       };
     }
-  }, [currentIndex]);
+  }, [currentIndex, isClient]);
 
   // Mouse drag handlers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -191,11 +436,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
   const handleMouseUp = () => {
     if (!isDragging) return;
-    
+
     const threshold = 50;
     const timeDiff = Date.now() - dragStartTime;
-    const wasQuickClick = timeDiff < 200 && Math.abs(dragOffset) < 10;
-    
+    const wasQuickClick = timeDiff < 300 && Math.abs(dragOffset) < 15; // More lenient
+
     if (wasQuickClick) {
       // This was a click/tap, toggle play/pause
       togglePlayPause();
@@ -204,13 +449,14 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     } else if (dragOffset < -threshold) {
       nextSlide();
     }
-    
+
     setIsDragging(false);
     setDragOffset(0);
   };
 
   // Touch handlers for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault(); // Prevent default touch behavior
     setIsDragging(true);
     setDragStart(e.touches[0].clientX);
     setDragStartTime(Date.now());
@@ -218,17 +464,19 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
+    e.preventDefault(); // Prevent scrolling/zooming
     const diff = e.touches[0].clientX - dragStart;
     setDragOffset(diff);
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e: React.TouchEvent) => {
     if (!isDragging) return;
-    
+    e.preventDefault(); // Prevent default touch behavior
+
     const threshold = 50;
     const timeDiff = Date.now() - dragStartTime;
-    const wasQuickTap = timeDiff < 200 && Math.abs(dragOffset) < 10;
-    
+    const wasQuickTap = timeDiff < 300 && Math.abs(dragOffset) < 20; // More lenient for mobile
+
     if (wasQuickTap) {
       // This was a tap, toggle play/pause
       togglePlayPause();
@@ -237,17 +485,18 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     } else if (dragOffset < -threshold) {
       nextSlide();
     }
-    
+
     setIsDragging(false);
     setDragOffset(0);
   };
 
-    // Placeholder items if none provided
+  // Placeholder items if none provided
   const defaultItems: CarouselItem[] = [
     {
-      id: '1',
-      title: 'Project Alpha',
-      description: 'An experimental interface design exploring new interaction patterns.',
+      id: "1",
+      title: "Project Alpha",
+      description:
+        "An experimental interface design exploring new interaction patterns.",
     },
   ];
 
@@ -257,31 +506,34 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     <div className="relative w-full">
       {/* Minimal Carousel */}
       <div className="relative bg-accent-green overflow-hidden">
-        
-                  {/* Screen */}
-          <div 
-            ref={carouselRef}
-            className="relative aspect-video overflow-hidden cursor-grab active:cursor-grabbing"
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
+        {/* Screen */}
+        <div
+          ref={carouselRef}
+          className="relative aspect-video overflow-hidden cursor-grab active:cursor-grabbing"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           {/* Carousel Content */}
-          <div 
+          <div
             className="flex h-full transition-transform duration-300 ease-out"
             style={{
-              transform: `translateX(${(-currentIndex * 100) + (dragOffset / (carouselRef.current?.offsetWidth || 1)) * 100}%)`,
+              transform: `translateX(${-currentIndex * 100 + (dragOffset / (carouselRef.current?.offsetWidth || 1)) * 100}%)`,
             }}
           >
             {displayItems.map((item, index) => (
-              <div key={item.id} className="w-full h-full flex-shrink-0 relative" data-video-index={index}>
+              <div
+                key={item.id}
+                className="w-full h-full flex-shrink-0 relative"
+                data-video-index={index}
+              >
                 {item.videoUrl ? (
                   <>
-                    <video 
+                    <video
                       src={item.videoUrl}
                       muted={isMuted}
                       loop
@@ -289,56 +541,110 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       className="w-full h-full object-cover border-0 outline-0"
                       poster={item.thumbnailUrl}
                     />
+
+                    {/* Simple Play/Pause Overlay for Testing */}
+                    {index === currentIndex && (
+                      <div
+                        className="absolute inset-0 z-5 cursor-pointer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          togglePlayPause();
+                        }}
+                      />
+                    )}
                     {/* Title Overlay */}
                     {index === currentIndex && (
-                      <div className="absolute top-4 left-4 z-10 bg-black/40 backdrop-blur-sm px-3 py-2 ">
-                        <h3 className="text-white text-sm font-medium">{item.title}</h3>
+                      <div className="absolute top-4 left-4 z-10 bg-black/40 backdrop-blur-sm px-3 py-2 pointer-events-none">
+                        <h3 className="text-white text-xs md:text-sm font-medium">
+                          {item.title}
+                        </h3>
                       </div>
                     )}
-                    
-                    {/* Dynamic Comment Components */}
-                    <AnimatePresence mode="popLayout">
-                      {index === currentIndex && 
-                        getCurrentComments()
-                          .filter(comment => currentTime >= comment.time)
-                          .slice(-5) // Show only the last 5 comments
-                          .map((comment, commentIndex) => {
-                            // Calculate spacing for exactly 5 comments max
-                            const spacing = 16; // Fixed 16px spacing between comments
-                            const topPosition = 20 + (commentIndex * spacing);
-                            
-                            const formatTime = (seconds: number) => {
-                              const mins = Math.floor(seconds / 60);
-                              const secs = Math.floor(seconds % 60);
-                              return `${mins}:${secs.toString().padStart(2, '0')}`;
-                            };
 
-                            return (
-                              <motion.div 
-                                key={comment.id}
-                                className="absolute right-4 z-10 bg-black/40 backdrop-blur-sm px-3 py-2 max-w-48"
-                                style={{ top: `${topPosition}%` }}
-                                initial={{ x: 50, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                exit={{ x: -50, opacity: 0 }}
-                                transition={{ duration: 0.2, ease: "easeOut" }}
-                                layout
-                              >
-                                <div className="text-white text-xs">
-                                  <span className="text-white/60">{formatTime(comment.time)}</span> {comment.text}
-                                </div>
-                              </motion.div>
-                            );
-                          })
-                      }
+                    {/* Dynamic Comment Components - Column Layout */}
+                    <AnimatePresence mode="popLayout">
+                      {index === currentIndex && (
+                        <div className={`absolute top-4 bottom-4 pointer-events-none ${
+                          isMobile ? 'right-1 w-auto max-w-[70%]' : 'right-2 w-auto max-w-[40%]'
+                        }`}>
+                          <div className="flex flex-col gap-2 h-full overflow-hidden items-end">
+                            {getCurrentComments()
+                              .filter((comment) => currentTime >= comment.time)
+                              .slice(-(isMobile ? 3 : 5))
+                              .map((comment, commentIndex) => {
+                                const formatTime = (seconds: number) => {
+                                  const mins = Math.floor(seconds / 60);
+                                  const secs = Math.floor(seconds % 60);
+                                  return `${mins}:${secs.toString().padStart(2, "0")}`;
+                                };
+
+                                const truncateTextWithGifs = (
+                                  text: string,
+                                  maxLength: number
+                                ) => {
+                                  if (text.length <= maxLength) return text;
+                                  
+                                  // Check if there are GIF markers
+                                  const gifRegex = /\[GIF\|([^|]+)\|([^\]]*)\]/g;
+                                  const hasGifs = gifRegex.test(text);
+                                  
+                                  if (hasGifs) {
+                                    // If there are GIFs, don't truncate - show the full text with GIFs
+                                    return text;
+                                  }
+                                  
+                                  return text.substring(0, maxLength) + "...";
+                                };
+
+                                const truncatedText = isMobile
+                                  ? truncateTextWithGifs(comment.text, 30)
+                                  : comment.text;
+
+                                return (
+                                  <motion.div
+                                    key={comment.id}
+                                    className={`bg-black/60 backdrop-blur-sm rounded px-3 py-2 text-xs text-white w-auto inline-block ${
+                                      isMobile ? 'max-w-[160px]' : 'max-w-[200px]'
+                                    }`}
+                                    initial={{ x: 30, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    exit={{ x: -30, opacity: 0 }}
+                                    transition={{ duration: 0.2, ease: "easeOut" }}
+                                  >
+                                    <div className="leading-tight break-words">
+                                      <div className="flex items-start gap-1 text-xs">
+                                        <span className="text-white/60 flex-shrink-0 text-[10px]">
+                                          {formatTime(comment.time)}
+                                        </span>
+                                        {comment.author && (
+                                          <span className="text-white/80 flex-shrink-0 text-[10px]">
+                                            {comment.author}:
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="mt-1">
+                                        {renderCommentContent(isMobile ? truncatedText : comment.text)}
+                                      </div>
+                                    </div>
+                                  </motion.div>
+                                );
+                              })}
+                          </div>
+                        </div>
+                      )}
                     </AnimatePresence>
                   </>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-center p-8">
                     <div>
                       <div className="text-6xl mb-4 text-background/30">▶</div>
-                      <h3 className="text-xl font-bold text-background mb-2">{item.title}</h3>
-                      <p className="text-background/70 text-sm">{item.description}</p>
+                      <h3 className="text-xl font-bold text-background mb-2">
+                        {item.title}
+                      </h3>
+                      <p className="text-background/70 text-sm">
+                        {item.description}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -348,10 +654,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         </div>
 
         {/* Bottom Controls */}
-        <div className="grid grid-cols-3 items-center p-3 bg-accent-green-dark">
-          
+        <div className="flex items-center justify-between px-3 bg-accent-green-dark">
           {/* Left - Slide Indicators */}
-          <div className="flex justify-start">
+          <div className="flex-shrink-0 pl-2">
             {displayItems.length > 1 && (
               <div className="flex space-x-2">
                 {displayItems.map((_, index) => (
@@ -363,9 +668,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       goToSlide(index);
                     }}
                     className={`w-2 h-2 transition-colors ${
-                      index === currentIndex 
-                        ? 'bg-background' 
-                        : 'bg-background/40 hover:bg-background/60'
+                      index === currentIndex
+                        ? "bg-background"
+                        : "bg-background/40 hover:bg-background/60"
                     }`}
                   />
                 ))}
@@ -373,53 +678,211 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
             )}
           </div>
 
-          {/* Center - Progress Bar */}
-          <div className="flex justify-center">
+          {/* Center - Progress Bar and Comment */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             <div className="relative">
-              <div 
+              <div
                 className="w-48 h-1 bg-background/20 rounded-full overflow-hidden cursor-pointer hover:bg-background/30 transition-colors"
                 onClick={handleProgressBarClick}
               >
-                                <div 
+                <div
                   className="h-full bg-background transition-all duration-300 pointer-events-none"
                   style={{ width: `${progress}%` }}
                 />
-                
+
                 {/* Comment Indicators on Progress Bar */}
-                {typeof window !== 'undefined' && getCurrentComments().map((comment) => {
-                  const video = document.querySelector(`[data-video-index="${currentIndex}"] video`) as HTMLVideoElement;
-                  const duration = video?.duration || 30; // fallback duration
-                  const position = (comment.time / duration) * 100;
-                  
-                  return (
-                    <div
-                      key={`indicator-${comment.id}`}
-                      className="absolute top-0 w-1 h-1 bg-black/30 rounded-none transform -translate-x-0.5 z-20"
-                      style={{ left: `${Math.min(position, 95)}%` }}
-                    />
-                  );
-                })}
+                {isClient &&
+                  getCurrentComments().map((comment) => {
+                    const video = document.querySelector(
+                      `[data-video-index="${currentIndex}"] video`
+                    ) as HTMLVideoElement;
+                    const duration = video?.duration || 30; // fallback duration
+                    const position = (comment.time / duration) * 100;
+
+                    return (
+                      <div
+                        key={`indicator-${comment.id}`}
+                        className="absolute top-0 w-1 h-1 bg-black/30 rounded-none transform -translate-x-0.5 z-20"
+                        style={{ left: `${Math.min(position, 95)}%` }}
+                      />
+                    );
+                  })}
               </div>
             </div>
+
+            {/* Comment Button */}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowCommentForm(!showCommentForm);
+              }}
+              className="text-background/60 hover:text-background  transition-colors px-2 py-2 rounded-sm"
+            >
+              <MessageSquare size={15} />
+            </button>
           </div>
-          
+
           {/* Right - Mute Button */}
-          <div className="flex justify-end">
+          <div className="flex-shrink-0 pr-2">
             <button
               onClick={toggleMute}
-              className="text-background/60 hover:text-background transition-colors"
+              className="text-background/60 hover:text-background transition-colors p-2"
             >
-              {isMuted ? (
-                <VolumeX size={14} />
-              ) : (
-                <Volume2 size={14} />
-              )}
+              {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
             </button>
           </div>
         </div>
 
-       
+        {/* Comment Form */}
+        <AnimatePresence>
+          {showCommentForm && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="overflow-hidden bg-accent-green-dark border-t border-accent-green"
+            >
+              <div className="p-2">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  {/* Top row on mobile, left side on desktop */}
+                  <div className="flex gap-2 flex-1">
+                    <input
+                      type="text"
+                      placeholder="Name"
+                      value={newComment.name}
+                      onChange={(e) =>
+                        setNewComment({ ...newComment, name: e.target.value })
+                      }
+                      className="w-20 px-2 py-1 text-xs bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Type text, add GIFs..."
+                      value={newComment.text}
+                      onChange={(e) =>
+                        setNewComment({ ...newComment, text: e.target.value })
+                      }
+                      className="flex-1 px-2 py-1 text-xs bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Bottom row on mobile, right side on desktop */}
+                  <div className="flex gap-2 items-center justify-between sm:justify-end">
+                    <span className="text-background/60 text-xs">
+                      @{Math.floor(currentTime)}s
+                    </span>
+                    <div className="flex gap-1">
+                      <button
+                        ref={gifButtonRef}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleGifPicker();
+                        }}
+                        className="px-2 py-1 text-xs bg-background/20 text-background hover:bg-background/30 transition-colors"
+                      >
+                        GIF
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleAddComment();
+                        }}
+                        disabled={!newComment.text.trim()}
+                        className="px-2 py-1 text-xs bg-background text-accent-green disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background/90 transition-colors"
+                      >
+                        Post
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setShowCommentForm(false);
+                          setShowGifPicker(false);
+                        }}
+                        className="px-2 py-1 text-xs bg-background/20 text-background hover:bg-background/30 transition-colors"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* GIF Picker - now part of the comment form layout */}
+              <AnimatePresence>
+                {showGifPicker && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden bg-accent-green-dark border-t border-accent-green"
+                  >
+                    <div className="p-3 flex justify-center">
+                      <div className="w-90 md:w-150">
+                        <div className="flex items-center justify-between mb-3">
+                          <input
+                            type="text"
+                            placeholder="Search for GIFs..."
+                            value={searchQuery}
+                            onChange={(e) => handleSearch(e.target.value)}
+                            className="flex-1 px-3 py-2 text-xs bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40 mr-2"
+                            autoFocus
+                          />
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setShowGifPicker(false);
+                            }}
+                            className="px-3 py-2 text-xs bg-background/20 text-background hover:bg-background/30 transition-colors"
+                          >
+                            Done
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-3 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto">
+                          {loadingGifs ? (
+                            <div className="col-span-3 md:col-span-4 flex items-center justify-center py-4">
+                              <div className="text-xs text-background/60">
+                                Loading GIFs...
+                              </div>
+                            </div>
+                          ) : (
+                            giphyGifs.map((gif) => (
+                              <button
+                                key={gif.id}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleGifSelect(gif);
+                                }}
+                                className="aspect-square bg-background/10 hover:bg-background/20 transition-colors overflow-hidden"
+                              >
+                                <Image
+                                  src={gif.images.fixed_height_small.url}
+                                  alt={gif.title}
+                                  width={32}
+                                  height={24}
+                                  unoptimized
+                                  className="w-full h-full object-cover"
+                                />
+                              </button>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
-} 
+}
