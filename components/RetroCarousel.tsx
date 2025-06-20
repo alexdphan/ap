@@ -52,7 +52,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   const carouselRef = useRef<HTMLDivElement>(null);
   const gifButtonRef = useRef<HTMLButtonElement>(null);
   const lastToggleTime = useRef(0);
-  const [canAutoplay, setCanAutoplay] = useState(false);
 
   // Prevent hydration mismatch and detect mobile
   useEffect(() => {
@@ -376,10 +375,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
           currentVideo.play().catch((error) => {
             // Handle autoplay restrictions - some browsers require user interaction
             console.log('Autoplay failed:', error);
-            setCanAutoplay(false);
-            // Optionally show a play button overlay
-          }).then(() => {
-            setCanAutoplay(true);
           });
         } else {
           currentVideo.pause();
