@@ -39,7 +39,7 @@ export default function Memos() {
                 <div>
                   <div className="text-xs text-foreground/40 mb-1">Nov 2024</div>
                   <div className="text-foreground">
-                    Growth engineering isn't just about metrics - it's about building systems 
+                    Growth engineering isn&apos;t just about metrics - it&apos;s about building systems 
                     that make the right behaviors feel natural and inevitable.
                   </div>
                 </div>
@@ -47,7 +47,7 @@ export default function Memos() {
                 <div>
                   <div className="text-xs text-foreground/40 mb-1">Nov 2024</div>
                   <div className="text-foreground">
-                    The best interfaces don't feel like interfaces at all. They feel like 
+                    The best interfaces don&apos;t feel like interfaces at all. They feel like 
                     extensions of thought.
                   </div>
                 </div>
