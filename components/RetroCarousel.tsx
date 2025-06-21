@@ -12,17 +12,17 @@ interface CarouselItem {
   thumbnailUrl?: string;
 }
 
-interface GiphyGif {
+interface TenorGif {
   id: string;
   title: string;
-  images: {
-    fixed_height_small: {
+  media_formats: {
+    tinygif: {
       url: string;
-      width: string;
-      height: string;
+      dims: [number, number];
     };
-    original: {
+    gif: {
       url: string;
+      dims: [number, number];
     };
   };
 }
@@ -46,7 +46,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   const [isClient, setIsClient] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showGifPicker, setShowGifPicker] = useState(false);
-  const [giphyGifs, setGiphyGifs] = useState<GiphyGif[]>([]);
+  const [tenorGifs, setTenorGifs] = useState<TenorGif[]>([]);
   const [loadingGifs, setLoadingGifs] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -168,21 +168,21 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     return text;
   };
 
-  // Fetch GIFs from Giphy (trending or search)
+  // Fetch GIFs from Tenor (trending or search)
   const fetchGifs = async (query: string | undefined = undefined) => {
     setLoadingGifs(true);
     try {
-      // Using Giphy's public API key for demo purposes
+      // Using Tenor's public API key
       const endpoint = query
-        ? `https://api.giphy.com/v1/gifs/search?api_key=GlVGYHkr3WSBnllca54iNt0yFbjz7L65&q=${encodeURIComponent(query)}&limit=12`
-        : "https://api.giphy.com/v1/gifs/trending?api_key=GlVGYHkr3WSBnllca54iNt0yFbjz7L65&limit=12";
+        ? `https://tenor.googleapis.com/v2/search?key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&q=${encodeURIComponent(query)}&limit=12`
+        : "https://tenor.googleapis.com/v2/featured?key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&limit=12";
 
       const response = await fetch(endpoint);
       const data = await response.json();
-      setGiphyGifs(data.data || []);
+      setTenorGifs(data.results || []);
     } catch (error) {
       console.error("Failed to fetch GIFs:", error);
-      setGiphyGifs([]);
+      setTenorGifs([]);
     } finally {
       setLoadingGifs(false);
     }
@@ -208,7 +208,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     }, 300);
   };
 
-  const handleGifSelect = (gif: GiphyGif) => {
+  const handleGifSelect = (gif: TenorGif) => {
     setNewComment((prev) => {
       // Get the current cursor position in the text input
       const textInput = document.querySelector(
@@ -219,7 +219,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       // Insert GIF at cursor position
       const beforeCursor = prev.text.substring(0, cursorPosition);
       const afterCursor = prev.text.substring(cursorPosition);
-      const gifText = `[GIF|${gif.images.fixed_height_small.url}|${gif.title || "GIF"}]`;
+      const gifText = `[GIF|${gif.media_formats.gif.url}|${gif.title || "GIF"}]`;
 
       return {
         ...prev,
@@ -234,7 +234,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   const toggleGifPicker = () => {
     if (!showGifPicker) {
       // Fetch GIFs when opening picker
-      if (giphyGifs.length === 0) {
+      if (tenorGifs.length === 0) {
         fetchGifs(undefined);
       }
     } else {
@@ -968,8 +968,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden bg-accent-green-dark border-t border-accent-green"
                   >
-                    <div className="p-3">
-                      <div className="w-full max-w-full">
+                    <div className="p-2 md:p-3">
+                      <div className="w-full">
                         <div className="flex items-center justify-between mb-3">
                           <input
                             type="text"
@@ -990,7 +990,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                             Done
                           </button>
                         </div>
-                        <div className="grid grid-cols-3 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto overflow-x-hidden">
+                        <div className="grid grid-cols-3 md:grid-cols-4 gap-2 max-h-40 md:max-h-48 overflow-y-auto overflow-x-hidden">
                           {loadingGifs ? (
                             <div className="col-span-3 md:col-span-4 flex items-center justify-center py-4">
                               <div className="text-xs text-background/60">
@@ -998,7 +998,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                               </div>
                             </div>
                           ) : (
-                            giphyGifs.map((gif) => (
+                            tenorGifs.map((gif) => (
                               <button
                                 key={gif.id}
                                 onClick={(e) => {
@@ -1006,18 +1006,19 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                   e.stopPropagation();
                                   handleGifSelect(gif);
                                 }}
-                                className="block w-full h-0 relative bg-background/10 hover:bg-background/20 transition-colors overflow-hidden border-0 p-0 rounded-sm"
-                                style={{ 
-                                  paddingBottom: '100%' // Creates 1:1 aspect ratio
+                                className="w-full relative bg-background/10 hover:bg-background/20 transition-colors overflow-hidden border-0 p-0 rounded-sm touch-manipulation flex items-center justify-center"
+                                style={{
+                                  height: '80px',
+                                  aspectRatio: '1 / 1'
                                 }}
                               >
                                 <Image
-                                  src={gif.images.fixed_height_small.url}
+                                  src={gif.media_formats.tinygif.url}
                                   alt={gif.title}
-                                  fill
-                                  sizes="(max-width: 768px) 33vw, 25vw"
+                                  width={76}
+                                  height={76}
                                   unoptimized
-                                  className="absolute inset-0 object-cover"
+                                  className="object-cover rounded-sm"
                                 />
                               </button>
                             ))

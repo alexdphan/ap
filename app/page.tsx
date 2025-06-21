@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 // import TechnicalGrid from '../components/TechnicalGrid';
 import RetroCarousel from '../components/RetroCarousel';
 
@@ -24,19 +25,25 @@ export default function Home() {
         <div className="max-w-xl mx-auto">
           
           {/* Large Number with Mobile Stack */}
-          <div className="flex items-start justify-between mb-6 md:mb-8">
-            <div className="text-6xl md:text-9xl font-bold text-foreground/10 tracking-tighter">
+          <div className="flex items-center justify-between mb-24 md:mb-24">
+            <div className="text-7xl md:text-7xl font-bold text-foreground/10 tracking-tighter">
               [ AP ]
             </div>
             
             {/* Projects + Memos Stack */}
-            <div className="flex flex-col gap-2 text-right mt-2">
-              <div className="text-base md:text-lg font-bold text-foreground/80 tracking-wide">
+            <div className="flex flex-col gap-2 text-right">
+              <Link 
+                href="/projects"
+                className="text-base md:text-lg font-bold text-foreground/80 tracking-wide hover:text-foreground transition-colors cursor-pointer"
+              >
                 Projects
-              </div>
-              <div className="text-base md:text-lg font-bold text-foreground/80 tracking-wide">
+              </Link>
+              <Link 
+                href="/memos"
+                className="text-base md:text-lg font-bold text-foreground/80 tracking-wide hover:text-foreground transition-colors cursor-pointer"
+              >
                 Memos
-              </div>
+              </Link>
             </div>
           </div>
 
@@ -71,10 +78,10 @@ export default function Home() {
           </div>
 
           {/* Projects Section */}
-          <div>
-            {/* <h3 className="text-sm text-foreground/60 mb-4 md:mb-6 tracking-wide">
+          {/* <div>
+            <h3 className="text-sm text-foreground/60 mb-4 md:mb-6 tracking-wide">
               Current Focus
-            </h3> */}
+            </h3>
             <div className="space-y-2">
               <div className="text-foreground font-medium">Growth Engineering at Browserbase</div>
               <div className="text-foreground font-medium">Experimental Interface Design</div>
@@ -83,7 +90,7 @@ export default function Home() {
               <div className="text-foreground font-medium">Creative Technology Projects</div>
               <div className="text-foreground font-medium">Open Source Contributions</div>
             </div>
-          </div>
+          </div> */}
 
         </div>
       </div>
