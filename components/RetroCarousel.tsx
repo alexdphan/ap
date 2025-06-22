@@ -16,9 +16,9 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 
 // Extend interfaces for fullscreen API compatibility
 declare global {
-  interface HTMLVideoElement {
+  interface HTMLElement {
     webkitRequestFullscreen?: () => void;
-    webkitEnterFullscreen?: () => void;
+    webkitRequestFullScreen?: () => void;
     mozRequestFullScreen?: () => void;
     msRequestFullscreen?: () => void;
   }
@@ -239,7 +239,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     }
   }, [isClient]);
 
-  const toggleFullscreen = async () => {
+    const toggleFullscreen = async () => {
     console.log(
       "toggleFullscreen called - isFullscreen:",
       isFullscreen,
@@ -247,61 +247,88 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       isMobile
     );
 
-    // For Safari mobile, we need to apply fullscreen directly to the video element
-    const currentVideo = document.querySelector(
-      `[data-video-index="${extendedIndex}"] video`
-    ) as HTMLVideoElement;
-
-    if (!currentVideo) {
-      console.log("toggleFullscreen: currentVideo is null");
+    // Use the container to maintain custom UI (controls and comments)
+    if (!fullscreenContainerRef.current) {
+      console.log("toggleFullscreen: fullscreenContainerRef is null");
       return;
     }
 
-          try {
-        // Check if we're currently in fullscreen (with webkit prefix support)
-        const isCurrentlyFullscreen = 
-          document.fullscreenElement || 
-          document.webkitFullscreenElement || 
-          document.mozFullScreenElement ||
-          document.msFullscreenElement;
+    // Check if we're currently in fullscreen (with webkit prefix support)
+    const isCurrentlyFullscreen = 
+      document.fullscreenElement || 
+      document.webkitFullscreenElement || 
+      document.mozFullScreenElement ||
+      document.msFullscreenElement;
 
-        if (!isCurrentlyFullscreen) {
-          console.log("Entering fullscreen...");
-          
-          // Try different fullscreen methods for cross-browser compatibility
-          if (currentVideo.requestFullscreen) {
-            await currentVideo.requestFullscreen();
-          } else if (currentVideo.webkitRequestFullscreen) {
-            // Safari iOS
-            currentVideo.webkitRequestFullscreen();
-          } else if (currentVideo.webkitEnterFullscreen) {
-            // Alternative Safari iOS method
-            currentVideo.webkitEnterFullscreen();
-          } else if (currentVideo.mozRequestFullScreen) {
-            // Firefox
-            currentVideo.mozRequestFullScreen();
-          } else if (currentVideo.msRequestFullscreen) {
-            // IE/Edge
-            currentVideo.msRequestFullscreen();
-          } else {
-            console.log("No fullscreen method available");
-          }
+    try {
+      if (!isCurrentlyFullscreen) {
+        console.log("Entering fullscreen...");
+        
+        // Add temporary styles to ensure fullscreen works on Safari
+        const element = fullscreenContainerRef.current;
+        element.style.width = '100vw';
+        element.style.height = '100vh';
+        
+        // Try different fullscreen methods for cross-browser compatibility
+        if (element.requestFullscreen) {
+          await element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) {
+          // Safari iOS - most common method
+          element.webkitRequestFullscreen();
+        } else if (element.webkitRequestFullScreen) {
+          // Alternative Safari iOS method (capital S)
+          element.webkitRequestFullScreen();
+        } else if (element.mozRequestFullScreen) {
+          // Firefox
+          element.mozRequestFullScreen();
+        } else if (element.msRequestFullscreen) {
+          // IE/Edge
+          element.msRequestFullscreen();
         } else {
-          console.log("Exiting fullscreen...");
-          
-          // Exit fullscreen with cross-browser support
-          if (document.exitFullscreen) {
-            await document.exitFullscreen();
-          } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-          } else if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-          } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
-          }
+          console.log("No fullscreen method available");
         }
-      } catch (error) {
+      } else {
+        console.log("Exiting fullscreen...");
+        
+        // Exit fullscreen with cross-browser support
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+          document.mozCancelFullScreen();
+        } else if (document.msExitFullscreen) {
+          document.msExitFullscreen();
+        } else if (isFullscreen && fullscreenContainerRef.current) {
+          // Manual exit for Safari fallback
+          console.log("Exiting Safari fallback fullscreen");
+          const element = fullscreenContainerRef.current;
+          element.style.position = '';
+          element.style.top = '';
+          element.style.left = '';
+          element.style.width = '';
+          element.style.height = '';
+          element.style.zIndex = '';
+          setIsFullscreen(false);
+        }
+      }
+    } catch (error) {
       console.log("Fullscreen toggle failed:", error);
+      
+      // Fallback for Safari - sometimes manual styling helps
+      if (isMobile && !isCurrentlyFullscreen) {
+        console.log("Attempting Safari fallback fullscreen");
+        if (fullscreenContainerRef.current) {
+          const element = fullscreenContainerRef.current;
+          element.style.position = 'fixed';
+          element.style.top = '0';
+          element.style.left = '0';
+          element.style.width = '100vw';
+          element.style.height = '100vh';
+          element.style.zIndex = '9999';
+          setIsFullscreen(true);
+        }
+      }
     }
   };
 
