@@ -1237,11 +1237,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     {/* Simple Play/Pause Overlay for Testing */}
                     {index === extendedIndex && (
                       <div
-                        className={`absolute cursor-pointer z-5 ${
-                          isFullscreen 
-                            ? "inset-0" 
-                            : "inset-x-0 top-0 bottom-10"
-                        }`}
+                        className="absolute inset-0 z-5 cursor-pointer"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -1372,7 +1368,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
         {/* Bottom Controls */}
         <div
-          className="flex items-center justify-between px-3 h-10 bg-accent-green-dark relative z-[100]"
+          className="flex items-center justify-between px-3 h-10 bg-accent-green-dark relative z-40"
           style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         >
           {/* Left - Video Selector Dropdown */}
@@ -1601,38 +1597,16 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               <Menu size={14} />
             </button>
             <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log("Fullscreen button clicked!");
-                toggleFullscreen();
-              }}
-              onTouchStart={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log("Fullscreen button touch started!");
-              }}
-              onTouchEnd={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log("Fullscreen button touched!");
-                toggleFullscreen();
-              }}
-              className="text-background/60 hover:text-background transition-colors h-12 px-6 md:h-6 md:px-2 flex items-center justify-center touch-manipulation relative z-[110] min-w-[56px] bg-accent-green-dark border-2 border-background/20"
+              onClick={toggleFullscreen}
+              className="text-background/60 hover:text-background transition-colors h-10 px-4 md:h-6 md:px-2 flex items-center justify-center touch-manipulation relative z-50 min-w-[44px]"
               title={`${isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} (f)`}
               style={{
                 WebkitTouchCallout: "none",
                 WebkitUserSelect: "none",
                 touchAction: "manipulation",
-                WebkitTapHighlightColor: "transparent",
-                position: "relative",
-                isolation: "isolate",
-                // Force hardware acceleration for better touch response
-                transform: "translateZ(0)",
-                willChange: "transform"
               }}
             >
-              {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
+              {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
             </button>
           </div>
         </div>
