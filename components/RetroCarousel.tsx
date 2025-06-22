@@ -455,7 +455,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               alt={gifTitle}
               width={80}
               height={80}
-              className="inline-block object-cover ml-1 rounded-sm"
+                                            className="inline-block object-cover ml-1"
             />
             {textAfter && <span>{textAfter}</span>}
           </div>
@@ -1230,11 +1230,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     )}
                     {/* Title Overlay */}
                     {index === extendedIndex && (
-                      <div className="absolute top-4 left-4 z-10 bg-black/40 backdrop-blur-sm px-3 py-2 pointer-events-none">
-                        <h3 className="text-white text-xs md:text-sm font-medium">
-                          {item.title}
-                        </h3>
-                      </div>
+                                              <div className="absolute top-4 left-4 z-10 bg-black/40 backdrop-blur-sm px-2 py-2 pointer-events-none h-6 flex items-center">
+                          <h3 className="text-white text-xs md:text-sm font-medium">
+                            {item.title}
+                          </h3>
+                        </div>
                     )}
 
                     {/* Dynamic Comment Components - Column Layout */}
@@ -1242,7 +1242,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       {index === extendedIndex && showAllComments && (
                         <div
                           ref={commentContainerRef}
-                          className={`absolute pointer-events-none ${
+                          className={`absolute pointer-events-none z-20 ${
                             isFullscreen
                               ? "top-4 bottom-16 right-4 w-auto max-w-[50%]"
                               : isMobile
@@ -1292,7 +1292,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                       el
                                     )
                                   }
-                                  className={`bg-black/60 backdrop-blur-sm rounded-sm px-3 py-2 text-xs text-white w-auto inline-block ${
+                                  className={`bg-black/60 backdrop-blur-sm px-3 py-2 text-xs text-white w-auto inline-block ${
                                     isFullscreen
                                       ? "max-w-[300px]"
                                       : isMobile
@@ -1380,7 +1380,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     e.stopPropagation();
                     setShowVideoDropdown(!showVideoDropdown);
                   }}
-                  className="flex h-8 items-center p-1 -mx-2 hover:bg-background/10 transition-colors rounded-xs group relative"
+                  className="flex h-8 items-center p-1 -mx-2 hover:bg-background/10 transition-colors group relative"
                   title="Select video (t)"
                 >
                   <AnimatePresence mode="popLayout">
@@ -1396,7 +1396,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         }}
                         exit={{ opacity: 0, scale: 0.8, x: -20 }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="w-5 h-5 overflow-hidden rounded-xs m-1"
+                        className="w-5 h-5 overflow-hidden m-1"
                       >
                         {thumb.item.thumbnailUrl ? (
                           <Image
@@ -1437,7 +1437,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="absolute bottom-full left-0 mb-2 w-48 md:w-64 bg-accent-green-dark border border-accent-green  shadow-lg z-50 rounded-sm"
+                      className="absolute bottom-full left-0 mb-2 w-48 md:w-64 bg-accent-green-dark border border-accent-green  shadow-lg z-50"
                     >
                       <div className="p-1.5 md:p-2">
                         <div className="flex items-center gap-2 mb-1.5 md:mb-2 px-1.5 md:px-2">
@@ -1449,7 +1449,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                             placeholder="Search videos..."
                             value={videoSearchTerm}
                             onChange={(e) => setVideoSearchTerm(e.target.value)}
-                            className="flex-1 px-2 py-1 text-[10px] md:text-xs bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40 rounded-sm"
+                            className="flex-1 px-2 py-1 text-[10px] md:text-xs bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40"
                           />
                         </div>
                         <div
@@ -1468,13 +1468,13 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                   goToSlide(index);
                                   setShowVideoDropdown(false);
                                 }}
-                                className={`w-full flex items-center gap-2 md:gap-3 p-1.5 md:p-2 rounded-sm transition-colors text-left ${
+                                className={`w-full flex items-center gap-2 md:gap-3 p-1.5 md:p-2 transition-colors text-left ${
                                   index === currentIndex
                                     ? "bg-background/20 text-background"
                                     : "hover:bg-background/10 text-background/80"
                                 }`}
                               >
-                                <div className="w-6 h-4 md:w-8 md:h-6 overflow-hidden rounded-sm flex-shrink-0">
+                                <div className="w-6 h-4 md:w-8 md:h-6 overflow-hidden flex-shrink-0">
                                   {item.thumbnailUrl ? (
                                     <Image
                                       src={item.thumbnailUrl}
@@ -1532,7 +1532,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
           <div className="flex items-center flex-1 justify-center">
             <div className="relative">
               <div
-                className="w-24 md:w-32 h-1 bg-background/20 rounded-full overflow-hidden cursor-pointer hover:bg-background/30 transition-colors"
+                className="w-24 md:w-32 h-1 bg-background/20 overflow-hidden cursor-pointer hover:bg-background/30 transition-colors"
                 onClick={handleProgressBarClick}
               >
                 <div
@@ -1553,7 +1553,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     return (
                       <div
                         key={`indicator-${comment.id}`}
-                        className="absolute top-0 w-1 h-1 bg-accent-green-dark rounded-none transform -translate-x-0.5 z-20"
+                        className="absolute top-0 w-1 h-1 bg-accent-green-dark transform -translate-x-0.5 z-20"
                         style={{ left: `${Math.min(position, 95)}%` }}
                       />
                     );
@@ -1568,7 +1568,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                 e.stopPropagation();
                 setShowCommentForm(!showCommentForm);
               }}
-              className="text-background/60 hover:text-background transition-colors h-8 px-2 md:h-6 md:px-2 flex items-center justify-center rounded-sm touch-manipulation"
+              className="text-background/60 hover:text-background transition-colors h-8 px-2 md:h-6 md:px-2 flex items-center justify-center touch-manipulation"
               title="Add comment (c)"
             >
               <MessageSquare size={13} />
@@ -1731,7 +1731,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                   e.stopPropagation();
                                   handleGifSelect(gif);
                                 }}
-                                className="w-full relative bg-background/10 hover:bg-background/20 transition-colors overflow-hidden border-0 p-0 rounded-sm touch-manipulation flex items-center justify-center"
+                                className="w-full relative bg-background/10 hover:bg-background/20 transition-colors overflow-hidden border-0 p-0 touch-manipulation flex items-center justify-center"
                                 style={{
                                   height: "80px",
                                   aspectRatio: "1 / 1",
@@ -1743,7 +1743,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                   width={76}
                                   height={76}
                                   unoptimized
-                                  className="object-cover rounded-sm"
+                                  className="object-cover"
                                 />
                               </button>
                             ))
