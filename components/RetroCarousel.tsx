@@ -1072,7 +1072,46 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     if (!isClient) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Skip all keyboard shortcuts on mobile devices
+      // Universal Escape key handling - works on all devices and states
+      if (e.key === "Escape") {
+        e.preventDefault();
+        
+        // Priority order for escape key:
+        // 1. Close GIF picker if open
+        if (showGifPicker) {
+          setShowGifPicker(false);
+          return;
+        }
+        
+        // 2. Close comment form if open
+        if (showCommentForm) {
+          setShowCommentForm(false);
+          return;
+        }
+        
+        // 3. Close video dropdown if open
+        if (showVideoDropdown) {
+          setShowVideoDropdown(false);
+          setVideoSearchTerm("");
+          return;
+        }
+        
+        // 4. Exit fullscreen if in fullscreen
+        if (isFullscreen) {
+          toggleFullscreen();
+          return;
+        }
+        
+        // 5. Blur any focused input/button
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+          return;
+        }
+        
+        return;
+      }
+
+      // Skip other keyboard shortcuts on mobile devices
       if (isMobile) return;
 
       // Handle dropdown navigation when dropdown is open
@@ -1105,12 +1144,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               setShowVideoDropdown(false);
             }
           }
-          return;
-        }
-        
-        if (e.key === "Escape") {
-          e.preventDefault();
-          setShowVideoDropdown(false);
           return;
         }
       }
@@ -1200,6 +1233,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     isFullscreen,
     isMobile,
     showCommentForm,
+    showGifPicker,
     showAllComments,
     isMuted,
     isPlaying,

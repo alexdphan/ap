@@ -104,6 +104,28 @@ body {
   display: none;
 }
 
+/* Remove default button focus outlines */
+button:focus,
+button:focus-visible,
+input:focus,
+input:focus-visible,
+a:focus,
+a:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: inherit !important;
+}
+
+/* Remove webkit tap highlight */
+button,
+input,
+a {
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+
 /* Safari fullscreen support */
 @supports (-webkit-touch-callout: none) {
   /* Safari-specific styles */
