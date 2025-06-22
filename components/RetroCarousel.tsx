@@ -203,13 +203,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   }, [isClient, isFullscreen]);
 
     const toggleFullscreen = () => {
-    console.log(
-      "toggleFullscreen called - isFullscreen:",
-      isFullscreen,
-      "isMobile:",
-      isMobile
-    );
-
     const newFullscreenState = !isFullscreen;
     setIsFullscreen(newFullscreenState);
 
@@ -221,19 +214,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         document.body.style.width = '100%';
         document.body.style.height = '100%';
         
-        // Debug Safari specifics
-        console.log('Safari detection:', {
-          isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
-          safeAreaBottom: getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-bottom)'),
-          viewport: {
-            width: window.innerWidth,
-            height: window.innerHeight,
-            visualViewport: window.visualViewport ? {
-              width: window.visualViewport.width,
-              height: window.visualViewport.height
-            } : 'not supported'
-          }
-        });
+
       } else {
         document.body.style.overflow = '';
         document.body.style.position = '';
@@ -597,9 +578,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
     setCurrentIndex((prev) => {
       if (prev === displayItems.length - 1) {
-        console.log(
-          "nextSlide: Going from last to first - using seamless transition"
-        );
         // Use the clone at the end for seamless transition
         setManualExtendedIndex(displayItems.length + 1); // Clone of first item at end
 
@@ -618,35 +596,20 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
         return 0; // Update state to first item
       } else {
-        const newIndex = Math.min(displayItems.length - 1, prev + 1);
-        console.log("nextSlide: Going from", prev, "to", newIndex);
-        return newIndex;
+        return Math.min(displayItems.length - 1, prev + 1);
       }
     });
     setIsPlaying(true);
   }, [displayItems, isClient, setIsTransitioning, setManualExtendedIndex]);
 
   const prevSlide = useCallback(() => {
-    console.log(
-      "prevSlide called - currentIndex:",
-      currentIndex,
-      "displayItems.length:",
-      displayItems.length,
-      "isClient:",
-      isClient
-    );
-
     // Safety check to ensure we have items
     if (!displayItems.length || !isClient) {
-      console.log("prevSlide aborted - missing items or not client");
       return;
     }
 
     setCurrentIndex((prev) => {
       if (prev === 0) {
-        console.log(
-          "prevSlide: Going from first to last - using seamless transition"
-        );
         // Use the clone at the beginning for seamless transition
         setManualExtendedIndex(0); // Clone of last item at beginning
 
@@ -665,9 +628,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
         return displayItems.length - 1; // Update state to last item
       } else {
-        const newIndex = Math.max(0, prev - 1);
-        console.log("prevSlide: Going from", prev, "to", newIndex);
-        return newIndex;
+        return Math.max(0, prev - 1);
       }
     });
     setIsPlaying(true);
@@ -1007,7 +968,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   };
 
   const visibleThumbnails = useMemo(() => {
-    console.log("getVisibleThumbnails called");
     const maxVisible = isMobile ? 3 : 4;
     const thumbnails = [];
 
@@ -1076,7 +1036,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       // Global shortcuts that work even when typing
       if (e.key === " ") {
         e.preventDefault();
-        console.log("Space key pressed - toggling play/pause");
         togglePlayPause();
         return;
       }
@@ -1089,7 +1048,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       // Media control shortcuts
       if (e.key.toLowerCase() === "m") {
         e.preventDefault();
-        console.log("M key pressed - toggling mute");
         toggleMute();
         return;
       }
@@ -1131,28 +1089,18 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         // Mobile fullscreen: use up/down arrows
         if (e.key === "ArrowUp") {
           e.preventDefault();
-          console.log("Arrow Up pressed - calling prevSlide()");
           prevSlide();
         } else if (e.key === "ArrowDown") {
           e.preventDefault();
-          console.log("Arrow Down pressed - calling nextSlide()");
           nextSlide();
         }
       } else {
         // Desktop and non-fullscreen mobile: use left/right arrows
         if (e.key === "ArrowLeft") {
           e.preventDefault();
-          console.log(
-            "Arrow Left pressed - calling prevSlide(), currentIndex:",
-            currentIndex
-          );
           prevSlide();
         } else if (e.key === "ArrowRight") {
           e.preventDefault();
-          console.log(
-            "Arrow Right pressed - calling nextSlide(), currentIndex:",
-            currentIndex
-          );
           nextSlide();
         }
       }
@@ -1186,9 +1134,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
           : "relative w-full"
       }`}
       style={{
-        paddingTop: isFullscreen ? "env(safe-area-inset-top)" : undefined,
-        paddingLeft: isFullscreen ? "env(safe-area-inset-left)" : undefined,
-        paddingRight: isFullscreen ? "env(safe-area-inset-right)" : undefined,
         // Safari-specific fixes
         ...(isFullscreen && {
           position: 'fixed',
@@ -1206,15 +1151,21 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     >
       {/* Minimal Carousel */}
       <div
-        className={`relative bg-accent-green overflow-hidden ${
-          isFullscreen ? "h-full flex flex-col" : ""
+        className={`relative overflow-hidden ${
+          isFullscreen 
+            ? "h-full flex flex-col bg-black" 
+            : "bg-accent-green"
         }`}
       >
         {/* Screen */}
         <div
           ref={carouselRef}
           className={`relative overflow-hidden cursor-grab active:cursor-grabbing ${
-            isFullscreen ? "flex-1" : "aspect-video"
+            isFullscreen 
+              ? "flex-1" 
+              : isMobile 
+                ? "aspect-[4/3]" 
+                : "aspect-video"
           }`}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
@@ -1249,7 +1200,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       muted={isMuted}
                       loop
                       playsInline
-                      className="w-full h-full object-cover border-0 outline-0"
+                      className={`w-full h-full border-0 outline-0 ${
+                        isFullscreen 
+                          ? "object-contain" 
+                          : "object-cover"
+                      }`}
                       poster={item.thumbnailUrl}
                     />
 
