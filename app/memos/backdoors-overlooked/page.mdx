@@ -1,0 +1,61 @@
+import Link from 'next/link'
+
+export const metadata = {
+  title: 'The Backdoors That Are Often Overlooked',
+  description: 'On finding the obvious patterns we dismiss'
+}
+
+<div className="min-h-screen bg-background">
+  <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
+    <div className="max-w-xl mx-auto">
+      
+      {/* Header with back link */}
+      <div className="flex items-center justify-between mb-6 md:mb-8">
+        <Link 
+          href="/memos"
+          className="text-sm text-foreground/60 hover:text-foreground transition-colors"
+        >
+          ← Back to Memos
+        </Link>
+        <div className="text-sm text-foreground/60">Dec 2024</div>
+      </div>
+
+      {/* Page Title */}
+      <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-8 md:mb-12 leading-tight tracking-tight">
+        The Backdoors That Are Often Overlooked
+      </h1>
+
+      {/* Content */}
+      <div className="prose prose-lg max-w-none">
+        <div className="space-y-6">
+          
+          The backdoors that are often overlooked are usually the most obvious ones - the patterns we dismiss because they seem too simple or too direct.
+
+          In software, we spend enormous effort on complex architectures while ignoring the simple configuration file that could solve the problem in five lines.
+
+          In business, we build elaborate funnels while the biggest conversion improvement might be fixing a broken checkout button.
+
+          In life, we optimize elaborate systems while ignoring that we just need to sleep better.
+
+          ## Why We Miss Them
+          
+          Simple solutions don&apos;t feel important. They don&apos;t signal intelligence or sophistication. There&apos;s no glory in fixing the obvious thing.
+
+          But often the obvious thing is obvious because it&apos;s fundamental. It&apos;s the foundation that everything else depends on.
+
+          ## The Practice
+          
+          Before building anything complex, ask: what&apos;s the most embarrassingly simple version of this?
+
+          Before optimizing the system, ask: what basic assumptions haven&apos;t we questioned?
+
+          Before adding features, ask: what&apos;s broken about what we already have?
+
+          The backdoor is usually hiding in plain sight.
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,61 @@
+import Link from 'next/link'
+
+export const metadata = {
+  title: 'Growth Engineering Systems',
+  description: 'On building systems that make the right behaviors feel natural'
+}
+
+<div className="min-h-screen bg-background">
+  <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
+    <div className="max-w-xl mx-auto">
+      
+      {/* Header with back link */}
+      <div className="flex items-center justify-between mb-6 md:mb-8">
+        <Link 
+          href="/memos"
+          className="text-sm text-foreground/60 hover:text-foreground transition-colors"
+        >
+          ← Back to Memos
+        </Link>
+        <div className="text-sm text-foreground/60">Nov 2024</div>
+      </div>
+
+      {/* Page Title */}
+      <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-8 md:mb-12 leading-tight tracking-tight">
+        Growth Engineering Systems
+      </h1>
+
+      {/* Content */}
+      <div className="prose prose-lg max-w-none">
+        <div className="space-y-6">
+          
+          Growth engineering isn&apos;t just about metrics - it&apos;s about building systems that make the right behaviors feel natural and inevitable.
+
+          The best growth systems are invisible. Users don&apos;t feel manipulated or pushed. They feel guided toward success.
+
+          ## Beyond Metrics
+          
+          Most growth teams focus on optimizing funnels and conversion rates. But the real work is understanding why people succeed or fail.
+
+          A 2% improvement in signup rate means nothing if those users churn immediately. A 50% reduction in signup rate could be good if the remaining users are much more likely to find value.
+
+          ## Systems Thinking
+          
+          Growth isn&apos;t a feature you add. It&apos;s a property that emerges from the entire system working well together.
+
+          The onboarding flow connects to the product experience. The product experience connects to customer support. Customer support connects to product improvements. Everything is connected.
+
+          ## Natural Behaviors
+          
+          The goal isn&apos;t to trick users into doing what you want. It&apos;s to design systems where what&apos;s good for the user is naturally aligned with what&apos;s good for the business.
+
+          When users succeed, you succeed. When users get value, they become advocates. When the product genuinely helps people, growth happens organically.
+
+          The best growth engineering removes friction from natural user motivation rather than trying to manufacture artificial motivation.
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div> 

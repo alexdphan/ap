@@ -1,0 +1,60 @@
+import Link from 'next/link'
+
+export const metadata = {
+  title: 'Growth Engineering at Browserbase',
+  description: 'Building systems that scale user acquisition and engagement'
+}
+
+<div className="min-h-screen bg-background">
+  <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
+    <div className="max-w-xl mx-auto">
+      
+      {/* Header with back link */}
+      <div className="flex items-center justify-between mb-6 md:mb-8">
+        <Link 
+          href="/projects"
+          className="text-sm text-foreground/60 hover:text-foreground transition-colors"
+        >
+          ← Back to Projects
+        </Link>
+        <div className="text-sm text-foreground/60">Dec 2024</div>
+      </div>
+
+      {/* Page Title */}
+      <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-8 md:mb-12 leading-tight tracking-tight">
+        Growth Engineering at Browserbase
+      </h1>
+
+      {/* Content */}
+      <div className="prose prose-lg max-w-none">
+        <div className="space-y-6">
+          
+          As the first growth engineer at Browserbase, I&apos;m building the foundation for scalable user acquisition and engagement systems.
+
+          ## What I&apos;m Building
+          
+          Growth engineering isn&apos;t just about metrics - it&apos;s about building systems that make the right behaviors feel natural and inevitable.
+
+          - Experimentation infrastructure for rapid A/B testing
+          - User onboarding flows that reduce time-to-value
+          - Analytics systems that surface actionable insights
+          - Automated lifecycle marketing triggers
+
+          ## Approach
+          
+          The best growth systems are invisible. They work in the background, nudging users toward success without feeling manipulative or forced.
+
+          I focus on understanding the user journey deeply - where do people get stuck? What makes them successful? How can we remove friction while adding value?
+
+          ## Impact
+          
+          Building the growth engine for a developer tool requires a different approach than consumer products. Developers are skeptical of growth tactics, so everything must provide genuine value.
+
+          The systems I&apos;m building focus on education, clear value demonstration, and removing technical barriers to adoption.
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div> 

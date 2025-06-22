@@ -1,97 +1,110 @@
-import React from 'react';
-import Link from 'next/link';
-// import TechnicalGrid from '../components/TechnicalGrid';
-import RetroCarousel from '../components/RetroCarousel';
+import React from "react";
+import RetroCarousel from "../components/RetroCarousel";
+import { videoItems } from "../data/videos";
+import Link from "next/link";
 
 export default function Home() {
-  // Video URLs - Add your videos here
-  const videoItems = [
-    {
-      id: '1',
-      title: 'One can only dream',
-      videoUrl: 'https://pub-5018f734e2604654b16c6609e8c82280.r2.dev/Video-437.mp4',
-    },
-    {
-      id: '2',
-      title: 'When the boys are cookin',
-      videoUrl: 'https://pub-5018f734e2604654b16c6609e8c82280.r2.dev/Video-379.mp4',
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-background">
-      {/* Single Column Layout */}
-      <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header - Attached to Top */}
+      <div className="max-w-4xl mx-auto w-full px-6 pt-6 md:pt-12">
         <div className="max-w-xl mx-auto">
-          
-          {/* Large Number with Mobile Stack */}
-          <div className="flex items-center justify-between mb-24 md:mb-24">
-            <div className="text-7xl md:text-7xl font-bold text-foreground/10 tracking-tighter">
+          <div className="flex items-center justify-between">
+            <div className="text-6xl md:text-6xl font-bold text-foreground/10 tracking-tighter hover:text-accent-green transition-colors duration-300 cursor-pointer">
               [ AP ]
             </div>
-            
+
             {/* Projects + Memos Stack */}
             <div className="flex flex-col gap-2 text-right">
-              <Link 
+              <Link
                 href="/projects"
-                className="text-base md:text-lg font-bold text-foreground/80 tracking-wide hover:text-foreground transition-colors cursor-pointer"
+                className="relative text-base font-bold text-foreground/80 tracking-wide hover:text-white transition-colors cursor-pointer overflow-hidden group px-2 py-1"
               >
-                Projects
+                <span className="relative z-10">Projects</span>
+                <div className="absolute inset-0 bg-accent-green transform translate-x-[101%] group-hover:translate-x-0 transition-transform duration-300 ease-out"></div>
               </Link>
-              <Link 
+              <Link
                 href="/memos"
-                className="text-base md:text-lg font-bold text-foreground/80 tracking-wide hover:text-foreground transition-colors cursor-pointer"
+                className="relative text-base font-bold text-foreground/80 tracking-wide hover:text-white transition-colors cursor-pointer overflow-hidden group px-2 py-1"
               >
-                Memos
+                <span className="relative z-10">Memos</span>
+                <div className="absolute inset-0 bg-accent-green transform translate-x-[101%] group-hover:translate-x-0 transition-transform duration-300 ease-out"></div>
               </Link>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Category */}
-          {/* <div className="text-sm text-foreground/60 mb-4 tracking-wide">
-            Growth Engineer & Creative Technologist
-          </div> */}
-
+      {/* Main Content - Center */}
+      <div className="flex-1 max-w-4xl mx-auto w-full px-6">
+        <div className="max-w-xl mx-auto flex flex-col gap-12 md:gap-15 py-12 md:py-16">
           {/* Main Title */}
-          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4 md:mb-8 leading-tight tracking-tight">
+          <h1 className="text-4xl md:text-6xl font-bold text-foreground leading-tight tracking-tight">
             Alex Phan
           </h1>
-          {/* Retro Carousel */}
-          <div className="mb-8 md:mb-8">
-            <RetroCarousel items={videoItems} />
-          </div>
+
+          {/* Carousel */}
+          <RetroCarousel items={videoItems} />
 
           {/* Description Section */}
-          <div className="mb-8 md:mb-8">
+          <div>
             {/* <h3 className="text-sm text-foreground/60 mb-4 md:mb-6 tracking-wide">
               Description
             </h3> */}
             <p className="text-foreground text-base md:text-lg leading-relaxed">
-              I spend a lot of my time thinking about what are the backdoors that are often overlooked or unseen.
+              I spend a lot of my time thinking about what backdoors are
+              overlooked or unseen.
             </p>
             <p className="text-foreground text-base md:text-lg leading-relaxed mt-4">
-              I&apos;m also the first growth engineer at Browserbase, an exciting startup in San Francisco.
+              I&apos;m also the first growth engineer at Browserbase, an
+              exciting startup in San Francisco.
             </p>
             {/* <p className="text-foreground text-base md:text-lg leading-relaxed mt-4">
              DM if you&apos;d like to chat!
             </p> */}
           </div>
+        </div>
+      </div>
 
-          {/* Projects Section */}
-          {/* <div>
-            <h3 className="text-sm text-foreground/60 mb-4 md:mb-6 tracking-wide">
-              Current Focus
-            </h3>
-            <div className="space-y-2">
-              <div className="text-foreground font-medium">Growth Engineering at Browserbase</div>
-              <div className="text-foreground font-medium">Experimental Interface Design</div>
-              <div className="text-foreground font-medium">Rapid Prototyping</div>
-              <div className="text-foreground font-medium">Developer Tools & Automation</div>
-              <div className="text-foreground font-medium">Creative Technology Projects</div>
-              <div className="text-foreground font-medium">Open Source Contributions</div>
-            </div>
-          </div> */}
-
+      {/* Footer - Attached to Bottom */}
+      <div className="max-w-4xl mx-auto w-full px-6 pb-6 md:pb-12">
+        <div className="max-w-xl mx-auto">
+          <div className="flex flex-wrap justify-start -mx-2">
+            <a
+              href="https://www.linkedin.com/in/alexanderdphan/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative text-foreground/80 font-bold tracking-wide hover:text-white transition-colors overflow-hidden group px-2 py-1 mx-2"
+            >
+              <span className="relative z-10">LinkedIn</span>
+              <div className="absolute inset-0 bg-accent-green transform translate-x-[101%] group-hover:translate-x-0 transition-transform duration-300 ease-out"></div>
+            </a>
+            <a
+              href="https://x.com/alexdphan"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative text-foreground/80 font-bold tracking-wide hover:text-white transition-colors overflow-hidden group px-2 py-1 mx-2"
+            >
+              <span className="relative z-10">X</span>
+              <div className="absolute inset-0 bg-accent-green transform translate-x-[101%] group-hover:translate-x-0 transition-transform duration-300 ease-out"></div>
+            </a>
+            <a
+              href="mailto:alexphan0515@gmail.com"
+              className="relative text-foreground/80 font-bold tracking-wide hover:text-white transition-colors overflow-hidden group px-2 py-1 mx-2"
+            >
+              <span className="relative z-10">Email</span>
+              <div className="absolute inset-0 bg-accent-green transform translate-x-[101%] group-hover:translate-x-0 transition-transform duration-300 ease-out"></div>
+            </a>
+            <a
+              href="https://github.com/alexdphan"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative text-foreground/80 font-bold tracking-wide hover:text-white transition-colors overflow-hidden group px-2 py-1 mx-2"
+            >
+              <span className="relative z-10">GitHub</span>
+              <div className="absolute inset-0 bg-accent-green transform translate-x-[101%] group-hover:translate-x-0 transition-transform duration-300 ease-out"></div>
+            </a>
+          </div>
         </div>
       </div>
     </div>

@@ -28,18 +28,33 @@ export default function Projects() {
             <div>
               <h3 className="text-lg font-bold text-foreground mb-3">Current Work</h3>
               <div className="space-y-3">
-                <div className="text-foreground">Growth Engineering at Browserbase</div>
-                <div className="text-foreground">Experimental Interface Design</div>
-                <div className="text-foreground">Rapid Prototyping</div>
+                <Link 
+                  href="/projects/browserbase-growth"
+                  className="text-foreground hover:text-foreground/80 transition-colors block"
+                >
+                  Growth Engineering at Browserbase
+                </Link>
+                <Link 
+                  href="/projects/experimental-interfaces"
+                  className="text-foreground hover:text-foreground/80 transition-colors block"
+                >
+                  Experimental Interface Design
+                </Link>
+                <Link 
+                  href="/projects/rapid-prototyping"
+                  className="text-foreground hover:text-foreground/80 transition-colors block"
+                >
+                  Rapid Prototyping
+                </Link>
               </div>
             </div>
 
             <div>
               <h3 className="text-lg font-bold text-foreground mb-3">Side Projects</h3>
               <div className="space-y-3">
-                <div className="text-foreground">Developer Tools & Automation</div>
-                <div className="text-foreground">Creative Technology Projects</div>
-                <div className="text-foreground">Open Source Contributions</div>
+                <div className="text-foreground/60">Developer Tools & Automation</div>
+                <div className="text-foreground/60">Creative Technology Projects</div>
+                <div className="text-foreground/60">Open Source Contributions</div>
               </div>
             </div>
 

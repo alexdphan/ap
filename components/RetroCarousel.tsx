@@ -1,11 +1,20 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { VolumeX, Volume2, MessageSquare, Menu } from "lucide-react";
+import {
+  VolumeX,
+  Volume2,
+  MessageSquare,
+  Menu,
+  Maximize,
+  Minimize,
+  Search,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { supabase, Comment, CommentInsert } from "../lib/supabase";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 interface CarouselItem {
-  id: string;
   title: string;
   description?: string;
   videoUrl?: string;
@@ -41,6 +50,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [dragStartTime, setDragStartTime] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(true);
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [newComment, setNewComment] = useState({ name: "", text: "" });
   const [isClient, setIsClient] = useState(false);
@@ -59,6 +69,101 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   }>({});
   const measurementRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [showAllComments, setShowAllComments] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const fullscreenContainerRef = useRef<HTMLDivElement>(null);
+  const [showVideoDropdown, setShowVideoDropdown] = useState(false);
+  const [videoSearchTerm, setVideoSearchTerm] = useState("");
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [manualExtendedIndex, setManualExtendedIndex] = useState<number | null>(
+    null
+  );
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const [preloadedVideos, setPreloadedVideos] = useState<Set<string>>(new Set());
+  const videoRefs = useRef<{ [key: string]: HTMLVideoElement }>({});
+
+  // Placeholder items if none provided
+  const defaultItems: CarouselItem[] = [
+    {
+      title: "Project Alpha",
+      description:
+        "An experimental interface design exploring new interaction patterns.",
+    },
+  ];
+
+  const displayItems = items.length > 0 ? items : defaultItems;
+
+  // Create extended array for seamless infinite loop
+  const extendedItems = [
+    displayItems[displayItems.length - 1], // Clone of last item at beginning
+    ...displayItems,
+    displayItems[0], // Clone of first item at end
+  ];
+
+  // Adjust index for extended array (real index + 1 because of leading clone)
+  const extendedIndex =
+    manualExtendedIndex !== null ? manualExtendedIndex : currentIndex + 1;
+
+  // Function to get adjacent video indices for preloading
+  const getAdjacentIndices = (currentIdx: number) => {
+    const total = displayItems.length;
+    const prev = (currentIdx - 1 + total) % total;
+    const next = (currentIdx + 1) % total;
+    return { prev, current: currentIdx, next };
+  };
+
+  // Function to preload a video
+  const preloadVideo = (videoUrl: string, index: number) => {
+    if (!videoUrl || preloadedVideos.has(videoUrl)) return;
+
+    const video = document.createElement('video');
+    video.src = videoUrl;
+    video.preload = 'auto';
+    video.muted = true;
+    video.playsInline = true;
+    
+    // Store reference for potential reuse
+    videoRefs.current[`preload-${index}`] = video;
+    
+    video.addEventListener('loadeddata', () => {
+      setPreloadedVideos(prev => new Set([...prev, videoUrl]));
+    }, { once: true });
+    
+    video.addEventListener('error', () => {
+      console.warn(`Failed to preload video: ${videoUrl}`);
+    }, { once: true });
+    
+    // Start loading
+    video.load();
+  };
+
+  // Preload adjacent videos when current video changes
+  useEffect(() => {
+    if (!isClient) return;
+
+    const { prev, current, next } = getAdjacentIndices(currentIndex);
+    
+    // Preload current, previous, and next videos
+    [prev, current, next].forEach(idx => {
+      const item = displayItems[idx];
+      if (item?.videoUrl) {
+        preloadVideo(item.videoUrl, idx);
+      }
+    });
+  }, [currentIndex, isClient, displayItems]);
+
+  // Initial preload on mount
+  useEffect(() => {
+    if (!isClient || displayItems.length === 0) return;
+
+    // Preload first few videos immediately
+    const videosToPreload = Math.min(3, displayItems.length);
+    for (let i = 0; i < videosToPreload; i++) {
+      const item = displayItems[i];
+      if (item?.videoUrl) {
+        preloadVideo(item.videoUrl, i);
+      }
+    }
+  }, [isClient, displayItems]);
 
   // Prevent hydration mismatch and detect mobile
   useEffect(() => {
@@ -68,78 +173,269 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       setIsMobile(window.innerWidth < 640);
     };
 
-    checkMobile();
+    // Small delay to ensure hydration is complete
+    const timer = setTimeout(() => {
+      checkMobile();
+      // Ensure transitions are enabled after initial render
+      setIsTransitioning(true);
+      // Reset any manual index overrides on initial load
+      setManualExtendedIndex(null);
+    }, 100);
+
     window.addEventListener("resize", checkMobile);
 
-    return () => window.removeEventListener("resize", checkMobile);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", checkMobile);
+    };
   }, []);
 
-  // Comments data per video - using state so updates trigger re-renders
-  const [commentsData, setCommentsData] = useState<
-    Record<
-      string,
-      Array<{ id: number; time: number; text: string; author?: string }>
-    >
-  >({
-    "1": [
-      { id: 1, time: 1, text: "Amazing transition!", author: "anon" },
-      { id: 2, time: 3, text: "Love the colors here" },
-      {
-        id: 3,
-        time: 5,
-        text: "How did you achieve this effect?",
-        author: "designer123",
-      },
-      {
-        id: 4,
-        time: 7,
-        text: "[GIF|https://media.giphy.com/media/3o7btPCcdNniyf0ArS/giphy.gif|clap]",
-      },
-      { id: 5, time: 9, text: "The timing is perfect", author: "anon" },
-      { id: 6, time: 11, text: "Beautiful visual design" },
-      { id: 7, time: 13, text: "based", author: "creative_mind" },
-      { id: 8, time: 15, text: "Great use of space" },
-      { id: 9, time: 17, text: "Love the attention to detail", author: "anon" },
-      { id: 10, time: 19, text: "Incredible work!" },
-    ],
-    "2": [
-      { id: 11, time: 2, text: "Great lighting setup", author: "filmmaker" },
-      { id: 12, time: 4, text: "The pacing is perfect " },
-      { id: 13, time: 6, text: "Nice camera work!", author: "videographer" },
-      { id: 14, time: 8, text: "Really clean execution" },
-      { id: 15, time: 10, text: "Love this aesthetic", author: "anon" },
-      { id: 16, time: 12, text: "Such smooth motion" },
-      {
-        id: 17,
-        time: 14,
-        text: "The composition is spot on",
-        author: "art_lover",
-      },
-      { id: 18, time: 16, text: "This is inspiring!" },
-      { id: 19, time: 18, text: "Great choice of music", author: "anon" },
-      { id: 20, time: 20, text: "Phenomenal work overall" },
-    ],
-  });
+  // Fullscreen functionality
+  useEffect(() => {
+    if (isClient) {
+      const handleFullscreenChange = () => {
+        setIsFullscreen(!!document.fullscreenElement);
+      };
+
+      document.addEventListener("fullscreenchange", handleFullscreenChange);
+      return () =>
+        document.removeEventListener(
+          "fullscreenchange",
+          handleFullscreenChange
+        );
+    }
+  }, [isClient]);
+
+  const toggleFullscreen = async () => {
+    if (!fullscreenContainerRef.current) return;
+
+    try {
+      if (!document.fullscreenElement) {
+        await fullscreenContainerRef.current.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (error) {
+      console.log("Fullscreen toggle failed:", error);
+    }
+  };
+
+  // Comments state - now using Supabase
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [commentCounts, setCommentCounts] = useState<Record<number, number>>(
+    {}
+  );
+
+  // Fetch comments for current video
+  const fetchComments = async (videoIndex: number) => {
+    setLoadingComments(true);
+    try {
+      const { data, error } = await supabase
+        .from("comments")
+        .select("*")
+        .eq("video_index", videoIndex)
+        .order("time_seconds", { ascending: true });
+
+      if (error) throw error;
+      setComments(data || []);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+      setComments([]);
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+
+  // Add new comment to database
+  const addComment = async (comment: CommentInsert) => {
+    try {
+      const { data, error } = await supabase
+        .from("comments")
+        .insert([comment])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error("Error adding comment:", error);
+      throw error;
+    }
+  };
+
+  // Fetch comment counts for all videos
+  const fetchCommentCounts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("comments")
+        .select("video_index")
+        .order("video_index");
+
+      if (error) throw error;
+
+      // Count comments per video
+      const counts: Record<number, number> = {};
+      data?.forEach((comment) => {
+        counts[comment.video_index] = (counts[comment.video_index] || 0) + 1;
+      });
+
+      setCommentCounts(counts);
+    } catch (error) {
+      console.error("Error fetching comment counts:", error);
+    }
+  };
+
+  // Subscribe to real-time comment updates with error handling and debouncing
+  useEffect(() => {
+    if (!isClient) return;
+
+    let channel: RealtimeChannel | null = null;
+    let mounted = true;
+
+    // Debounce subscription setup to avoid rapid WebSocket connections
+    const timeoutId = setTimeout(() => {
+      if (!mounted) return;
+
+      try {
+        channel = supabase
+          .channel(`comments-${currentIndex}`)
+          .on(
+            "postgres_changes",
+            {
+              event: "*",
+              schema: "public",
+              table: "comments",
+              filter: `video_index=eq.${currentIndex}`,
+            },
+            (payload) => {
+              if (!mounted) return;
+              
+              if (payload.eventType === "INSERT") {
+                setComments((prev) =>
+                  [...prev, payload.new as Comment].sort(
+                    (a, b) => a.time_seconds - b.time_seconds
+                  )
+                );
+              } else if (payload.eventType === "DELETE") {
+                setComments((prev) =>
+                  prev.filter((comment) => comment.id !== payload.old.id)
+                );
+              }
+            }
+          )
+          .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+              console.log(`Subscribed to comments for video ${currentIndex}`);
+            } else if (status === 'CHANNEL_ERROR') {
+              console.warn(`Channel error for video ${currentIndex}:`, status);
+            }
+          });
+      } catch (error) {
+        console.warn("Failed to setup realtime subscription:", error);
+      }
+    }, 200); // 200ms debounce
+
+    return () => {
+      mounted = false;
+      clearTimeout(timeoutId);
+      
+      if (channel) {
+        try {
+          supabase.removeChannel(channel).catch((error) => {
+            // Silently handle WebSocket cleanup errors in development
+            if (process.env.NODE_ENV === 'development') {
+              console.debug("WebSocket cleanup error (expected in dev):", error.message);
+            }
+          });
+        } catch (error) {
+          // Silent cleanup
+        }
+      }
+    };
+  }, [currentIndex, isClient]);
+
+  // Subscribe to real-time comment count updates for all videos
+  useEffect(() => {
+    if (!isClient) return;
+
+    let channel: RealtimeChannel | null = null;
+    let mounted = true;
+
+    // Delay subscription to avoid conflicts with other subscriptions
+    const timeoutId = setTimeout(() => {
+      if (!mounted) return;
+
+      try {
+        channel = supabase
+          .channel("all-comments-counts")
+          .on(
+            "postgres_changes",
+            {
+              event: "*",
+              schema: "public",
+              table: "comments",
+            },
+            () => {
+              if (!mounted) return;
+              // Refresh comment counts when any comment is added/deleted
+              fetchCommentCounts();
+            }
+          )
+          .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+              console.log('Subscribed to comment count updates');
+            } else if (status === 'CHANNEL_ERROR') {
+              console.warn('Channel error for comment counts:', status);
+            }
+          });
+      } catch (error) {
+        console.warn("Failed to setup comment count subscription:", error);
+      }
+    }, 300); // Slight delay to avoid conflicts
+
+    return () => {
+      mounted = false;
+      clearTimeout(timeoutId);
+      
+      if (channel) {
+        try {
+          supabase.removeChannel(channel).catch((error) => {
+            if (process.env.NODE_ENV === 'development') {
+              console.debug("WebSocket cleanup error (expected in dev):", error.message);
+            }
+          });
+        } catch (error) {
+          // Silent cleanup
+        }
+      }
+    };
+  }, [isClient]);
+
+  // Fetch comments when video changes
+  useEffect(() => {
+    fetchComments(currentIndex);
+  }, [currentIndex]);
+
+  // Fetch comment counts on mount
+  useEffect(() => {
+    fetchCommentCounts();
+  }, []);
 
   const getCurrentComments = () => {
-    return commentsData[displayItems[currentIndex]?.id] || [];
+    return comments;
   };
 
   // Function to render comment content with GIFs
   const renderCommentContent = (text: string) => {
-    console.log("Comment text:", text); // Debug
-
     // If text contains GIF marker, extract and show the actual GIF
     if (text.includes("[GIF|")) {
-      console.log("Found GIF marker! Extracting GIF"); // Debug
-
       // Extract the URL from [GIF|url|title] format
       const gifMatch = text.match(/\[GIF\|([^|]+)\|([^\]]*)\]/);
 
       if (gifMatch) {
         const gifUrl = gifMatch[1];
         const gifTitle = gifMatch[2];
-        console.log("Extracted URL:", gifUrl); // Debug
 
         // Get text before and after the GIF
         const textBefore = text.substring(0, text.indexOf("[GIF|"));
@@ -153,10 +449,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               alt={gifTitle}
               width={80}
               height={80}
-              unoptimized
-              className="inline-block object-cover ml-1"
-              onLoad={() => console.log("GIF loaded:", gifUrl)}
-              onError={() => console.log("GIF failed to load:", gifUrl)}
+              className="inline-block object-cover ml-1 rounded-sm"
             />
             {textAfter && <span>{textAfter}</span>}
           </div>
@@ -247,67 +540,119 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     setShowGifPicker(!showGifPicker);
   };
 
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     if (newComment.text.trim()) {
       const timestamp = Math.floor(currentTime);
-      const comment: {
-        id: number;
-        time: number;
-        text: string;
-        author?: string;
-      } = {
-        id: Date.now(),
-        time: timestamp,
+      const commentData: CommentInsert = {
+        video_index: currentIndex,
+        time_seconds: timestamp,
         text: newComment.text,
       };
 
       // Only add author if name is provided
       if (newComment.name.trim()) {
-        comment.author = newComment.name;
+        commentData.author = newComment.name;
       }
 
-      // Add to current video's comments using state setter
-      const videoId = displayItems[currentIndex]?.id;
-      if (videoId && commentsData[videoId]) {
-        setCommentsData((prev) => ({
-          ...prev,
-          [videoId]: [...prev[videoId], comment].sort(
-            (a, b) => a.time - b.time
-          ),
-        }));
+      try {
+        await addComment(commentData);
+        // Reset form on success
+        setNewComment({ name: "", text: "" });
+        setShowCommentForm(false);
+      } catch (error) {
+        console.error("Failed to add comment:", error);
+        // Could add user feedback here
       }
-
-      // Reset form
-      setNewComment({ name: "", text: "" });
-      setShowCommentForm(false);
     }
   };
 
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % displayItems.length);
-    setIsPlaying(true); // Auto-play new video
+    // Safety check to ensure we have items
+    if (!displayItems.length || !isClient) return;
+
+    setCurrentIndex((prev) => {
+      if (prev === displayItems.length - 1) {
+        console.log("nextSlide: Going from last to first - using seamless transition");
+        // Use the clone at the end for seamless transition
+        setManualExtendedIndex(displayItems.length + 1); // Clone of first item at end
+        
+        // After transition completes, reset to actual first item
+        setTimeout(() => {
+          // Use requestAnimationFrame for smoother timing
+          requestAnimationFrame(() => {
+            setIsTransitioning(false);
+            setManualExtendedIndex(1); // Real first item
+            requestAnimationFrame(() => {
+              setIsTransitioning(true);
+              setManualExtendedIndex(null); // Clear manual override
+            });
+          });
+        }, 5); // Slightly longer than CSS transition to ensure completion
+        
+        return 0; // Update state to first item
+      } else {
+        const newIndex = Math.min(displayItems.length - 1, prev + 1);
+        console.log("nextSlide: Going from", prev, "to", newIndex);
+        return newIndex;
+      }
+    });
+    setIsPlaying(true);
   };
 
   const prevSlide = () => {
-    setCurrentIndex(
-      (prev) => (prev - 1 + displayItems.length) % displayItems.length
-    );
-    setIsPlaying(true); // Auto-play new video
+    console.log("prevSlide called - currentIndex:", currentIndex, "displayItems.length:", displayItems.length, "isClient:", isClient);
+    
+    // Safety check to ensure we have items
+    if (!displayItems.length || !isClient) {
+      console.log("prevSlide aborted - missing items or not client");
+      return;
+    }
+
+    setCurrentIndex((prev) => {
+      if (prev === 0) {
+        console.log("prevSlide: Going from first to last - using seamless transition");
+        // Use the clone at the beginning for seamless transition
+        setManualExtendedIndex(0); // Clone of last item at beginning
+        
+        // After transition completes, reset to actual last item
+        setTimeout(() => {
+          // Use requestAnimationFrame for smoother timing
+          requestAnimationFrame(() => {
+            setIsTransitioning(false);
+            setManualExtendedIndex(displayItems.length); // Real last item
+            requestAnimationFrame(() => {
+              setIsTransitioning(true);
+              setManualExtendedIndex(null); // Clear manual override
+            });
+          });
+        }, 310); // Slightly longer than CSS transition to ensure completion
+        
+        return displayItems.length - 1; // Update state to last item
+      } else {
+        const newIndex = Math.max(0, prev - 1);
+        console.log("prevSlide: Going from", prev, "to", newIndex);
+        return newIndex;
+      }
+    });
+    setIsPlaying(true);
   };
 
   const goToSlide = (index: number) => {
+    setManualExtendedIndex(null); // Reset manual index when directly navigating
     setCurrentIndex(index);
     setIsPlaying(true); // Auto-play new video
   };
 
   const toggleMute = () => {
-    setIsMuted(!isMuted);
     if (isClient) {
       const video = document.querySelector(
-        `[data-video-index="${currentIndex}"] video`
+        `[data-video-index="${extendedIndex}"] video`
       ) as HTMLVideoElement;
       if (video) {
-        video.muted = !isMuted;
+        // Read current video muted state directly
+        const newMutedState = !video.muted;
+        video.muted = newMutedState;
+        setIsMuted(newMutedState);
       }
     }
   };
@@ -325,15 +670,19 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
     if (isClient) {
       const video = document.querySelector(
-        `[data-video-index="${currentIndex}"] video`
+        `[data-video-index="${extendedIndex}"] video`
       ) as HTMLVideoElement;
       if (video) {
-        if (isPlaying) {
+        // Read current video playing state directly
+        const isCurrentlyPlaying = !video.paused;
+
+        if (isCurrentlyPlaying) {
           video.pause();
           setIsPlaying(false);
         } else {
-          video.play().catch(() => {
-            // Handle play restrictions
+          video.play().catch((error) => {
+            console.log("Play failed:", error);
+            setIsPlaying(false);
           });
           setIsPlaying(true);
         }
@@ -352,7 +701,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       const percentage = clickX / rect.width;
 
       const video = document.querySelector(
-        `[data-video-index="${currentIndex}"] video`
+        `[data-video-index="${extendedIndex}"] video`
       ) as HTMLVideoElement;
       if (video && video.duration) {
         const newTime = percentage * video.duration;
@@ -363,47 +712,60 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
   // Enhanced autoplay useEffect with Safari-specific handling
   useEffect(() => {
-    if (isClient) {
-      // First, pause all videos
-      const allVideos = document.querySelectorAll(
-        "[data-video-index] video"
-      ) as NodeListOf<HTMLVideoElement>;
-      allVideos.forEach((video) => {
-        video.pause();
-      });
+    if (!isClient) return;
 
-      // Then play only the current video if it should be playing
-      const currentVideo = document.querySelector(
-        `[data-video-index="${currentIndex}"] video`
-      ) as HTMLVideoElement;
-      if (currentVideo) {
-        currentVideo.muted = isMuted;
+    const timeoutId = setTimeout(() => {
+      try {
+        // First, pause all videos
+        const allVideos = document.querySelectorAll(
+          "[data-video-index] video"
+        ) as NodeListOf<HTMLVideoElement>;
+        allVideos.forEach((video, idx) => {
+          video.pause();
+          video.muted = isMuted; // Ensure all videos have correct mute state
+        });
 
-        // Safari-specific handling
-        if (isPlaying) {
-          // Wait for the video to be ready to play
-          const playWhenReady = () => {
-            currentVideo.play().catch((error) => {
-              console.log("Autoplay failed:", error);
-              // For Safari, we might need user interaction first
-            });
-          };
+        // Then play only the current video if it should be playing
+        const currentVideo = document.querySelector(
+          `[data-video-index="${extendedIndex}"] video`
+        ) as HTMLVideoElement;
+        
+        if (currentVideo) {
+          currentVideo.muted = isMuted;
+          currentVideo.currentTime = 0; // Reset to start for clean transitions
 
-          if (currentVideo.readyState >= 3) {
-            // Video is ready to play
-            playWhenReady();
-          } else {
-            // Wait for video to be ready
-            currentVideo.addEventListener("canplaythrough", playWhenReady, {
-              once: true,
-            });
+          if (isPlaying) {
+            // Enhanced playback initiation
+            const attemptPlay = () => {
+              currentVideo.play().catch((error) => {
+                console.log("Autoplay failed, will retry:", error);
+                // Retry with forced mute for autoplay
+                currentVideo.muted = true;
+                currentVideo.play().catch(() => {
+                  console.log("Final autoplay attempt failed");
+                });
+              });
+            };
+
+            if (currentVideo.readyState >= 2) { // HAVE_CURRENT_DATA
+              attemptPlay();
+            } else {
+              // Wait for video to be ready
+              currentVideo.addEventListener("loadeddata", attemptPlay, {
+                once: true,
+              });
+              // Trigger load if not already loading
+              currentVideo.load();
+            }
           }
-        } else {
-          currentVideo.pause();
         }
+      } catch (error) {
+        console.error("Video playback error:", error);
       }
-    }
-  }, [currentIndex, isMuted, isPlaying, isClient]);
+    }, 50); // Small delay to ensure DOM is ready
+
+    return () => clearTimeout(timeoutId);
+  }, [currentIndex, isMuted, isPlaying, isClient, extendedIndex]);
 
   // Track comment container height
   useEffect(() => {
@@ -423,11 +785,13 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   // Enhanced function to calculate visible comments with precise measurements
   const getVisibleComments = () => {
     const allComments = getCurrentComments().filter(
-      (comment) => currentTime >= comment.time
+      (comment) => currentTime >= comment.time_seconds
     );
 
     if (!commentContainerHeight || allComments.length === 0) {
-      return allComments.slice(-(isMobile ? 3 : 5)); // Conservative fallback
+      // Enhanced fallback for different modes
+      const fallbackCount = isFullscreen ? 12 : isMobile ? 3 : 5;
+      return allComments.slice(-fallbackCount);
     }
 
     // Available height accounting for padding and gaps
@@ -440,11 +804,12 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     // Work backwards from the most recent comments
     for (let i = allComments.length - 1; i >= 0; i--) {
       const comment = allComments[i];
-      const commentKey = `${comment.id}-${comment.time}`;
+      const commentKey = `${comment.id}-${comment.time_seconds}`;
 
       // Get measured height or use estimated height as fallback
-      const commentHeight =
-        measuredComments[commentKey] || (isMobile ? 55 : 65);
+      // Adjust estimated height for fullscreen mode
+      const estimatedHeight = isFullscreen ? 60 : isMobile ? 55 : 65;
+      const commentHeight = measuredComments[commentKey] || estimatedHeight;
 
       // Check if adding this comment would exceed available height
       const heightNeeded =
@@ -489,40 +854,40 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   useEffect(() => {
     if (isClient) {
       const currentVideo = document.querySelector(
-        `[data-video-index="${currentIndex}"] video`
+        `[data-video-index="${extendedIndex}"] video`
       ) as HTMLVideoElement;
       if (currentVideo) {
         currentVideo.currentTime = 0;
         setCurrentTime(0); // Reset comment timing
       }
     }
-  }, [currentIndex, isClient]);
+  }, [currentIndex, isClient, extendedIndex]);
 
   // Track video progress
   useEffect(() => {
-    if (isClient) {
-      const video = document.querySelector(
-        `[data-video-index="${currentIndex}"] video`
-      ) as HTMLVideoElement;
-      if (!video) return;
+    if (!isClient) return;
 
-      const updateProgress = () => {
-        if (video.duration) {
-          const progressPercent = (video.currentTime / video.duration) * 100;
-          setProgress(progressPercent);
-          setCurrentTime(video.currentTime);
-        }
-      };
+    const video = document.querySelector(
+      `[data-video-index="${extendedIndex}"] video`
+    ) as HTMLVideoElement;
+    if (!video) return;
 
-      video.addEventListener("timeupdate", updateProgress);
-      video.addEventListener("loadedmetadata", updateProgress);
+    const updateProgress = () => {
+      if (video.duration) {
+        const progressPercent = (video.currentTime / video.duration) * 100;
+        setProgress(progressPercent);
+        setCurrentTime(video.currentTime);
+      }
+    };
 
-      return () => {
-        video.removeEventListener("timeupdate", updateProgress);
-        video.removeEventListener("loadedmetadata", updateProgress);
-      };
-    }
-  }, [currentIndex, isClient]);
+    video.addEventListener("timeupdate", updateProgress);
+    video.addEventListener("loadedmetadata", updateProgress);
+
+    return () => {
+      video.removeEventListener("timeupdate", updateProgress);
+      video.removeEventListener("loadedmetadata", updateProgress);
+    };
+  }, [currentIndex, isClient, extendedIndex]);
 
   // Mouse drag handlers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -561,15 +926,28 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   const handleTouchStart = (e: React.TouchEvent) => {
     e.preventDefault(); // Prevent default touch behavior
     setIsDragging(true);
-    setDragStart(e.touches[0].clientX);
+
+    // Use vertical coordinates for fullscreen mobile, horizontal otherwise
+    if (isFullscreen && isMobile) {
+      setDragStart(e.touches[0].clientY);
+    } else {
+      setDragStart(e.touches[0].clientX);
+    }
     setDragStartTime(Date.now());
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
     e.preventDefault(); // Prevent scrolling/zooming
-    const diff = e.touches[0].clientX - dragStart;
-    setDragOffset(diff);
+
+    // Use vertical coordinates for fullscreen mobile, horizontal otherwise
+    if (isFullscreen && isMobile) {
+      const diff = e.touches[0].clientY - dragStart;
+      setDragOffset(diff);
+    } else {
+      const diff = e.touches[0].clientX - dragStart;
+      setDragOffset(diff);
+    }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
@@ -583,36 +961,210 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     if (wasQuickTap) {
       // This was a tap, toggle play/pause
       togglePlayPause();
-    } else if (dragOffset > threshold) {
-      prevSlide();
-    } else if (dragOffset < -threshold) {
-      nextSlide();
+    } else if (isFullscreen && isMobile) {
+      // Vertical swipes for fullscreen mobile: up = next, down = prev
+      if (dragOffset < -threshold) {
+        nextSlide(); // Swipe up = next
+      } else if (dragOffset > threshold) {
+        prevSlide(); // Swipe down = prev
+      }
+    } else {
+      // Horizontal swipes for desktop and non-fullscreen mobile
+      if (dragOffset > threshold) {
+        prevSlide(); // Swipe right = prev
+      } else if (dragOffset < -threshold) {
+        nextSlide(); // Swipe left = next
+      }
     }
 
     setIsDragging(false);
     setDragOffset(0);
   };
 
-  // Placeholder items if none provided
-  const defaultItems: CarouselItem[] = [
-    {
-      id: "1",
-      title: "Project Alpha",
-      description:
-        "An experimental interface design exploring new interaction patterns.",
-    },
-  ];
+  // Get visible thumbnails for revolving display
+  const getFilteredVideos = () => {
+    if (!videoSearchTerm.trim()) return displayItems;
+    return displayItems.filter((item) =>
+      item.title.toLowerCase().includes(videoSearchTerm.toLowerCase())
+    );
+  };
 
-  const displayItems = items.length > 0 ? items : defaultItems;
+  const getVisibleThumbnails = () => {
+    const maxVisible = isMobile ? 3 : 4;
+    const visibleThumbnails = [];
+
+    if (isMobile) {
+      // Mobile: show [current, next, next+1]
+      for (let i = 0; i < maxVisible; i++) {
+        const index = (currentIndex + i) % displayItems.length;
+        visibleThumbnails.push({
+          item: displayItems[index],
+          originalIndex: index,
+          isActive: index === currentIndex,
+        });
+      }
+    } else {
+      // Desktop: show [prev, current, next, next+1]
+      for (let i = -1; i < maxVisible - 1; i++) {
+        const index =
+          (currentIndex + i + displayItems.length) % displayItems.length;
+        visibleThumbnails.push({
+          item: displayItems[index],
+          originalIndex: index,
+          isActive: index === currentIndex,
+        });
+      }
+    }
+
+    return visibleThumbnails;
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowVideoDropdown(false);
+        setVideoSearchTerm("");
+      }
+    };
+
+    if (showVideoDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showVideoDropdown]);
+
+  // Close dropdown when video changes
+  useEffect(() => {
+    setShowVideoDropdown(false);
+  }, [currentIndex]);
+
+  // Keyboard navigation and shortcuts
+  useEffect(() => {
+    if (!isClient) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't handle keys if user is typing in an input (except for space bar which should work globally)
+      const isTyping =
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement;
+
+      // Global shortcuts that work even when typing
+      if (e.key === " ") {
+        e.preventDefault();
+        console.log("Space key pressed - toggling play/pause");
+        togglePlayPause();
+        return;
+      }
+
+      // Other shortcuts only work when not typing
+      if (isTyping) {
+        return;
+      }
+
+      // Media control shortcuts
+      if (e.key.toLowerCase() === "m") {
+        e.preventDefault();
+        console.log("M key pressed - toggling mute");
+        toggleMute();
+        return;
+      }
+
+      if (e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        if (!showCommentForm) {
+          setShowCommentForm(true);
+          // Focus the name input after the form opens
+          setTimeout(() => {
+            nameInputRef.current?.focus();
+          }, 100);
+        } else {
+          setShowCommentForm(false);
+        }
+        return;
+      }
+
+      if (e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        setShowAllComments(!showAllComments);
+        return;
+      }
+
+      if (e.key.toLowerCase() === "t") {
+        e.preventDefault();
+        setShowVideoDropdown(!showVideoDropdown);
+        return;
+      }
+
+      if (e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        toggleFullscreen();
+        return;
+      }
+
+      // Navigation shortcuts
+      if (isFullscreen && isMobile) {
+        // Mobile fullscreen: use up/down arrows
+        if (e.key === "ArrowUp") {
+          e.preventDefault();
+          console.log("Arrow Up pressed - calling prevSlide()");
+          prevSlide();
+        } else if (e.key === "ArrowDown") {
+          e.preventDefault();
+          console.log("Arrow Down pressed - calling nextSlide()");
+          nextSlide();
+        }
+      } else {
+        // Desktop and non-fullscreen mobile: use left/right arrows
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          console.log("Arrow Left pressed - calling prevSlide(), currentIndex:", currentIndex);
+          prevSlide();
+        } else if (e.key === "ArrowRight") {
+          e.preventDefault();
+          console.log("Arrow Right pressed - calling nextSlide(), currentIndex:", currentIndex);
+          nextSlide();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [
+    isClient,
+    isFullscreen,
+    isMobile,
+    showCommentForm,
+    showAllComments,
+    isMuted,
+    isPlaying,
+    showVideoDropdown,
+  ]);
 
   return (
-    <div className="relative w-full">
+    <div
+      ref={fullscreenContainerRef}
+      className={`relative ${isFullscreen ? "w-screen h-screen" : "w-full"}`}
+      suppressHydrationWarning={true}
+    >
       {/* Minimal Carousel */}
-      <div className="relative bg-accent-green overflow-hidden">
+      <div
+        className={`relative bg-accent-green overflow-hidden ${
+          isFullscreen ? "h-full flex flex-col" : ""
+        }`}
+      >
         {/* Screen */}
         <div
           ref={carouselRef}
-          className="relative aspect-video overflow-hidden cursor-grab active:cursor-grabbing"
+          className={`relative overflow-hidden cursor-grab active:cursor-grabbing ${
+            isFullscreen ? "flex-1" : "aspect-video"
+          }`}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -623,14 +1175,19 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         >
           {/* Carousel Content */}
           <div
-            className="flex h-full transition-transform duration-300 ease-out"
+            className={`h-full ${isTransitioning ? "transition-transform duration-300 ease-out" : ""} ${
+              isFullscreen && isMobile ? "flex flex-col" : "flex"
+            }`}
             style={{
-              transform: `translateX(${-currentIndex * 100 + (dragOffset / (carouselRef.current?.offsetWidth || 1)) * 100}%)`,
+              transform:
+                isFullscreen && isMobile
+                  ? `translateY(${-extendedIndex * 100 + (dragOffset / (carouselRef.current?.offsetHeight || 1)) * 100}%)`
+                  : `translateX(${-extendedIndex * 100 + (dragOffset / (carouselRef.current?.offsetWidth || 1)) * 100}%)`,
             }}
           >
-            {displayItems.map((item, index) => (
+            {extendedItems.map((item, index) => (
               <div
-                key={item.id}
+                key={`${index}-${item.title}`}
                 className="w-full h-full flex-shrink-0 relative"
                 data-video-index={index}
               >
@@ -638,33 +1195,59 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                   <>
                     <video
                       src={item.videoUrl}
-                      autoPlay
-                      muted // Use boolean attribute instead of muted={isMuted} for autoplay
+                      autoPlay={index === extendedIndex && isPlaying}
+                      muted={true} // Always muted for autoplay to work
                       loop
                       playsInline
                       webkit-playsinline="true"
-                      preload="auto" // Changed from "metadata" to "auto" for mobile Safari
+                      preload="auto" // Aggressive preloading for smooth transitions
                       controls={false} // Explicitly disable controls
                       className="w-full h-full object-cover border-0 outline-0"
                       poster={item.thumbnailUrl}
-                      onLoadedData={() => {
-                        // Force play when video is loaded on mobile Safari
-                        if (index === currentIndex && isPlaying) {
-                          const video = document.querySelector(
-                            `[data-video-index="${index}"] video`
-                          ) as HTMLVideoElement;
-                          if (video) {
-                            video.muted = true; // Ensure it's muted
-                            video.play().catch(() => {
-                              // Silent fail for autoplay restrictions
-                            });
-                          }
+                      onLoadedData={(e) => {
+                        const video = e.target as HTMLVideoElement;
+                        // Ensure video is ready and apply mute state
+                        video.muted = isMuted;
+                        
+                        // Force play current video if it should be playing
+                        if (index === extendedIndex && isPlaying) {
+                          video.currentTime = 0; // Reset to start
+                          video.play().catch((error) => {
+                            console.log("Autoplay failed:", error);
+                          });
                         }
                       }}
+                      onLoadedMetadata={(e) => {
+                        const video = e.target as HTMLVideoElement;
+                        // Ensure video dimensions are set
+                        video.muted = isMuted;
+                      }}
+                      onCanPlayThrough={(e) => {
+                        const video = e.target as HTMLVideoElement;
+                        // Video is fully loaded and can play without buffering
+                        if (index === extendedIndex && isPlaying && video.paused) {
+                          video.play().catch(() => {
+                            // Silent fail for autoplay restrictions
+                          });
+                        }
+                      }}
+                      onError={(e) => {
+                        console.error(`Video ${index} failed to load:`, e);
+                      }}
                     />
+                    
+                    {/* Loading indicator for videos that aren't preloaded */}
+                    {item.videoUrl && !preloadedVideos.has(item.videoUrl) && index === extendedIndex && (
+                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
+                        <div className="text-white text-sm flex items-center gap-2">
+                          {/* <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> */}
+                          {/* Loading... */}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Simple Play/Pause Overlay for Testing */}
-                    {index === currentIndex && (
+                    {index === extendedIndex && (
                       <div
                         className="absolute inset-0 z-5 cursor-pointer"
                         onClick={(e) => {
@@ -672,10 +1255,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                           e.stopPropagation();
                           togglePlayPause();
                         }}
+                        title="Play/pause (space)"
                       />
                     )}
                     {/* Title Overlay */}
-                    {index === currentIndex && (
+                    {index === extendedIndex && (
                       <div className="absolute top-4 left-4 z-10 bg-black/40 backdrop-blur-sm px-3 py-2 pointer-events-none">
                         <h3 className="text-white text-xs md:text-sm font-medium">
                           {item.title}
@@ -685,13 +1269,15 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
                     {/* Dynamic Comment Components - Column Layout */}
                     <AnimatePresence mode="popLayout">
-                      {index === currentIndex && showAllComments && (
+                      {index === extendedIndex && showAllComments && (
                         <div
                           ref={commentContainerRef}
-                          className={`absolute top-4 bottom-4 pointer-events-none ${
-                            isMobile
-                              ? "right-1 w-auto max-w-[70%]"
-                              : "right-2 w-auto max-w-[40%]"
+                          className={`absolute pointer-events-none ${
+                            isFullscreen
+                              ? "top-4 bottom-16 right-4 w-auto max-w-[50%]"
+                              : isMobile
+                                ? "top-4 bottom-4 right-1 w-auto max-w-[70%]"
+                                : "top-4 bottom-4 right-2 w-auto max-w-[40%]"
                           }`}
                         >
                           <div className="flex flex-col gap-2 h-full items-end justify-end">
@@ -720,9 +1306,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                 return text.substring(0, maxLength) + "...";
                               };
 
-                              const truncatedText = isMobile
-                                ? truncateTextWithGifs(comment.text, 30)
-                                : comment.text;
+                              const truncatedText = isFullscreen
+                                ? comment.text // Don't truncate in fullscreen
+                                : isMobile
+                                  ? truncateTextWithGifs(comment.text, 30)
+                                  : comment.text;
 
                               return (
                                 <motion.div
@@ -730,12 +1318,16 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                   ref={(el) =>
                                     measureComment(
                                       comment.id.toString(),
-                                      comment.time,
+                                      comment.time_seconds,
                                       el
                                     )
                                   }
-                                  className={`bg-black/60 backdrop-blur-sm rounded px-3 py-2 text-xs text-white w-auto inline-block ${
-                                    isMobile ? "max-w-[160px]" : "max-w-[200px]"
+                                  className={`bg-black/60 backdrop-blur-sm rounded-sm px-3 py-2 text-xs text-white w-auto inline-block ${
+                                    isFullscreen
+                                      ? "max-w-[300px]"
+                                      : isMobile
+                                        ? "max-w-[160px]"
+                                        : "max-w-[200px]"
                                   }`}
                                   initial={{ x: 30, opacity: 0 }}
                                   animate={{ x: 0, opacity: 1 }}
@@ -748,7 +1340,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                   <div className="leading-tight break-words">
                                     <div className="flex items-start gap-1 text-xs">
                                       <span className="text-white/60 flex-shrink-0 text-[10px]">
-                                        {formatTime(comment.time)}
+                                        {formatTime(comment.time_seconds)}
                                       </span>
                                       {comment.author && (
                                         <span className="text-white/80 flex-shrink-0 text-[10px]">
@@ -757,9 +1349,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                       )}
                                     </div>
                                     <div className="mt-1">
-                                      {renderCommentContent(
-                                        isMobile ? truncatedText : comment.text
-                                      )}
+                                      {renderCommentContent(truncatedText)}
                                     </div>
                                   </div>
                                 </motion.div>
@@ -789,35 +1379,157 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         </div>
 
         {/* Bottom Controls */}
-        <div className="flex items-center justify-between px-3 bg-accent-green-dark">
-          {/* Left - Slide Indicators */}
-          <div className="flex-shrink-0 pl-2">
+        <div className="flex items-center justify-between px-3 h-10 bg-accent-green-dark">
+          {/* Left - Video Selector Dropdown */}
+          <div className="flex-shrink-0 px-2 relative" ref={dropdownRef}>
             {displayItems.length > 1 && (
-              <div className="flex space-x-2">
-                {displayItems.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      goToSlide(index);
-                    }}
-                    className={`w-2 h-2 transition-colors ${
-                      index === currentIndex
-                        ? "bg-background"
-                        : "bg-background/40 hover:bg-background/60"
-                    }`}
-                  />
-                ))}
-              </div>
+              <>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowVideoDropdown(!showVideoDropdown);
+                  }}
+                  className="flex h-8 items-center p-1 -mx-1 hover:bg-background/10 transition-colors rounded-xs group relative"
+                  title="Select video (t)"
+                >
+                  <AnimatePresence mode="popLayout">
+                    {getVisibleThumbnails().map((thumb, index) => (
+                      <motion.div
+                        key={thumb.originalIndex}
+                        layout
+                        initial={{ opacity: 0, scale: 0.8, x: 20 }}
+                        animate={{
+                          opacity: thumb.isActive && isPlaying ? 0.8 : 1,
+                          scale: 1,
+                          x: 0,
+                        }}
+                        exit={{ opacity: 0, scale: 0.8, x: -20 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="w-5 h-5 overflow-hidden rounded-xs m-1"
+                      >
+                        {thumb.item.videoUrl ? (
+                          <video
+                            src={thumb.item.videoUrl}
+                            className="w-full h-full object-cover"
+                            muted
+                            playsInline
+                            preload="metadata"
+                            poster={thumb.item.thumbnailUrl}
+                          />
+                        ) : thumb.item.thumbnailUrl ? (
+                          <Image
+                            src={thumb.item.thumbnailUrl}
+                            alt={thumb.item.title}
+                            width={14}
+                            height={14}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-background/40"></div>
+                        )}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </button>
+
+                {/* Video Dropdown */}
+                <AnimatePresence>
+                  {showVideoDropdown && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute bottom-full left-0 mb-2 w-48 md:w-64 bg-accent-green-dark border border-accent-green  shadow-lg z-50 rounded-sm"
+                    >
+                      <div className="p-1.5 md:p-2">
+                        <div className="flex items-center gap-2 mb-1.5 md:mb-2 px-1.5 md:px-2">
+                          <div className="text-background/60 flex-shrink-0">
+                            <Search size={12} />
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Search videos..."
+                            value={videoSearchTerm}
+                            onChange={(e) => setVideoSearchTerm(e.target.value)}
+                            className="flex-1 px-2 py-1 text-[10px] md:text-xs bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40 rounded-sm"
+                          />
+                        </div>
+                        <div
+                          className={`${isMobile && isFullscreen ? "max-h-64" : "max-h-32 md:max-h-48"} overflow-y-auto space-y-1`}
+                        >
+                          {getFilteredVideos().map((item, filteredIndex) => {
+                            const index = displayItems.findIndex(
+                              (displayItem) => displayItem.title === item.title
+                            );
+                            return (
+                              <button
+                                key={`${index}-${item.title}`}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  goToSlide(index);
+                                  setShowVideoDropdown(false);
+                                }}
+                                className={`w-full flex items-center gap-2 md:gap-3 p-1.5 md:p-2 rounded-sm transition-colors text-left ${
+                                  index === currentIndex
+                                    ? "bg-background/20 text-background"
+                                    : "hover:bg-background/10 text-background/80"
+                                }`}
+                              >
+                                <div className="w-6 h-4 md:w-8 md:h-6 overflow-hidden rounded-sm flex-shrink-0">
+                                  {item.videoUrl ? (
+                                    <video
+                                      src={item.videoUrl}
+                                      className="w-full h-full object-cover"
+                                      muted
+                                      playsInline
+                                      preload="metadata"
+                                      poster={item.thumbnailUrl}
+                                    />
+                                  ) : item.thumbnailUrl ? (
+                                    <Image
+                                      src={item.thumbnailUrl}
+                                      alt={item.title}
+                                      width={32}
+                                      height={24}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full bg-background/40"></div>
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-[11px] md:text-xs font-medium">
+                                    {item.title}
+                                  </div>
+                                </div>
+
+                                {/* Comment count */}
+                                <div className="flex items-center gap-0.5 md:gap-1 text-background/60">
+                                  <MessageSquare className="w-2 h-2 md:w-2.5 md:h-2.5" />
+                                  <span className="text-[10px] md:text-xs">
+                                    {commentCounts[index] || 0}
+                                  </span>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </>
             )}
           </div>
 
           {/* Center - Progress Bar and Comment */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center flex-1 justify-center">
             <div className="relative">
               <div
-                className="w-48 h-1 bg-background/20 rounded-full overflow-hidden cursor-pointer hover:bg-background/30 transition-colors"
+                className="w-24 md:w-32 h-1 bg-background/20 rounded-full overflow-hidden cursor-pointer hover:bg-background/30 transition-colors"
                 onClick={handleProgressBarClick}
               >
                 <div
@@ -827,17 +1539,18 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
                 {/* Comment Indicators on Progress Bar */}
                 {isClient &&
+                  getCurrentComments().length > 0 &&
                   getCurrentComments().map((comment) => {
                     const video = document.querySelector(
-                      `[data-video-index="${currentIndex}"] video`
+                      `[data-video-index="${extendedIndex}"] video`
                     ) as HTMLVideoElement;
                     const duration = video?.duration || 30; // fallback duration
-                    const position = (comment.time / duration) * 100;
+                    const position = (comment.time_seconds / duration) * 100;
 
                     return (
                       <div
                         key={`indicator-${comment.id}`}
-                        className="absolute top-0 w-1 h-1 bg-black/30 rounded-none transform -translate-x-0.5 z-20"
+                        className="absolute top-0 w-1 h-1 bg-accent-green-dark rounded-none transform -translate-x-0.5 z-20"
                         style={{ left: `${Math.min(position, 95)}%` }}
                       />
                     );
@@ -852,30 +1565,39 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                 e.stopPropagation();
                 setShowCommentForm(!showCommentForm);
               }}
-              className="text-background/60 hover:text-background  transition-colors px-2 py-2 rounded-sm"
+              className="text-background/60 hover:text-background transition-colors h-6 px-2 flex items-center justify-center rounded-sm"
+              title="Add comment (c)"
             >
               <MessageSquare size={14} />
             </button>
           </div>
 
-          {/* Right - Mute Button and Comment Toggle */}
+          {/* Right - Mute Button, Comment Toggle, and Fullscreen Button */}
           <div className="flex-shrink-0 flex items-center gap-0">
             <button
               onClick={toggleMute}
-              className="text-background/60 hover:text-background transition-colors p-2"
+              className="text-background/60 hover:text-background transition-colors h-6 px-2 flex items-center justify-center"
+              title="Toggle mute (m)"
             >
               {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
             </button>
             <button
               onClick={() => setShowAllComments(!showAllComments)}
-              className={`transition-colors p-2 ${
-                showAllComments 
-                  ? "text-background hover:text-background/80" 
+              className={`transition-colors h-6 px-2 flex items-center justify-center ${
+                showAllComments
+                  ? "text-background hover:text-background/80"
                   : "text-background/40 hover:text-background/60"
               }`}
-              title={showAllComments ? "Hide comments" : "Show comments"}
+              title={`${showAllComments ? "Hide comments" : "Show comments"} (v)`}
             >
               <Menu size={14} />
+            </button>
+            <button
+              onClick={toggleFullscreen}
+              className="text-background/60 hover:text-background transition-colors h-6 px-2 flex items-center justify-center"
+              title={`${isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} (f)`}
+            >
+              {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
             </button>
           </div>
         </div>
@@ -890,70 +1612,64 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="overflow-hidden bg-accent-green-dark border-t border-accent-green"
             >
-              <div className="p-2">
-                <div className="flex flex-col sm:flex-row gap-2">
-                  {/* Top row on mobile, left side on desktop */}
-                  <div className="flex gap-2 flex-1">
-                    <input
-                      type="text"
-                      placeholder="Name"
-                      value={newComment.name}
-                      onChange={(e) =>
-                        setNewComment({ ...newComment, name: e.target.value })
-                      }
-                      className="w-20 px-2 py-1 text-xs bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Type text, add GIFs..."
-                      value={newComment.text}
-                      onChange={(e) =>
-                        setNewComment({ ...newComment, text: e.target.value })
-                      }
-                      className="flex-1 px-2 py-1 text-xs bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none"
-                    />
-                  </div>
-
-                  {/* Bottom row on mobile, right side on desktop */}
-                  <div className="flex gap-2 items-center justify-between sm:justify-end">
-                    <span className="text-background/60 text-xs">
-                      @{Math.floor(currentTime)}s
-                    </span>
-                    <div className="flex gap-1">
-                      <button
-                        ref={gifButtonRef}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          toggleGifPicker();
-                        }}
-                        className="px-2 py-1 text-xs bg-background/20 text-background hover:bg-background/30 transition-colors"
-                      >
-                        GIF
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleAddComment();
-                        }}
-                        disabled={!newComment.text.trim()}
-                        className="px-2 py-1 text-xs bg-background text-accent-green disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background/90 transition-colors"
-                      >
-                        Post
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setShowCommentForm(false);
-                          setShowGifPicker(false);
-                        }}
-                        className="px-2 py-1 text-xs bg-background/20 text-background hover:bg-background/30 transition-colors"
-                      >
-                        ×
-                      </button>
-                    </div>
+              <div className="flex items-center px-3 h-10">
+                <div className="flex items-center gap-2 flex-1">
+                  <input
+                    ref={nameInputRef}
+                    type="text"
+                    placeholder="Name"
+                    value={newComment.name}
+                    onChange={(e) =>
+                      setNewComment({ ...newComment, name: e.target.value })
+                    }
+                    className="w-20 h-6 px-2 text-xs bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Type text, add GIFs..."
+                    value={newComment.text}
+                    onChange={(e) =>
+                      setNewComment({ ...newComment, text: e.target.value })
+                    }
+                    className="flex-1 h-6 px-2 text-xs bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none"
+                  />
+                  <span className="text-background/60 text-xs h-6 flex items-center">
+                    @{Math.floor(currentTime)}s
+                  </span>
+                  <div className="flex gap-1">
+                    <button
+                      ref={gifButtonRef}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleGifPicker();
+                      }}
+                      className="h-6 px-2 text-xs bg-background/20 text-background hover:bg-background/30 transition-colors flex items-center justify-center"
+                    >
+                      GIF
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleAddComment();
+                      }}
+                      disabled={!newComment.text.trim()}
+                      className="h-6 px-2 text-xs bg-background text-accent-green disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background/90 transition-colors flex items-center justify-center"
+                    >
+                      Post
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setShowCommentForm(false);
+                        setShowGifPicker(false);
+                      }}
+                      className="h-6 px-2 text-xs bg-background/20 text-background hover:bg-background/30 transition-colors flex items-center justify-center"
+                    >
+                      ×
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1008,8 +1724,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                 }}
                                 className="w-full relative bg-background/10 hover:bg-background/20 transition-colors overflow-hidden border-0 p-0 rounded-sm touch-manipulation flex items-center justify-center"
                                 style={{
-                                  height: '80px',
-                                  aspectRatio: '1 / 1'
+                                  height: "80px",
+                                  aspectRatio: "1 / 1",
                                 }}
                               >
                                 <Image

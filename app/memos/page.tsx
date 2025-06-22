@@ -30,26 +30,35 @@ export default function Memos() {
               <div className="space-y-6">
                 <div>
                   <div className="text-xs text-foreground/40 mb-1">Dec 2024</div>
-                  <div className="text-foreground">
+                  <Link 
+                    href="/memos/backdoors-overlooked"
+                    className="text-foreground hover:text-foreground/80 transition-colors block"
+                  >
                     The backdoors that are often overlooked are usually the most obvious ones - 
                     the patterns we dismiss because they seem too simple or too direct.
-                  </div>
+                  </Link>
                 </div>
                 
                 <div>
                   <div className="text-xs text-foreground/40 mb-1">Nov 2024</div>
-                  <div className="text-foreground">
+                  <Link 
+                    href="/memos/growth-engineering-systems"
+                    className="text-foreground hover:text-foreground/80 transition-colors block"
+                  >
                     Growth engineering isn&apos;t just about metrics - it&apos;s about building systems 
                     that make the right behaviors feel natural and inevitable.
-                  </div>
+                  </Link>
                 </div>
 
                 <div>
                   <div className="text-xs text-foreground/40 mb-1">Nov 2024</div>
-                  <div className="text-foreground">
+                  <Link 
+                    href="/memos/interfaces-extensions-thought"
+                    className="text-foreground hover:text-foreground/80 transition-colors block"
+                  >
                     The best interfaces don&apos;t feel like interfaces at all. They feel like 
                     extensions of thought.
-                  </div>
+                  </Link>
                 </div>
               </div>
             </div>

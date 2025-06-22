@@ -1,0 +1,69 @@
+import Link from 'next/link'
+
+export const metadata = {
+  title: 'Interfaces as Extensions of Thought',
+  description: 'On designing interfaces that feel like natural extensions of cognition'
+}
+
+<div className="min-h-screen bg-background">
+  <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
+    <div className="max-w-xl mx-auto">
+      
+      {/* Header with back link */}
+      <div className="flex items-center justify-between mb-6 md:mb-8">
+        <Link 
+          href="/memos"
+          className="text-sm text-foreground/60 hover:text-foreground transition-colors"
+        >
+          ← Back to Memos
+        </Link>
+        <div className="text-sm text-foreground/60">Nov 2024</div>
+      </div>
+
+      {/* Page Title */}
+      <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-8 md:mb-12 leading-tight tracking-tight">
+        Interfaces as Extensions of Thought
+      </h1>
+
+      {/* Content */}
+      <div className="prose prose-lg max-w-none">
+        <div className="space-y-6">
+          
+          The best interfaces don&apos;t feel like interfaces at all. They feel like extensions of thought.
+
+          When you&apos;re writing, the keyboard disappears. When you&apos;re drawing, the stylus becomes invisible. The tool becomes transparent, and you&apos;re directly manipulating your ideas.
+
+          ## The Transparency Problem
+          
+          Most software interfaces are opaque. They demand your attention. They make you think about buttons and menus instead of your actual work.
+
+          Every click is a tax on your attention. Every menu is a barrier between intention and execution.
+
+          ## Natural Gestures
+          
+          Our hands know how to grasp, rotate, and manipulate objects. Our eyes know how to track movement and focus attention.
+
+          Why should digital interfaces require learning an entirely new vocabulary of interaction?
+
+          The most successful interfaces map digital actions to physical intuitions we already have.
+
+          ## Cognitive Load
+          
+          Good interfaces reduce cognitive load. Great interfaces redistribute it.
+
+          Instead of making you remember commands, they make patterns visible. Instead of requiring precise input, they anticipate your intent.
+
+          ## The Future
+          
+          We&apos;re moving toward interfaces that adapt to how we naturally think and move.
+
+          Voice, gesture, eye tracking, and brain-computer interfaces are all steps toward the same goal: making the boundary between thought and action disappear.
+
+          The ultimate interface is no interface at all.
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div> 

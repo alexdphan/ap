@@ -1,0 +1,65 @@
+import Link from 'next/link'
+
+export const metadata = {
+  title: 'Experimental Interface Design',
+  description: 'Exploring new patterns for human-computer interaction'
+}
+
+<div className="min-h-screen bg-background">
+  <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
+    <div className="max-w-xl mx-auto">
+      
+      {/* Header with back link */}
+      <div className="flex items-center justify-between mb-6 md:mb-8">
+        <Link 
+          href="/projects"
+          className="text-sm text-foreground/60 hover:text-foreground transition-colors"
+        >
+          ← Back to Projects
+        </Link>
+        <div className="text-sm text-foreground/60">Nov 2024</div>
+      </div>
+
+      {/* Page Title */}
+      <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-8 md:mb-12 leading-tight tracking-tight">
+        Experimental Interface Design
+      </h1>
+
+      {/* Content */}
+      <div className="prose prose-lg max-w-none">
+        <div className="space-y-6">
+          
+          The best interfaces don&apos;t feel like interfaces at all. They feel like extensions of thought.
+
+          ## Current Explorations
+          
+          I&apos;m investigating interaction patterns that feel more natural and intuitive than traditional UI paradigms.
+
+          - Gesture-based navigation that mimics physical intuition
+          - Contextual interfaces that adapt to user intent
+          - Micro-interactions that provide meaningful feedback
+          - Spatial computing interfaces for 3D environments
+
+          ## Philosophy
+          
+          Most interfaces today are still trapped in desktop metaphors from the 1980s. We&apos;re designing for screens, but thinking is spatial and embodied.
+
+          What if interfaces responded to the way we naturally move, gesture, and think? What if the boundary between tool and thought became blurred?
+
+          ## Prototypes
+          
+          Currently building experimental prototypes that explore:
+
+          - Voice + gesture multimodal controls
+          - AI-assisted interface generation
+          - Haptic feedback systems for web interfaces
+          - Eye-tracking for implicit user research
+
+          Each prototype challenges a fundamental assumption about how we interact with computers.
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div> 

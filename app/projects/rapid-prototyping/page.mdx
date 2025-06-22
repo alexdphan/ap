@@ -1,0 +1,70 @@
+import Link from 'next/link'
+
+export const metadata = {
+  title: 'Rapid Prototyping',
+  description: 'Fast iteration and experimental development'
+}
+
+<div className="min-h-screen bg-background">
+  <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
+    <div className="max-w-xl mx-auto">
+      
+      {/* Header with back link */}
+      <div className="flex items-center justify-between mb-6 md:mb-8">
+        <Link 
+          href="/projects"
+          className="text-sm text-foreground/60 hover:text-foreground transition-colors"
+        >
+          ← Back to Projects
+        </Link>
+        <div className="text-sm text-foreground/60">Oct 2024</div>
+      </div>
+
+      {/* Page Title */}
+      <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-8 md:mb-12 leading-tight tracking-tight">
+        Rapid Prototyping
+      </h1>
+
+      {/* Content */}
+      <div className="prose prose-lg max-w-none">
+        <div className="space-y-6">
+          
+          The fastest way to test an idea is to build the smallest version that can demonstrate the core concept.
+
+          ## Philosophy
+          
+          Perfect is the enemy of good, and good is often the enemy of fast. When testing new concepts, speed of iteration matters more than code quality.
+
+          The goal isn&apos;t to build production-ready software. It&apos;s to answer specific questions as quickly as possible.
+
+          ## Current Experiments
+          
+          - Voice-controlled development environments
+          - AI-assisted code review tools
+          - Real-time collaborative design systems
+          - Browser automation for testing workflows
+
+          ## Tools & Stack
+          
+          For maximum speed, I lean on tools that let me focus on the unique parts of each prototype:
+
+          - Next.js for web apps
+          - Vercel for instant deployment
+          - Tailwind for rapid styling
+          - Supabase for backend needs
+          - Framer Motion for interactions
+
+          ## Learnings
+          
+          Most ideas don&apos;t work. The ones that do work often work for different reasons than you initially thought.
+
+          The prototype that takes 2 weeks to build will teach you more than 6 months of planning.
+
+          Build fast, learn fast, kill fast, iterate fast.
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div> 
