@@ -105,33 +105,39 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     manualExtendedIndex !== null ? manualExtendedIndex : currentIndex + 1;
 
   // Function to get adjacent video indices for preloading
-  const getAdjacentIndices = useCallback((currentIdx: number) => {
-    const total = displayItems.length;
-    const prev = (currentIdx - 1 + total) % total;
-    const next = (currentIdx + 1) % total;
-    return { prev, current: currentIdx, next };
-  }, [displayItems.length]);
+  const getAdjacentIndices = useCallback(
+    (currentIdx: number) => {
+      const total = displayItems.length;
+      const prev = (currentIdx - 1 + total) % total;
+      const next = (currentIdx + 1) % total;
+      return { prev, current: currentIdx, next };
+    },
+    [displayItems.length]
+  );
 
   // Simplified preloading for Safari compatibility
-  const preloadVideo = useCallback((videoUrl: string) => {
-    if (!videoUrl || preloadedVideos.has(videoUrl)) return;
+  const preloadVideo = useCallback(
+    (videoUrl: string) => {
+      if (!videoUrl || preloadedVideos.has(videoUrl)) return;
 
-    const video = document.createElement("video");
-    video.src = videoUrl;
-    video.preload = "metadata"; // More conservative for Safari
-    video.muted = true;
-    video.playsInline = true;
+      const video = document.createElement("video");
+      video.src = videoUrl;
+      video.preload = "metadata"; // More conservative for Safari
+      video.muted = true;
+      video.playsInline = true;
 
-    video.addEventListener(
-      "loadeddata",
-      () => {
-        setPreloadedVideos((prev) => new Set([...prev, videoUrl]));
-      },
-      { once: true }
-    );
+      video.addEventListener(
+        "loadeddata",
+        () => {
+          setPreloadedVideos((prev) => new Set([...prev, videoUrl]));
+        },
+        { once: true }
+      );
 
-    video.load();
-  }, [preloadedVideos]);
+      video.load();
+    },
+    [preloadedVideos]
+  );
 
   // Preload adjacent videos when current video changes
   useEffect(() => {
@@ -204,8 +210,13 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   }, [isClient]);
 
   const toggleFullscreen = async () => {
-    console.log("toggleFullscreen called - isFullscreen:", isFullscreen, "isMobile:", isMobile);
-    
+    console.log(
+      "toggleFullscreen called - isFullscreen:",
+      isFullscreen,
+      "isMobile:",
+      isMobile
+    );
+
     if (!fullscreenContainerRef.current) {
       console.log("toggleFullscreen: fullscreenContainerRef is null");
       return;
@@ -1215,7 +1226,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     {item.videoUrl &&
                       !preloadedVideos.has(item.videoUrl) &&
                       index === extendedIndex && (
-                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
+                        <div className="absolute inset-0 flex items-center justify-center z-10">
                           <div className="text-white text-sm flex items-center gap-2">
                             {/* <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> */}
                             {/* Loading... */}
@@ -1356,7 +1367,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         </div>
 
         {/* Bottom Controls */}
-        <div className="flex items-center justify-between px-3 h-10 bg-accent-green-dark relative z-40" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div
+          className="flex items-center justify-between px-3 h-10 bg-accent-green-dark relative z-40"
+          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        >
           {/* Left - Video Selector Dropdown */}
           <div className="flex-shrink-0 px-2 relative" ref={dropdownRef}>
             {displayItems.length > 1 && (
@@ -1471,7 +1485,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                       poster={item.thumbnailUrl}
                                       onLoadedMetadata={(e) => {
                                         // Safari fix: Force seek to show first frame
-                                        const video = e.target as HTMLVideoElement;
+                                        const video =
+                                          e.target as HTMLVideoElement;
                                         if (video.duration > 0) {
                                           video.currentTime = 0.1;
                                         }
@@ -1582,16 +1597,30 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               <Menu size={14} />
             </button>
             <button
-              onClick={toggleFullscreen}
-              className="text-background/60 hover:text-background transition-colors h-10 px-4 md:h-6 md:px-2 flex items-center justify-center touch-manipulation relative z-50 min-w-[44px]"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("Fullscreen button clicked!");
+                toggleFullscreen();
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("Fullscreen button touched!");
+                toggleFullscreen();
+              }}
+              className="text-background/60 hover:text-background transition-colors h-12 px-4 md:h-6 md:px-2 flex items-center justify-center touch-manipulation relative z-[110] min-w-[48px] bg-accent-green-dark"
               title={`${isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} (f)`}
               style={{
-                WebkitTouchCallout: 'none',
-                WebkitUserSelect: 'none',
-                touchAction: 'manipulation'
+                WebkitTouchCallout: "none",
+                WebkitUserSelect: "none",
+                touchAction: "manipulation",
+                WebkitTapHighlightColor: "transparent",
+                position: "relative",
+                isolation: "isolate"
               }}
             >
-              {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
+              {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
             </button>
           </div>
         </div>
