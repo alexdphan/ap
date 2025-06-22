@@ -15,7 +15,6 @@ export default function PageTransition({ children }: PageTransitionProps) {
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const prevPathRef = useRef(pathname);
   const isFirstRender = useRef(true);
-  const nextPathRef = useRef<string | null>(null);
 
   // Determine transition direction based on navigation
   const getTransitionDirection = (

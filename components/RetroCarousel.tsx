@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   VolumeX,
   Volume2,
@@ -163,7 +163,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         preloadVideo(item.videoUrl, i);
       }
     }
-  }, [isClient, displayItems]);
+  }, [isClient, displayItems, preloadVideo]);
 
   // Prevent hydration mismatch and detect mobile
   useEffect(() => {
@@ -222,14 +222,12 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
   // Comments state - now using Supabase
   const [comments, setComments] = useState<Comment[]>([]);
-  const [loadingComments, setLoadingComments] = useState(false);
   const [commentCounts, setCommentCounts] = useState<Record<number, number>>(
     {}
   );
 
   // Fetch comments for current video
-  const fetchComments = async (videoIndex: number) => {
-    setLoadingComments(true);
+  const fetchComments = useCallback(async (videoIndex: number) => {
     try {
       const { data, error } = await supabase
         .from("comments")
@@ -242,10 +240,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     } catch (error) {
       console.error("Error fetching comments:", error);
       setComments([]);
-    } finally {
-      setLoadingComments(false);
     }
-  };
+  }, []);
 
   // Add new comment to database
   const addComment = async (comment: CommentInsert) => {
@@ -348,7 +344,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               console.debug("WebSocket cleanup error (expected in dev):", error.message);
             }
           });
-        } catch (error) {
+        } catch {
           // Silent cleanup
         }
       }
@@ -400,12 +396,12 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       
       if (channel) {
         try {
-          supabase.removeChannel(channel).catch((error) => {
+          supabase.removeChannel(channel).catch((_error) => {
             if (process.env.NODE_ENV === 'development') {
-              console.debug("WebSocket cleanup error (expected in dev):", error.message);
+              console.debug("WebSocket cleanup error (expected in dev):", _error.message);
             }
           });
-        } catch (error) {
+        } catch {
           // Silent cleanup
         }
       }
@@ -415,7 +411,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   // Fetch comments when video changes
   useEffect(() => {
     fetchComments(currentIndex);
-  }, [currentIndex]);
+  }, [currentIndex, fetchComments]);
 
   // Fetch comment counts on mount
   useEffect(() => {
@@ -473,8 +469,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       const response = await fetch(endpoint);
       const data = await response.json();
       setTenorGifs(data.results || []);
-    } catch (error) {
-      console.error("Failed to fetch GIFs:", error);
+    } catch (_error) {
+      console.error("Failed to fetch GIFs:", _error);
       setTenorGifs([]);
     } finally {
       setLoadingGifs(false);
@@ -559,14 +555,14 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         // Reset form on success
         setNewComment({ name: "", text: "" });
         setShowCommentForm(false);
-      } catch (error) {
-        console.error("Failed to add comment:", error);
+      } catch (_error) {
+        console.error("Failed to add comment:", _error);
         // Could add user feedback here
       }
     }
   };
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     // Safety check to ensure we have items
     if (!displayItems.length || !isClient) return;
 
@@ -597,9 +593,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       }
     });
     setIsPlaying(true);
-  };
+  }, [displayItems, isClient, setIsTransitioning, setManualExtendedIndex]);
 
-  const prevSlide = () => {
+  const prevSlide = useCallback(() => {
     console.log("prevSlide called - currentIndex:", currentIndex, "displayItems.length:", displayItems.length, "isClient:", isClient);
     
     // Safety check to ensure we have items
@@ -635,7 +631,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       }
     });
     setIsPlaying(true);
-  };
+  }, [displayItems, isClient, setIsTransitioning, setManualExtendedIndex, currentIndex]);
 
   const goToSlide = (index: number) => {
     setManualExtendedIndex(null); // Reset manual index when directly navigating
@@ -643,7 +639,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     setIsPlaying(true); // Auto-play new video
   };
 
-  const toggleMute = () => {
+  const toggleMute = useCallback(() => {
     if (isClient) {
       const video = document.querySelector(
         `[data-video-index="${extendedIndex}"] video`
@@ -655,9 +651,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         setIsMuted(newMutedState);
       }
     }
-  };
+  }, [isClient, extendedIndex]);
 
-  const togglePlayPause = () => {
+  const togglePlayPause = useCallback(() => {
     const now = Date.now();
     const timeSinceLastToggle = now - lastToggleTime.current;
 
@@ -688,7 +684,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         }
       }
     }
-  };
+  }, [isClient, extendedIndex]);
 
   const handleProgressBarClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -720,7 +716,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         const allVideos = document.querySelectorAll(
           "[data-video-index] video"
         ) as NodeListOf<HTMLVideoElement>;
-        allVideos.forEach((video, idx) => {
+        allVideos.forEach((video) => {
           video.pause();
           video.muted = isMuted; // Ensure all videos have correct mute state
         });
@@ -737,8 +733,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
           if (isPlaying) {
             // Enhanced playback initiation
             const attemptPlay = () => {
-              currentVideo.play().catch((error) => {
-                console.log("Autoplay failed, will retry:", error);
+              currentVideo.play().catch((_error) => {
+                console.log("Autoplay failed, will retry:", _error);
                 // Retry with forced mute for autoplay
                 currentVideo.muted = true;
                 currentVideo.play().catch(() => {
@@ -759,8 +755,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
             }
           }
         }
-      } catch (error) {
-        console.error("Video playback error:", error);
+      } catch (_error) {
+        console.error("Video playback error:", _error);
       }
     }, 50); // Small delay to ensure DOM is ready
 
@@ -1145,6 +1141,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     isMuted,
     isPlaying,
     showVideoDropdown,
+    currentIndex,
+    nextSlide,
+    prevSlide,
+    toggleMute,
+    togglePlayPause,
   ]);
 
   return (
@@ -1394,7 +1395,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                   title="Select video (t)"
                 >
                   <AnimatePresence mode="popLayout">
-                    {getVisibleThumbnails().map((thumb, index) => (
+                    {getVisibleThumbnails().map((thumb) => (
                       <motion.div
                         key={thumb.originalIndex}
                         layout
@@ -1459,7 +1460,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         <div
                           className={`${isMobile && isFullscreen ? "max-h-64" : "max-h-32 md:max-h-48"} overflow-y-auto space-y-1`}
                         >
-                          {getFilteredVideos().map((item, filteredIndex) => {
+                          {getFilteredVideos().map((item) => {
                             const index = displayItems.findIndex(
                               (displayItem) => displayItem.title === item.title
                             );

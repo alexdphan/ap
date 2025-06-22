@@ -12,28 +12,23 @@ export default function NavigationHandler() {
       const link = target.closest('a');
       
       if (link && link.href) {
-        try {
-          const url = new URL(link.href);
-          const href = url.pathname;
+        const url = new URL(link.href);
+        const href = url.pathname;
+        
+        // Only intercept internal links that are different from current page
+        if (url.origin === window.location.origin && href !== pathname && !href.includes('#')) {
+          e.preventDefault();
+          e.stopPropagation();
           
-          // Only intercept internal links that are different from current page
-          if (url.origin === window.location.origin && href !== pathname && !href.includes('#')) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            console.log(`Intercepting navigation to: ${href}`);
-            
-            // Dispatch transition event immediately
-            window.dispatchEvent(new CustomEvent('startPageTransition'));
-            
-            // Navigate after delay to allow transition to start
-            setTimeout(() => {
-              router.push(href);
-            }, 300);
-          }
-        } catch (error) {
-          // If URL parsing fails, let the default behavior happen
-          console.log('URL parsing failed, allowing default navigation');
+          console.log(`Intercepting navigation to: ${href}`);
+          
+          // Dispatch transition event immediately
+          window.dispatchEvent(new CustomEvent('startPageTransition'));
+          
+          // Navigate after delay to allow transition to start
+          setTimeout(() => {
+            router.push(href);
+          }, 300);
         }
       }
     };
