@@ -1165,6 +1165,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
           ? "fixed inset-0 w-screen h-screen z-[9999] bg-black" 
           : "relative w-full"
       }`}
+      style={{
+        paddingTop: isFullscreen ? "env(safe-area-inset-top)" : undefined,
+        paddingLeft: isFullscreen ? "env(safe-area-inset-left)" : undefined,
+        paddingRight: isFullscreen ? "env(safe-area-inset-right)" : undefined,
+      }}
       suppressHydrationWarning={true}
     >
       {/* Minimal Carousel */}
@@ -1362,8 +1367,16 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
         {/* Bottom Controls */}
         <div
-          className="flex items-center justify-between px-3 h-10 bg-accent-green-dark relative z-40"
-          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+          className={`flex items-center justify-between px-3 bg-accent-green-dark relative z-40 ${
+            isFullscreen 
+              ? "h-auto py-2" 
+              : "h-10"
+          }`}
+          style={{ 
+            paddingBottom: isFullscreen 
+              ? `calc(0.5rem + env(safe-area-inset-bottom))` 
+              : "env(safe-area-inset-bottom)" 
+          }}
         >
           {/* Left - Video Selector Dropdown */}
           <div className="flex-shrink-0 px-2 relative" ref={dropdownRef}>
@@ -1615,7 +1628,14 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="overflow-hidden bg-accent-green-dark border-t border-accent-green"
             >
-              <div className="flex items-center px-3 h-10">
+              <div 
+                className={`flex items-center px-3 ${isFullscreen ? "h-auto py-2" : "h-10"}`}
+                style={{
+                  paddingBottom: isFullscreen 
+                    ? `calc(0.5rem + env(safe-area-inset-bottom))` 
+                    : undefined
+                }}
+              >
                 <div className="flex items-center gap-2 flex-1">
                   <input
                     ref={nameInputRef}
