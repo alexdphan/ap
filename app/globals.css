@@ -91,3 +91,32 @@ body {
 .bg-accent-green {
   background-color: #05402C !important;
 }
+
+/* Safari fullscreen support */
+@supports (-webkit-touch-callout: none) {
+  /* Safari-specific styles */
+  .safari-fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+    -webkit-transform: translateZ(0) !important;
+    transform: translateZ(0) !important;
+  }
+  
+  .safari-fullscreen-controls {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 10000 !important;
+    -webkit-transform: translateZ(0) !important;
+    transform: translateZ(0) !important;
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 20px)) !important;
+    min-height: 44px !important;
+  }
+}

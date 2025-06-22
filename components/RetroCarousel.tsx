@@ -217,8 +217,28 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     if (isClient) {
       if (newFullscreenState) {
         document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        document.body.style.height = '100%';
+        
+        // Debug Safari specifics
+        console.log('Safari detection:', {
+          isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
+          safeAreaBottom: getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-bottom)'),
+          viewport: {
+            width: window.innerWidth,
+            height: window.innerHeight,
+            visualViewport: window.visualViewport ? {
+              width: window.visualViewport.width,
+              height: window.visualViewport.height
+            } : 'not supported'
+          }
+        });
       } else {
         document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.height = '';
       }
     }
   };
@@ -1162,13 +1182,25 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       ref={fullscreenContainerRef}
       className={`${
         isFullscreen 
-          ? "fixed inset-0 w-screen h-screen z-[9999] bg-black" 
+          ? "fixed inset-0 w-screen h-screen z-[9999] bg-black safari-fullscreen" 
           : "relative w-full"
       }`}
       style={{
         paddingTop: isFullscreen ? "env(safe-area-inset-top)" : undefined,
         paddingLeft: isFullscreen ? "env(safe-area-inset-left)" : undefined,
         paddingRight: isFullscreen ? "env(safe-area-inset-right)" : undefined,
+        // Safari-specific fixes
+        ...(isFullscreen && {
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          zIndex: 9999,
+          WebkitTransform: 'translateZ(0)', // Force hardware acceleration
+        })
       }}
       suppressHydrationWarning={true}
     >
@@ -1367,15 +1399,24 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
         {/* Bottom Controls */}
         <div
-          className={`flex items-center justify-between px-3 bg-accent-green-dark relative z-40 ${
+          className={`flex items-center justify-between px-3 bg-accent-green-dark relative ${
             isFullscreen 
-              ? "h-auto py-2" 
-              : "h-10"
+              ? "h-auto py-2 z-[10000] safari-fullscreen-controls" 
+              : "h-10 z-40"
           }`}
           style={{ 
             paddingBottom: isFullscreen 
-              ? `calc(0.5rem + env(safe-area-inset-bottom))` 
-              : "env(safe-area-inset-bottom)" 
+              ? `calc(0.5rem + env(safe-area-inset-bottom, 20px))` 
+              : "env(safe-area-inset-bottom)",
+            // Safari-specific positioning
+            ...(isFullscreen && {
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              minHeight: '44px', // Minimum touch target for iOS
+              WebkitTransform: 'translateZ(0)', // Force hardware acceleration
+            })
           }}
         >
           {/* Left - Video Selector Dropdown */}
