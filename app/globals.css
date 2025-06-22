@@ -103,20 +103,22 @@ body {
     bottom: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
+    height: 100dvh !important; /* Dynamic viewport height for Safari */
     z-index: 9999 !important;
     -webkit-transform: translateZ(0) !important;
     transform: translateZ(0) !important;
   }
   
   .safari-fullscreen-controls {
-    position: absolute !important;
-    bottom: 0 !important;
+    position: fixed !important;
+    bottom: env(safe-area-inset-bottom, 0px) !important;
     left: 0 !important;
     right: 0 !important;
     z-index: 10000 !important;
     -webkit-transform: translateZ(0) !important;
     transform: translateZ(0) !important;
-    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 20px)) !important;
+    padding-bottom: 0.5rem !important;
     min-height: 44px !important;
+    background-color: #033022 !important;
   }
 }
