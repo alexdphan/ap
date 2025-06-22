@@ -92,6 +92,18 @@ body {
   background-color: #05402C !important;
 }
 
+/* Hide scrollbars */
+.scrollbar-hide {
+  /* Firefox */
+  scrollbar-width: none;
+  /* Safari and Chrome */
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Safari fullscreen support */
 @supports (-webkit-touch-callout: none) {
   /* Safari-specific styles */
