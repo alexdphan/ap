@@ -1380,7 +1380,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     e.stopPropagation();
                     setShowVideoDropdown(!showVideoDropdown);
                   }}
-                  className="flex h-8 items-center p-1 -mx-1 hover:bg-background/10 transition-colors rounded-xs group relative"
+                  className="flex h-8 items-center p-1 -mx-2 hover:bg-background/10 transition-colors rounded-xs group relative"
                   title="Select video (t)"
                 >
                   <AnimatePresence mode="popLayout">
@@ -1568,10 +1568,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                 e.stopPropagation();
                 setShowCommentForm(!showCommentForm);
               }}
-              className="text-background/60 hover:text-background transition-colors h-8 px-3 md:h-6 md:px-2 flex items-center justify-center rounded-sm touch-manipulation"
+              className="text-background/60 hover:text-background transition-colors h-8 px-2 md:h-6 md:px-2 flex items-center justify-center rounded-sm touch-manipulation"
               title="Add comment (c)"
             >
-              <MessageSquare size={14} />
+              <MessageSquare size={13} />
             </button>
           </div>
 
@@ -1579,10 +1579,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
           <div className="flex-shrink-0 flex items-center gap-0">
             <button
               onClick={toggleMute}
-              className="text-background/60 hover:text-background transition-colors h-8 px-3 md:h-6 md:px-2 flex items-center justify-center touch-manipulation"
+              className="text-background/60 hover:text-background transition-colors h-8 px-2 md:h-6 md:px-2 flex items-center justify-center touch-manipulation"
               title="Toggle mute (m)"
             >
-              {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+              {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
             </button>
             <button
               onClick={() => setShowAllComments(!showAllComments)}
@@ -1593,18 +1593,13 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               }`}
               title={`${showAllComments ? "Hide comments" : "Show comments"} (v)`}
             >
-              <Menu size={14} />
+              <Menu size={17} />
             </button>
-            <button
-              onClick={toggleFullscreen}
-              className="text-background/60 hover:text-background transition-colors h-10 px-4 md:h-6 md:px-2 flex items-center justify-center touch-manipulation relative z-50 min-w-[44px]"
-              title={`${isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} (f)`}
-              style={{
-                WebkitTouchCallout: "none",
-                WebkitUserSelect: "none",
-                touchAction: "manipulation",
-              }}
-            >
+                    <button
+          onClick={toggleFullscreen}
+          className="text-background/60 hover:text-background transition-colors h-8 px-2 md:h-6 md:px-2 flex items-center justify-center touch-manipulation"
+          title={`${isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} (f)`}
+        >
               {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
             </button>
           </div>
