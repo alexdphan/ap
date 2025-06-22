@@ -14,24 +14,6 @@ import Image from "next/image";
 import { supabase, Comment, CommentInsert } from "../lib/supabase";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
-// Extend interfaces for fullscreen API compatibility
-declare global {
-  interface HTMLElement {
-    webkitRequestFullscreen?: () => void;
-    webkitRequestFullScreen?: () => void;
-    mozRequestFullScreen?: () => void;
-    msRequestFullscreen?: () => void;
-  }
-  interface Document {
-    webkitFullscreenElement?: Element;
-    mozFullScreenElement?: Element;
-    msFullscreenElement?: Element;
-    webkitExitFullscreen?: () => void;
-    mozCancelFullScreen?: () => void;
-    msExitFullscreen?: () => void;
-  }
-}
-
 interface CarouselItem {
   title: string;
   description?: string;
@@ -211,35 +193,16 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     };
   }, []);
 
-  // Fullscreen functionality
+  // Cleanup body scroll on unmount
   useEffect(() => {
-    if (isClient) {
-      const handleFullscreenChange = () => {
-        const isFullscreenActive = !!(
-          document.fullscreenElement || 
-          document.webkitFullscreenElement || 
-          document.mozFullScreenElement ||
-          document.msFullscreenElement
-        );
-        setIsFullscreen(isFullscreenActive);
-      };
+    return () => {
+      if (isClient && isFullscreen) {
+        document.body.style.overflow = '';
+      }
+    };
+  }, [isClient, isFullscreen]);
 
-      // Add multiple event listeners for cross-browser support
-      document.addEventListener("fullscreenchange", handleFullscreenChange);
-      document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
-      document.addEventListener("mozfullscreenchange", handleFullscreenChange);
-      document.addEventListener("msfullscreenchange", handleFullscreenChange);
-      
-      return () => {
-        document.removeEventListener("fullscreenchange", handleFullscreenChange);
-        document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
-        document.removeEventListener("mozfullscreenchange", handleFullscreenChange);
-        document.removeEventListener("msfullscreenchange", handleFullscreenChange);
-      };
-    }
-  }, [isClient]);
-
-    const toggleFullscreen = async () => {
+    const toggleFullscreen = () => {
     console.log(
       "toggleFullscreen called - isFullscreen:",
       isFullscreen,
@@ -247,87 +210,15 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       isMobile
     );
 
-    // Use the container to maintain custom UI (controls and comments)
-    if (!fullscreenContainerRef.current) {
-      console.log("toggleFullscreen: fullscreenContainerRef is null");
-      return;
-    }
+    const newFullscreenState = !isFullscreen;
+    setIsFullscreen(newFullscreenState);
 
-    // Check if we're currently in fullscreen (with webkit prefix support)
-    const isCurrentlyFullscreen = 
-      document.fullscreenElement || 
-      document.webkitFullscreenElement || 
-      document.mozFullScreenElement ||
-      document.msFullscreenElement;
-
-    try {
-      if (!isCurrentlyFullscreen) {
-        console.log("Entering fullscreen...");
-        
-        // Add temporary styles to ensure fullscreen works on Safari
-        const element = fullscreenContainerRef.current;
-        element.style.width = '100vw';
-        element.style.height = '100vh';
-        
-        // Try different fullscreen methods for cross-browser compatibility
-        if (element.requestFullscreen) {
-          await element.requestFullscreen();
-        } else if (element.webkitRequestFullscreen) {
-          // Safari iOS - most common method
-          element.webkitRequestFullscreen();
-        } else if (element.webkitRequestFullScreen) {
-          // Alternative Safari iOS method (capital S)
-          element.webkitRequestFullScreen();
-        } else if (element.mozRequestFullScreen) {
-          // Firefox
-          element.mozRequestFullScreen();
-        } else if (element.msRequestFullscreen) {
-          // IE/Edge
-          element.msRequestFullscreen();
-        } else {
-          console.log("No fullscreen method available");
-        }
+    // Prevent body scroll when in fullscreen mode
+    if (isClient) {
+      if (newFullscreenState) {
+        document.body.style.overflow = 'hidden';
       } else {
-        console.log("Exiting fullscreen...");
-        
-        // Exit fullscreen with cross-browser support
-        if (document.exitFullscreen) {
-          await document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-          document.mozCancelFullScreen();
-        } else if (document.msExitFullscreen) {
-          document.msExitFullscreen();
-        } else if (isFullscreen && fullscreenContainerRef.current) {
-          // Manual exit for Safari fallback
-          console.log("Exiting Safari fallback fullscreen");
-          const element = fullscreenContainerRef.current;
-          element.style.position = '';
-          element.style.top = '';
-          element.style.left = '';
-          element.style.width = '';
-          element.style.height = '';
-          element.style.zIndex = '';
-          setIsFullscreen(false);
-        }
-      }
-    } catch (error) {
-      console.log("Fullscreen toggle failed:", error);
-      
-      // Fallback for Safari - sometimes manual styling helps
-      if (isMobile && !isCurrentlyFullscreen) {
-        console.log("Attempting Safari fallback fullscreen");
-        if (fullscreenContainerRef.current) {
-          const element = fullscreenContainerRef.current;
-          element.style.position = 'fixed';
-          element.style.top = '0';
-          element.style.left = '0';
-          element.style.width = '100vw';
-          element.style.height = '100vh';
-          element.style.zIndex = '9999';
-          setIsFullscreen(true);
-        }
+        document.body.style.overflow = '';
       }
     }
   };
@@ -1268,7 +1159,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   return (
     <div
       ref={fullscreenContainerRef}
-      className={`relative ${isFullscreen ? "w-screen h-screen" : "w-full"}`}
+      className={`${
+        isFullscreen 
+          ? "fixed inset-0 w-screen h-screen z-[9999] bg-black" 
+          : "relative w-full"
+      }`}
       suppressHydrationWarning={true}
     >
       {/* Minimal Carousel */}
