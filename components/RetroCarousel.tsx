@@ -1028,6 +1028,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     if (!isClient) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Skip all keyboard shortcuts on mobile devices
+      if (isMobile) return;
+
       // Don't handle keys if user is typing in an input (except for space bar which should work globally)
       const isTyping =
         e.target instanceof HTMLInputElement ||
