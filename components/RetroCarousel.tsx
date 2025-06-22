@@ -105,15 +105,15 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     manualExtendedIndex !== null ? manualExtendedIndex : currentIndex + 1;
 
   // Function to get adjacent video indices for preloading
-  const getAdjacentIndices = (currentIdx: number) => {
+  const getAdjacentIndices = useCallback((currentIdx: number) => {
     const total = displayItems.length;
     const prev = (currentIdx - 1 + total) % total;
     const next = (currentIdx + 1) % total;
     return { prev, current: currentIdx, next };
-  };
+  }, [displayItems.length]);
 
   // Simplified preloading for Safari compatibility
-  const preloadVideo = useCallback((videoUrl: string, index: number) => {
+  const preloadVideo = useCallback((videoUrl: string) => {
     if (!videoUrl || preloadedVideos.has(videoUrl)) return;
 
     const video = document.createElement("video");
@@ -143,10 +143,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     [prev, current, next].forEach((idx) => {
       const item = displayItems[idx];
       if (item?.videoUrl) {
-        preloadVideo(item.videoUrl, idx);
+        preloadVideo(item.videoUrl);
       }
     });
-  }, [currentIndex, isClient, displayItems]);
+  }, [currentIndex, isClient, displayItems, getAdjacentIndices, preloadVideo]);
 
   // Initial preload on mount
   useEffect(() => {
@@ -157,7 +157,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     for (let i = 0; i < videosToPreload; i++) {
       const item = displayItems[i];
       if (item?.videoUrl) {
-        preloadVideo(item.videoUrl, i);
+        preloadVideo(item.videoUrl);
       }
     }
   }, [isClient, displayItems, preloadVideo]);
@@ -1471,9 +1471,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                       }}
                                     />
                                   ) : item.thumbnailUrl ? (
-                                    <img
+                                    <Image
                                       src={item.thumbnailUrl}
                                       alt={item.title}
+                                      width={32}
+                                      height={24}
                                       className="w-full h-full object-cover"
                                     />
                                   ) : (
