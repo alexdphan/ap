@@ -1568,7 +1568,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                 e.stopPropagation();
                 setShowCommentForm(!showCommentForm);
               }}
-              className="text-background/60 hover:text-background transition-colors h-8 px-2 md:h-6 md:px-2 flex items-center justify-center touch-manipulation"
+              className="text-background/60 hover:text-background transition-colors h-8 pl-2 md:h-6 md:px-2 flex items-center justify-center touch-manipulation"
               title="Add comment (c)"
             >
               <MessageSquare size={13} />
