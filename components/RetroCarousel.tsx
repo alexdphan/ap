@@ -1547,7 +1547,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                 e.stopPropagation();
                 setShowCommentForm(!showCommentForm);
               }}
-              className="text-background/60 hover:text-background transition-colors h-6 px-2 flex items-center justify-center rounded-sm"
+              className="text-background/60 hover:text-background transition-colors h-8 px-3 md:h-6 md:px-2 flex items-center justify-center rounded-sm touch-manipulation"
               title="Add comment (c)"
             >
               <MessageSquare size={14} />
@@ -1558,14 +1558,14 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
           <div className="flex-shrink-0 flex items-center gap-0">
             <button
               onClick={toggleMute}
-              className="text-background/60 hover:text-background transition-colors h-6 px-2 flex items-center justify-center"
+              className="text-background/60 hover:text-background transition-colors h-8 px-3 md:h-6 md:px-2 flex items-center justify-center touch-manipulation"
               title="Toggle mute (m)"
             >
               {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
             </button>
             <button
               onClick={() => setShowAllComments(!showAllComments)}
-              className={`transition-colors h-6 px-2 flex items-center justify-center ${
+              className={`transition-colors h-8 px-3 md:h-6 md:px-2 flex items-center justify-center touch-manipulation ${
                 showAllComments
                   ? "text-background hover:text-background/80"
                   : "text-background/40 hover:text-background/60"
@@ -1576,7 +1576,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
             </button>
             <button
               onClick={toggleFullscreen}
-              className="text-background/60 hover:text-background transition-colors h-6 px-2 flex items-center justify-center"
+              className="text-background/60 hover:text-background transition-colors h-8 px-3 md:h-6 md:px-2 flex items-center justify-center touch-manipulation"
               title={`${isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} (f)`}
             >
               {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
@@ -1606,18 +1606,17 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     }
                     className="w-20 h-6 px-2 text-xs bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none"
                   />
-                  <input
-                    type="text"
-                    placeholder="Type text, add GIFs..."
-                    value={newComment.text}
-                    onChange={(e) =>
-                      setNewComment({ ...newComment, text: e.target.value })
-                    }
-                    className="flex-1 h-6 px-2 text-xs bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none"
-                  />
-                  <span className="text-background/60 text-xs h-6 flex items-center">
-                    @{Math.floor(currentTime)}s
-                  </span>
+                  <div className="flex-1 relative">
+                    <input
+                      type="text"
+                      placeholder={`Comment @${Math.floor(currentTime)}s`}
+                      value={newComment.text}
+                      onChange={(e) =>
+                        setNewComment({ ...newComment, text: e.target.value })
+                      }
+                      className="w-full h-6 px-2 pr-12 text-xs bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none"
+                    />
+                  </div>
                   <div className="flex gap-1">
                     <button
                       ref={gifButtonRef}
