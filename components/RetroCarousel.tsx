@@ -204,12 +204,19 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   }, [isClient]);
 
   const toggleFullscreen = async () => {
-    if (!fullscreenContainerRef.current) return;
+    console.log("toggleFullscreen called - isFullscreen:", isFullscreen, "isMobile:", isMobile);
+    
+    if (!fullscreenContainerRef.current) {
+      console.log("toggleFullscreen: fullscreenContainerRef is null");
+      return;
+    }
 
     try {
       if (!document.fullscreenElement) {
+        console.log("Entering fullscreen...");
         await fullscreenContainerRef.current.requestFullscreen();
       } else {
+        console.log("Exiting fullscreen...");
         await document.exitFullscreen();
       }
     } catch (error) {
@@ -1349,7 +1356,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         </div>
 
         {/* Bottom Controls */}
-        <div className="flex items-center justify-between px-3 h-10 bg-accent-green-dark">
+        <div className="flex items-center justify-between px-3 h-10 bg-accent-green-dark relative z-40" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
           {/* Left - Video Selector Dropdown */}
           <div className="flex-shrink-0 px-2 relative" ref={dropdownRef}>
             {displayItems.length > 1 && (
@@ -1576,8 +1583,13 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
             </button>
             <button
               onClick={toggleFullscreen}
-              className="text-background/60 hover:text-background transition-colors h-8 px-3 md:h-6 md:px-2 flex items-center justify-center touch-manipulation"
+              className="text-background/60 hover:text-background transition-colors h-10 px-4 md:h-6 md:px-2 flex items-center justify-center touch-manipulation relative z-50 min-w-[44px]"
               title={`${isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} (f)`}
+              style={{
+                WebkitTouchCallout: 'none',
+                WebkitUserSelect: 'none',
+                touchAction: 'manipulation'
+              }}
             >
               {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
             </button>
