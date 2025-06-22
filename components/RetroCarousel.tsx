@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect, useCallback, HTMLAttributes } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   VolumeX,
   Volume2,
@@ -14,10 +14,21 @@ import Image from "next/image";
 import { supabase, Comment, CommentInsert } from "../lib/supabase";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
-// Extend video element props to include allowFullScreen
-declare module "react" {
-  interface VideoHTMLAttributes<T> extends HTMLAttributes<T> {
-    allowFullScreen?: boolean;
+// Extend interfaces for fullscreen API compatibility
+declare global {
+  interface HTMLVideoElement {
+    webkitRequestFullscreen?: () => void;
+    webkitEnterFullscreen?: () => void;
+    mozRequestFullScreen?: () => void;
+    msRequestFullscreen?: () => void;
+  }
+  interface Document {
+    webkitFullscreenElement?: Element;
+    mozFullScreenElement?: Element;
+    msFullscreenElement?: Element;
+    webkitExitFullscreen?: () => void;
+    mozCancelFullScreen?: () => void;
+    msExitFullscreen?: () => void;
   }
 }
 
@@ -204,15 +215,27 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   useEffect(() => {
     if (isClient) {
       const handleFullscreenChange = () => {
-        setIsFullscreen(!!document.fullscreenElement);
+        const isFullscreenActive = !!(
+          document.fullscreenElement || 
+          document.webkitFullscreenElement || 
+          document.mozFullScreenElement ||
+          document.msFullscreenElement
+        );
+        setIsFullscreen(isFullscreenActive);
       };
 
+      // Add multiple event listeners for cross-browser support
       document.addEventListener("fullscreenchange", handleFullscreenChange);
-      return () =>
-        document.removeEventListener(
-          "fullscreenchange",
-          handleFullscreenChange
-        );
+      document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+      document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+      document.addEventListener("msfullscreenchange", handleFullscreenChange);
+      
+      return () => {
+        document.removeEventListener("fullscreenchange", handleFullscreenChange);
+        document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
+        document.removeEventListener("mozfullscreenchange", handleFullscreenChange);
+        document.removeEventListener("msfullscreenchange", handleFullscreenChange);
+      };
     }
   }, [isClient]);
 
@@ -224,20 +247,60 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       isMobile
     );
 
-    if (!fullscreenContainerRef.current) {
-      console.log("toggleFullscreen: fullscreenContainerRef is null");
+    // For Safari mobile, we need to apply fullscreen directly to the video element
+    const currentVideo = document.querySelector(
+      `[data-video-index="${extendedIndex}"] video`
+    ) as HTMLVideoElement;
+
+    if (!currentVideo) {
+      console.log("toggleFullscreen: currentVideo is null");
       return;
     }
 
-    try {
-      if (!document.fullscreenElement) {
-        console.log("Entering fullscreen...");
-        await fullscreenContainerRef.current.requestFullscreen();
-      } else {
-        console.log("Exiting fullscreen...");
-        await document.exitFullscreen();
-      }
-    } catch (error) {
+          try {
+        // Check if we're currently in fullscreen (with webkit prefix support)
+        const isCurrentlyFullscreen = 
+          document.fullscreenElement || 
+          document.webkitFullscreenElement || 
+          document.mozFullScreenElement ||
+          document.msFullscreenElement;
+
+        if (!isCurrentlyFullscreen) {
+          console.log("Entering fullscreen...");
+          
+          // Try different fullscreen methods for cross-browser compatibility
+          if (currentVideo.requestFullscreen) {
+            await currentVideo.requestFullscreen();
+          } else if (currentVideo.webkitRequestFullscreen) {
+            // Safari iOS
+            currentVideo.webkitRequestFullscreen();
+          } else if (currentVideo.webkitEnterFullscreen) {
+            // Alternative Safari iOS method
+            currentVideo.webkitEnterFullscreen();
+          } else if (currentVideo.mozRequestFullScreen) {
+            // Firefox
+            currentVideo.mozRequestFullScreen();
+          } else if (currentVideo.msRequestFullscreen) {
+            // IE/Edge
+            currentVideo.msRequestFullscreen();
+          } else {
+            console.log("No fullscreen method available");
+          }
+        } else {
+          console.log("Exiting fullscreen...");
+          
+          // Exit fullscreen with cross-browser support
+          if (document.exitFullscreen) {
+            await document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+          } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+          }
+        }
+      } catch (error) {
       console.log("Fullscreen toggle failed:", error);
     }
   };
@@ -1172,6 +1235,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     prevSlide,
     toggleMute,
     togglePlayPause,
+    toggleFullscreen,
   ]);
 
   return (
@@ -1225,7 +1289,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       muted={isMuted}
                       loop
                       playsInline
-                      allowFullScreen
                       className="w-full h-full object-cover border-0 outline-0"
                       poster={item.thumbnailUrl}
                     />
@@ -1413,7 +1476,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                             className="w-full h-full object-cover"
                             muted
                             playsInline
-                            allowFullScreen
                             preload="metadata"
                             poster={thumb.item.thumbnailUrl}
                             onLoadedMetadata={(e) => {
@@ -1490,7 +1552,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                       className="w-full h-full object-cover"
                                       muted
                                       playsInline
-                                      allowFullScreen
                                       preload="metadata"
                                       poster={item.thumbnailUrl}
                                       onLoadedMetadata={(e) => {
