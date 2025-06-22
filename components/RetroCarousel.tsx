@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import {
   VolumeX,
   Volume2,
@@ -986,15 +986,16 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     );
   };
 
-  const getVisibleThumbnails = () => {
+  const visibleThumbnails = useMemo(() => {
+    console.log("getVisibleThumbnails called");
     const maxVisible = isMobile ? 3 : 4;
-    const visibleThumbnails = [];
+    const thumbnails = [];
 
     if (isMobile) {
       // Mobile: show [current, next, next+1]
       for (let i = 0; i < maxVisible; i++) {
         const index = (currentIndex + i) % displayItems.length;
-        visibleThumbnails.push({
+        thumbnails.push({
           item: displayItems[index],
           originalIndex: index,
           isActive: index === currentIndex,
@@ -1005,7 +1006,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       for (let i = -1; i < maxVisible - 1; i++) {
         const index =
           (currentIndex + i + displayItems.length) % displayItems.length;
-        visibleThumbnails.push({
+        thumbnails.push({
           item: displayItems[index],
           originalIndex: index,
           isActive: index === currentIndex,
@@ -1013,8 +1014,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       }
     }
 
-    return visibleThumbnails;
-  };
+    return thumbnails;
+  }, [currentIndex, displayItems, isMobile]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -1378,7 +1379,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                   title="Select video (t)"
                 >
                   <AnimatePresence mode="popLayout">
-                    {getVisibleThumbnails().map((thumb) => (
+                    {visibleThumbnails.map((thumb) => (
                       <motion.div
                         key={thumb.originalIndex}
                         layout
@@ -1392,14 +1393,21 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                         className="w-5 h-5 overflow-hidden rounded-xs m-1"
                       >
-                        {thumb.item.videoUrl ? (
+                        {thumb.item.thumbnailUrl ? (
+                          <Image
+                            src={thumb.item.thumbnailUrl}
+                            alt={thumb.item.title}
+                            width={20}
+                            height={20}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : thumb.item.videoUrl ? (
                           <video
                             src={thumb.item.videoUrl}
                             className="w-full h-full object-cover"
                             muted
                             playsInline
                             preload="metadata"
-                            poster={thumb.item.thumbnailUrl}
                             onLoadedMetadata={(e) => {
                               // Safari fix: Force seek to show first frame
                               const video = e.target as HTMLVideoElement;
@@ -1407,12 +1415,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                 video.currentTime = 0.1;
                               }
                             }}
-                          />
-                        ) : thumb.item.thumbnailUrl ? (
-                          <Image
-                            src={thumb.item.thumbnailUrl}
-                            alt={thumb.item.title}
-                            className="w-full h-full object-cover"
                           />
                         ) : (
                           <div className="w-full h-full bg-background/40"></div>
@@ -1468,14 +1470,21 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                 }`}
                               >
                                 <div className="w-6 h-4 md:w-8 md:h-6 overflow-hidden rounded-sm flex-shrink-0">
-                                  {item.videoUrl ? (
+                                  {item.thumbnailUrl ? (
+                                    <Image
+                                      src={item.thumbnailUrl}
+                                      alt={item.title}
+                                      width={32}
+                                      height={24}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : item.videoUrl ? (
                                     <video
                                       src={item.videoUrl}
                                       className="w-full h-full object-cover"
                                       muted
                                       playsInline
                                       preload="metadata"
-                                      poster={item.thumbnailUrl}
                                       onLoadedMetadata={(e) => {
                                         // Safari fix: Force seek to show first frame
                                         const video =
@@ -1484,14 +1493,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                           video.currentTime = 0.1;
                                         }
                                       }}
-                                    />
-                                  ) : item.thumbnailUrl ? (
-                                    <Image
-                                      src={item.thumbnailUrl}
-                                      alt={item.title}
-                                      width={32}
-                                      height={24}
-                                      className="w-full h-full object-cover"
                                     />
                                   ) : (
                                     <div className="w-full h-full bg-background/40"></div>
