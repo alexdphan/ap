@@ -1161,11 +1161,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         <div
           ref={carouselRef}
           className={`relative overflow-hidden cursor-grab active:cursor-grabbing ${
-            isFullscreen 
-              ? "flex-1" 
-              : isMobile 
-                ? "aspect-[4/3]" 
-                : "aspect-video"
+            isFullscreen ? "flex-1" : "aspect-video"
           }`}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
