@@ -1371,7 +1371,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
           }}
         >
           {/* Left - Video Selector Dropdown */}
-          <div className="flex-shrink-0 px-2 relative" ref={dropdownRef}>
+          <div className="flex-shrink-0 relative" ref={dropdownRef}>
             {displayItems.length > 1 && (
               <>
                 <button
@@ -1380,7 +1380,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     e.stopPropagation();
                     setShowVideoDropdown(!showVideoDropdown);
                   }}
-                  className="flex h-8 items-center p-1 -mx-2 hover:bg-background/10 transition-colors group relative"
+                  className="flex h-8 items-center px-2 hover:bg-background/10 transition-colors group relative"
                   title="Select video (t)"
                 >
                   <AnimatePresence mode="popLayout">
@@ -1396,7 +1396,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         }}
                         exit={{ opacity: 0, scale: 0.8, x: -20 }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="w-5 h-5 overflow-hidden m-1"
+                        className="w-5 h-5 overflow-hidden mr-4 last:mr-0"
                       >
                         {thumb.item.thumbnailUrl ? (
                           <Image
@@ -1586,7 +1586,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
             </button>
             <button
               onClick={() => setShowAllComments(!showAllComments)}
-              className={`transition-colors h-8 px-3 md:h-6 md:px-2 flex items-center justify-center touch-manipulation ${
+              className={`transition-colors h-8 md:h-6 md:px-2 px-2 flex items-center justify-center touch-manipulation ${
                 showAllComments
                   ? "text-background hover:text-background/80"
                   : "text-background/40 hover:text-background/60"
