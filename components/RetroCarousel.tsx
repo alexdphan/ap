@@ -78,7 +78,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     null
   );
   const nameInputRef = useRef<HTMLInputElement>(null);
-  const [preloadedVideos, setPreloadedVideos] = useState<Set<string>>(new Set());
+  const [preloadedVideos, setPreloadedVideos] = useState<Set<string>>(
+    new Set()
+  );
   const videoRefs = useRef<{ [key: string]: HTMLVideoElement }>({});
 
   // Placeholder items if none provided
@@ -111,39 +113,35 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     return { prev, current: currentIdx, next };
   };
 
-  // Function to preload a video
-  const preloadVideo = (videoUrl: string, index: number) => {
+  // Simplified preloading for Safari compatibility
+  const preloadVideo = useCallback((videoUrl: string, index: number) => {
     if (!videoUrl || preloadedVideos.has(videoUrl)) return;
 
-    const video = document.createElement('video');
+    const video = document.createElement("video");
     video.src = videoUrl;
-    video.preload = 'auto';
+    video.preload = "metadata"; // More conservative for Safari
     video.muted = true;
     video.playsInline = true;
-    
-    // Store reference for potential reuse
-    videoRefs.current[`preload-${index}`] = video;
-    
-    video.addEventListener('loadeddata', () => {
-      setPreloadedVideos(prev => new Set([...prev, videoUrl]));
-    }, { once: true });
-    
-    video.addEventListener('error', () => {
-      console.warn(`Failed to preload video: ${videoUrl}`);
-    }, { once: true });
-    
-    // Start loading
+
+    video.addEventListener(
+      "loadeddata",
+      () => {
+        setPreloadedVideos((prev) => new Set([...prev, videoUrl]));
+      },
+      { once: true }
+    );
+
     video.load();
-  };
+  }, [preloadedVideos]);
 
   // Preload adjacent videos when current video changes
   useEffect(() => {
     if (!isClient) return;
 
     const { prev, current, next } = getAdjacentIndices(currentIndex);
-    
+
     // Preload current, previous, and next videos
-    [prev, current, next].forEach(idx => {
+    [prev, current, next].forEach((idx) => {
       const item = displayItems[idx];
       if (item?.videoUrl) {
         preloadVideo(item.videoUrl, idx);
@@ -306,7 +304,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
             },
             (payload) => {
               if (!mounted) return;
-              
+
               if (payload.eventType === "INSERT") {
                 setComments((prev) =>
                   [...prev, payload.new as Comment].sort(
@@ -321,9 +319,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
             }
           )
           .subscribe((status) => {
-            if (status === 'SUBSCRIBED') {
+            if (status === "SUBSCRIBED") {
               console.log(`Subscribed to comments for video ${currentIndex}`);
-            } else if (status === 'CHANNEL_ERROR') {
+            } else if (status === "CHANNEL_ERROR") {
               console.warn(`Channel error for video ${currentIndex}:`, status);
             }
           });
@@ -335,13 +333,16 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     return () => {
       mounted = false;
       clearTimeout(timeoutId);
-      
+
       if (channel) {
         try {
           supabase.removeChannel(channel).catch((error) => {
             // Silently handle WebSocket cleanup errors in development
-            if (process.env.NODE_ENV === 'development') {
-              console.debug("WebSocket cleanup error (expected in dev):", error.message);
+            if (process.env.NODE_ENV === "development") {
+              console.debug(
+                "WebSocket cleanup error (expected in dev):",
+                error.message
+              );
             }
           });
         } catch {
@@ -379,10 +380,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
             }
           )
           .subscribe((status) => {
-            if (status === 'SUBSCRIBED') {
-              console.log('Subscribed to comment count updates');
-            } else if (status === 'CHANNEL_ERROR') {
-              console.warn('Channel error for comment counts:', status);
+            if (status === "SUBSCRIBED") {
+              console.log("Subscribed to comment count updates");
+            } else if (status === "CHANNEL_ERROR") {
+              console.warn("Channel error for comment counts:", status);
             }
           });
       } catch (error) {
@@ -393,12 +394,15 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     return () => {
       mounted = false;
       clearTimeout(timeoutId);
-      
+
       if (channel) {
         try {
           supabase.removeChannel(channel).catch((_error) => {
-            if (process.env.NODE_ENV === 'development') {
-              console.debug("WebSocket cleanup error (expected in dev):", _error.message);
+            if (process.env.NODE_ENV === "development") {
+              console.debug(
+                "WebSocket cleanup error (expected in dev):",
+                _error.message
+              );
             }
           });
         } catch {
@@ -568,10 +572,12 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
     setCurrentIndex((prev) => {
       if (prev === displayItems.length - 1) {
-        console.log("nextSlide: Going from last to first - using seamless transition");
+        console.log(
+          "nextSlide: Going from last to first - using seamless transition"
+        );
         // Use the clone at the end for seamless transition
         setManualExtendedIndex(displayItems.length + 1); // Clone of first item at end
-        
+
         // After transition completes, reset to actual first item
         setTimeout(() => {
           // Use requestAnimationFrame for smoother timing
@@ -584,7 +590,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
             });
           });
         }, 5); // Slightly longer than CSS transition to ensure completion
-        
+
         return 0; // Update state to first item
       } else {
         const newIndex = Math.min(displayItems.length - 1, prev + 1);
@@ -596,8 +602,15 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   }, [displayItems, isClient, setIsTransitioning, setManualExtendedIndex]);
 
   const prevSlide = useCallback(() => {
-    console.log("prevSlide called - currentIndex:", currentIndex, "displayItems.length:", displayItems.length, "isClient:", isClient);
-    
+    console.log(
+      "prevSlide called - currentIndex:",
+      currentIndex,
+      "displayItems.length:",
+      displayItems.length,
+      "isClient:",
+      isClient
+    );
+
     // Safety check to ensure we have items
     if (!displayItems.length || !isClient) {
       console.log("prevSlide aborted - missing items or not client");
@@ -606,10 +619,12 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
     setCurrentIndex((prev) => {
       if (prev === 0) {
-        console.log("prevSlide: Going from first to last - using seamless transition");
+        console.log(
+          "prevSlide: Going from first to last - using seamless transition"
+        );
         // Use the clone at the beginning for seamless transition
         setManualExtendedIndex(0); // Clone of last item at beginning
-        
+
         // After transition completes, reset to actual last item
         setTimeout(() => {
           // Use requestAnimationFrame for smoother timing
@@ -622,7 +637,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
             });
           });
         }, 310); // Slightly longer than CSS transition to ensure completion
-        
+
         return displayItems.length - 1; // Update state to last item
       } else {
         const newIndex = Math.max(0, prev - 1);
@@ -631,7 +646,13 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       }
     });
     setIsPlaying(true);
-  }, [displayItems, isClient, setIsTransitioning, setManualExtendedIndex, currentIndex]);
+  }, [
+    displayItems,
+    isClient,
+    setIsTransitioning,
+    setManualExtendedIndex,
+    currentIndex,
+  ]);
 
   const goToSlide = (index: number) => {
     setManualExtendedIndex(null); // Reset manual index when directly navigating
@@ -706,59 +727,34 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     }
   };
 
-  // Enhanced autoplay useEffect with Safari-specific handling
+  // Simple autoplay for Safari compatibility
   useEffect(() => {
     if (!isClient) return;
 
     const timeoutId = setTimeout(() => {
-      try {
-        // First, pause all videos
-        const allVideos = document.querySelectorAll(
-          "[data-video-index] video"
-        ) as NodeListOf<HTMLVideoElement>;
-        allVideos.forEach((video) => {
-          video.pause();
-          video.muted = isMuted; // Ensure all videos have correct mute state
-        });
+      // First, pause all videos
+      const allVideos = document.querySelectorAll(
+        "[data-video-index] video"
+      ) as NodeListOf<HTMLVideoElement>;
+      allVideos.forEach((video) => {
+        video.pause();
+        video.muted = isMuted;
+      });
 
-        // Then play only the current video if it should be playing
-        const currentVideo = document.querySelector(
-          `[data-video-index="${extendedIndex}"] video`
-        ) as HTMLVideoElement;
-        
-        if (currentVideo) {
-          currentVideo.muted = isMuted;
-          currentVideo.currentTime = 0; // Reset to start for clean transitions
+      // Then play only the current video if it should be playing
+      const currentVideo = document.querySelector(
+        `[data-video-index="${extendedIndex}"] video`
+      ) as HTMLVideoElement;
 
-          if (isPlaying) {
-            // Enhanced playback initiation
-            const attemptPlay = () => {
-              currentVideo.play().catch((_error) => {
-                console.log("Autoplay failed, will retry:", _error);
-                // Retry with forced mute for autoplay
-                currentVideo.muted = true;
-                currentVideo.play().catch(() => {
-                  console.log("Final autoplay attempt failed");
-                });
-              });
-            };
-
-            if (currentVideo.readyState >= 2) { // HAVE_CURRENT_DATA
-              attemptPlay();
-            } else {
-              // Wait for video to be ready
-              currentVideo.addEventListener("loadeddata", attemptPlay, {
-                once: true,
-              });
-              // Trigger load if not already loading
-              currentVideo.load();
-            }
-          }
+      if (currentVideo) {
+        currentVideo.muted = isMuted;
+        if (isPlaying) {
+          currentVideo.play().catch(() => {
+            // Handle autoplay restrictions
+          });
         }
-      } catch (_error) {
-        console.error("Video playback error:", _error);
       }
-    }, 50); // Small delay to ensure DOM is ready
+    }, 50);
 
     return () => clearTimeout(timeoutId);
   }, [currentIndex, isMuted, isPlaying, isClient, extendedIndex]);
@@ -1120,11 +1116,17 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         // Desktop and non-fullscreen mobile: use left/right arrows
         if (e.key === "ArrowLeft") {
           e.preventDefault();
-          console.log("Arrow Left pressed - calling prevSlide(), currentIndex:", currentIndex);
+          console.log(
+            "Arrow Left pressed - calling prevSlide(), currentIndex:",
+            currentIndex
+          );
           prevSlide();
         } else if (e.key === "ArrowRight") {
           e.preventDefault();
-          console.log("Arrow Right pressed - calling nextSlide(), currentIndex:", currentIndex);
+          console.log(
+            "Arrow Right pressed - calling nextSlide(), currentIndex:",
+            currentIndex
+          );
           nextSlide();
         }
       }
@@ -1196,56 +1198,24 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                   <>
                     <video
                       src={item.videoUrl}
-                      autoPlay={index === extendedIndex && isPlaying}
-                      muted={true} // Always muted for autoplay to work
+                      muted={isMuted}
                       loop
                       playsInline
-                      webkit-playsinline="true"
-                      preload="auto" // Aggressive preloading for smooth transitions
-                      controls={false} // Explicitly disable controls
                       className="w-full h-full object-cover border-0 outline-0"
                       poster={item.thumbnailUrl}
-                      onLoadedData={(e) => {
-                        const video = e.target as HTMLVideoElement;
-                        // Ensure video is ready and apply mute state
-                        video.muted = isMuted;
-                        
-                        // Force play current video if it should be playing
-                        if (index === extendedIndex && isPlaying) {
-                          video.currentTime = 0; // Reset to start
-                          video.play().catch((error) => {
-                            console.log("Autoplay failed:", error);
-                          });
-                        }
-                      }}
-                      onLoadedMetadata={(e) => {
-                        const video = e.target as HTMLVideoElement;
-                        // Ensure video dimensions are set
-                        video.muted = isMuted;
-                      }}
-                      onCanPlayThrough={(e) => {
-                        const video = e.target as HTMLVideoElement;
-                        // Video is fully loaded and can play without buffering
-                        if (index === extendedIndex && isPlaying && video.paused) {
-                          video.play().catch(() => {
-                            // Silent fail for autoplay restrictions
-                          });
-                        }
-                      }}
-                      onError={(e) => {
-                        console.error(`Video ${index} failed to load:`, e);
-                      }}
                     />
-                    
+
                     {/* Loading indicator for videos that aren't preloaded */}
-                    {item.videoUrl && !preloadedVideos.has(item.videoUrl) && index === extendedIndex && (
-                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
-                        <div className="text-white text-sm flex items-center gap-2">
-                          {/* <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> */}
-                          {/* Loading... */}
+                    {item.videoUrl &&
+                      !preloadedVideos.has(item.videoUrl) &&
+                      index === extendedIndex && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
+                          <div className="text-white text-sm flex items-center gap-2">
+                            {/* <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> */}
+                            {/* Loading... */}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
                     {/* Simple Play/Pause Overlay for Testing */}
                     {index === extendedIndex && (
