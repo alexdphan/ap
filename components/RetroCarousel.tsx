@@ -81,7 +81,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   const [preloadedVideos, setPreloadedVideos] = useState<Set<string>>(
     new Set()
   );
-  const videoRefs = useRef<{ [key: string]: HTMLVideoElement }>({});
 
   // Placeholder items if none provided
   const defaultItems: CarouselItem[] = [
