@@ -1,5 +1,11 @@
 "use client";
-import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import {
   VolumeX,
   Volume2,
@@ -62,12 +68,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   const carouselRef = useRef<HTMLDivElement>(null);
   const gifButtonRef = useRef<HTMLButtonElement>(null);
   const lastToggleTime = useRef(0);
-  const [commentContainerHeight, setCommentContainerHeight] = useState(0);
   const commentContainerRef = useRef<HTMLDivElement>(null);
-  const [measuredComments, setMeasuredComments] = useState<{
-    [key: string]: number;
-  }>({});
-  const measurementRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [showAllComments, setShowAllComments] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const fullscreenContainerRef = useRef<HTMLDivElement>(null);
@@ -200,32 +201,30 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   useEffect(() => {
     return () => {
       if (isClient && isFullscreen) {
-        document.body.style.overflow = '';
+        document.body.style.overflow = "";
       }
     };
   }, [isClient, isFullscreen]);
 
-    const toggleFullscreen = () => {
+  const toggleFullscreen = useCallback(() => {
     const newFullscreenState = !isFullscreen;
     setIsFullscreen(newFullscreenState);
 
     // Prevent body scroll when in fullscreen mode
     if (isClient) {
       if (newFullscreenState) {
-        document.body.style.overflow = 'hidden';
-        document.body.style.position = 'fixed';
-        document.body.style.width = '100%';
-        document.body.style.height = '100%';
-        
-
+        document.body.style.overflow = "hidden";
+        document.body.style.position = "fixed";
+        document.body.style.width = "100%";
+        document.body.style.height = "100%";
       } else {
-        document.body.style.overflow = '';
-        document.body.style.position = '';
-        document.body.style.width = '';
-        document.body.style.height = '';
+        document.body.style.overflow = "";
+        document.body.style.position = "";
+        document.body.style.width = "";
+        document.body.style.height = "";
       }
     }
-  };
+  }, [isFullscreen, isClient]);
 
   // Comments state - now using Supabase
   const [comments, setComments] = useState<Comment[]>([]);
@@ -424,12 +423,13 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   // Fetch comments when video changes
   useEffect(() => {
     fetchComments(currentIndex);
-    
+
     // Reset scroll to bottom when switching videos
     if (commentsScrollRef.current) {
       setTimeout(() => {
         if (commentsScrollRef.current) {
-          commentsScrollRef.current.scrollTop = commentsScrollRef.current.scrollHeight;
+          commentsScrollRef.current.scrollTop =
+            commentsScrollRef.current.scrollHeight;
         }
       }, 100);
     }
@@ -440,8 +440,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     if (!isClient || !commentsScrollRef.current) return;
 
     const scrollContainer = commentsScrollRef.current;
-    const currentComments = getCurrentComments().filter(comment => currentTime >= comment.time_seconds);
-    
+    const currentComments = getCurrentComments().filter(
+      (comment) => currentTime >= comment.time_seconds
+    );
+
     // Only auto-scroll if there are comments and we're not at the very beginning
     if (currentComments.length > 0 && currentTime > 1) {
       // Small delay to ensure the comment has been rendered
@@ -460,9 +462,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     fetchCommentCounts();
   }, []);
 
-  const getCurrentComments = () => {
+  const getCurrentComments = useCallback(() => {
     return comments;
-  };
+  }, [comments]);
 
   // Function to render comment content with GIFs
   const renderCommentContent = (text: string) => {
@@ -487,7 +489,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               alt={gifTitle}
               width={80}
               height={80}
-                                            className="inline-block object-cover"
+              className="inline-block object-cover"
             />
             {textAfter && <span>{textAfter}</span>}
           </div>
@@ -660,19 +662,13 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       }
     });
     setIsPlaying(true);
-  }, [
-    displayItems,
-    isClient,
-    setIsTransitioning,
-    setManualExtendedIndex,
-    currentIndex,
-  ]);
+  }, [displayItems, isClient, setIsTransitioning, setManualExtendedIndex]);
 
-  const goToSlide = (index: number) => {
+  const goToSlide = useCallback((index: number) => {
     setManualExtendedIndex(null); // Reset manual index when directly navigating
     setCurrentIndex(index);
     setIsPlaying(true); // Auto-play new video
-  };
+  }, []);
 
   const toggleMute = useCallback(() => {
     if (isClient) {
@@ -773,88 +769,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     return () => clearTimeout(timeoutId);
   }, [currentIndex, isMuted, isPlaying, isClient, extendedIndex]);
 
-  // Track comment container height
-  useEffect(() => {
-    if (isClient && commentContainerRef.current) {
-      const updateHeight = () => {
-        if (commentContainerRef.current) {
-          setCommentContainerHeight(commentContainerRef.current.offsetHeight);
-        }
-      };
 
-      updateHeight();
-      window.addEventListener("resize", updateHeight);
-      return () => window.removeEventListener("resize", updateHeight);
-    }
-  }, [isClient]);
-
-  // Enhanced function to calculate visible comments with precise measurements
-  const getVisibleComments = () => {
-    const allComments = getCurrentComments().filter(
-      (comment) => currentTime >= comment.time_seconds
-    );
-
-    if (!commentContainerHeight || allComments.length === 0) {
-      // Enhanced fallback for different modes
-      const fallbackCount = isFullscreen ? 12 : isMobile ? 3 : 5;
-      return allComments.slice(-fallbackCount);
-    }
-
-    // Available height accounting for padding and gaps
-    const availableHeight = commentContainerHeight - 16; // Account for top/bottom padding
-    const gapHeight = 8; // gap-2 = 8px
-
-    let totalHeight = 0;
-    const visibleComments = [];
-
-    // Work backwards from the most recent comments
-    for (let i = allComments.length - 1; i >= 0; i--) {
-      const comment = allComments[i];
-      const commentKey = `${comment.id}-${comment.time_seconds}`;
-
-      // Get measured height or use estimated height as fallback
-      // Adjust estimated height for fullscreen mode
-      const estimatedHeight = isFullscreen ? 60 : isMobile ? 55 : 65;
-      const commentHeight = measuredComments[commentKey] || estimatedHeight;
-
-      // Check if adding this comment would exceed available height
-      const heightNeeded =
-        totalHeight +
-        commentHeight +
-        (visibleComments.length > 0 ? gapHeight : 0);
-
-      if (heightNeeded <= availableHeight) {
-        visibleComments.unshift(comment); // Add to beginning since we're working backwards
-        totalHeight = heightNeeded;
-      } else {
-        // Stop adding comments if this one would be cut off
-        break;
-      }
-    }
-
-    return visibleComments;
-  };
-
-  // Function to measure comment height after render
-  const measureComment = (
-    commentId: string,
-    commentTime: number,
-    element: HTMLDivElement | null
-  ) => {
-    if (element) {
-      const commentKey = `${commentId}-${commentTime}`;
-      measurementRefs.current[commentKey] = element;
-
-      // Measure the height including margins
-      const rect = element.getBoundingClientRect();
-      const height = rect.height;
-
-      setMeasuredComments((prev) => ({
-        ...prev,
-        [commentKey]: height,
-      }));
-    }
-  };
 
   // Reset video time only when switching to a new video
   useEffect(() => {
@@ -932,10 +847,14 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   const handleTouchStart = (e: React.TouchEvent) => {
     // Don't interfere with button/interactive element touches
     const target = e.target as HTMLElement;
-    if (target.tagName === 'BUTTON' || target.closest('button') || target.tagName === 'INPUT') {
+    if (
+      target.tagName === "BUTTON" ||
+      target.closest("button") ||
+      target.tagName === "INPUT"
+    ) {
       return;
     }
-    
+
     e.preventDefault(); // Prevent default touch behavior
     setIsDragging(true);
 
@@ -994,12 +913,12 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   };
 
   // Get visible thumbnails for revolving display
-  const getFilteredVideos = () => {
+  const getFilteredVideos = useCallback(() => {
     if (!videoSearchTerm.trim()) return displayItems;
     return displayItems.filter((item) =>
       item.title.toLowerCase().includes(videoSearchTerm.toLowerCase())
     );
-  };
+  }, [videoSearchTerm, displayItems]);
 
   const visibleThumbnails = useMemo(() => {
     const maxVisible = isMobile ? 3 : 4;
@@ -1075,39 +994,39 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       // Universal Escape key handling - works on all devices and states
       if (e.key === "Escape") {
         e.preventDefault();
-        
+
         // Priority order for escape key:
         // 1. Close GIF picker if open
         if (showGifPicker) {
           setShowGifPicker(false);
           return;
         }
-        
+
         // 2. Close comment form if open
         if (showCommentForm) {
           setShowCommentForm(false);
           return;
         }
-        
+
         // 3. Close video dropdown if open
         if (showVideoDropdown) {
           setShowVideoDropdown(false);
           setVideoSearchTerm("");
           return;
         }
-        
+
         // 4. Exit fullscreen if in fullscreen
         if (isFullscreen) {
           toggleFullscreen();
           return;
         }
-        
+
         // 5. Blur any focused input/button
         if (document.activeElement instanceof HTMLElement) {
           document.activeElement.blur();
           return;
         }
-        
+
         return;
       }
 
@@ -1117,21 +1036,21 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       // Handle dropdown navigation when dropdown is open
       if (showVideoDropdown) {
         const filteredVideos = getFilteredVideos();
-        
+
         if (e.key === "ArrowDown") {
           e.preventDefault();
-          setSelectedDropdownIndex((prev) => 
+          setSelectedDropdownIndex((prev) =>
             Math.min(prev + 1, filteredVideos.length - 1)
           );
           return;
         }
-        
+
         if (e.key === "ArrowUp") {
           e.preventDefault();
           setSelectedDropdownIndex((prev) => Math.max(prev - 1, 0));
           return;
         }
-        
+
         if (e.key === "Enter") {
           e.preventDefault();
           const selectedVideo = filteredVideos[selectedDropdownIndex];
@@ -1247,38 +1166,37 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     toggleFullscreen,
     displayItems,
     goToSlide,
+    getFilteredVideos,
   ]);
 
   return (
     <div
       ref={fullscreenContainerRef}
       className={`${
-        isFullscreen 
-          ? "fixed inset-0 w-screen h-screen z-[9999] bg-black safari-fullscreen" 
+        isFullscreen
+          ? "fixed inset-0 w-screen h-screen z-[9999] bg-black safari-fullscreen"
           : "relative w-full"
       }`}
       style={{
         // Safari-specific fixes
         ...(isFullscreen && {
-          position: 'fixed',
+          position: "fixed",
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          width: '100vw',
-          height: '100vh',
+          width: "100vw",
+          height: "100vh",
           zIndex: 9999,
-          WebkitTransform: 'translateZ(0)', // Force hardware acceleration
-        })
+          WebkitTransform: "translateZ(0)", // Force hardware acceleration
+        }),
       }}
       suppressHydrationWarning={true}
     >
       {/* Minimal Carousel */}
       <div
         className={`relative overflow-hidden ${
-          isFullscreen 
-            ? "h-full flex flex-col bg-black" 
-            : "bg-accent-green"
+          isFullscreen ? "h-full flex flex-col bg-black" : "bg-accent-green"
         }`}
       >
         {/* Screen */}
@@ -1321,9 +1239,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       loop
                       playsInline
                       className={`w-full h-full border-0 outline-0 ${
-                        isFullscreen 
-                          ? "object-contain" 
-                          : "object-cover"
+                        isFullscreen ? "object-contain" : "object-cover"
                       }`}
                       poster={item.thumbnailUrl}
                     />
@@ -1354,11 +1270,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     )}
                     {/* Title Overlay */}
                     {index === extendedIndex && (
-                                              <div className="absolute top-4 left-4 z-10 bg-black/40 backdrop-blur-sm px-2 py-2 pointer-events-none h-6 flex items-center">
-                          <h3 className="text-white text-xs md:text-sm font-medium">
-                            {item.title}
-                          </h3>
-                        </div>
+                      <div className="absolute top-4 left-4 z-10 bg-black/40 backdrop-blur-sm px-2 py-2 pointer-events-none h-6 flex items-center">
+                        <h3 className="text-white text-xs md:text-sm font-medium">
+                          {item.title}
+                        </h3>
+                      </div>
                     )}
 
                     {/* Dynamic Comment Components - Column Layout */}
@@ -1374,116 +1290,123 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                 : "top-4 bottom-4 right-2 w-auto max-w-[40%]"
                           }`}
                           style={{
-                            maskImage: 'linear-gradient(to bottom, transparent 0%, black 4%, black 96%, transparent 100%)',
-                            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 4%, black 96%, transparent 100%)',
+                            maskImage:
+                              "linear-gradient(to bottom, transparent 0%, black 4%, black 96%, transparent 100%)",
+                            WebkitMaskImage:
+                              "linear-gradient(to bottom, transparent 0%, black 4%, black 96%, transparent 100%)",
                           }}
                         >
-                          <div 
+                          <div
                             ref={commentsScrollRef}
                             className="h-full overflow-y-auto scrollbar-hide pointer-events-auto pr-1"
                             style={{
                               // Mobile: Allow single-finger drag scrolling
                               // Desktop: Default trackpad behavior (two-finger scrolling)
-                              touchAction: isMobile ? 'pan-y' : 'auto',
+                              touchAction: isMobile ? "pan-y" : "auto",
                               // Smooth scrolling
-                              scrollBehavior: 'smooth',
+                              scrollBehavior: "smooth",
                             }}
                           >
                             <div className="flex flex-col gap-2 items-end min-h-full justify-end">
-                            {getCurrentComments().filter(comment => currentTime >= comment.time_seconds).map((comment) => {
-                              const formatTime = (seconds: number) => {
-                                const mins = Math.floor(seconds / 60);
-                                const secs = Math.floor(seconds % 60);
-                                return `${mins}:${secs.toString().padStart(2, "0")}`;
-                              };
+                              {getCurrentComments()
+                                .filter(
+                                  (comment) =>
+                                    currentTime >= comment.time_seconds
+                                )
+                                .map((comment) => {
+                                  const formatTime = (seconds: number) => {
+                                    const mins = Math.floor(seconds / 60);
+                                    const secs = Math.floor(seconds % 60);
+                                    return `${mins}:${secs.toString().padStart(2, "0")}`;
+                                  };
 
-                              const truncateTextWithGifs = (
-                                text: string,
-                                maxLength: number
-                              ) => {
-                                if (text.length <= maxLength) return text;
+                                  const truncateTextWithGifs = (
+                                    text: string,
+                                    maxLength: number
+                                  ) => {
+                                    if (text.length <= maxLength) return text;
 
-                                // Check if there are GIF markers
-                                const gifRegex = /\[GIF\|([^|]+)\|([^\]]*)\]/g;
-                                const hasGifs = gifRegex.test(text);
+                                    // Check if there are GIF markers
+                                    const gifRegex =
+                                      /\[GIF\|([^|]+)\|([^\]]*)\]/g;
+                                    const hasGifs = gifRegex.test(text);
 
-                                if (hasGifs) {
-                                  // If there are GIFs, don't truncate - show the full text with GIFs
-                                  return text;
-                                }
+                                    if (hasGifs) {
+                                      // If there are GIFs, don't truncate - show the full text with GIFs
+                                      return text;
+                                    }
 
-                                return text.substring(0, maxLength) + "...";
-                              };
+                                    return text.substring(0, maxLength) + "...";
+                                  };
 
-                              const truncatedText = isFullscreen
-                                ? comment.text // Don't truncate in fullscreen
-                                : isMobile
-                                  ? truncateTextWithGifs(comment.text, 30)
-                                  : comment.text;
+                                  const truncatedText = isFullscreen
+                                    ? comment.text // Don't truncate in fullscreen
+                                    : isMobile
+                                      ? truncateTextWithGifs(comment.text, 30)
+                                      : comment.text;
 
-                              return (
-                                <motion.div
-                                  key={comment.id}
-                                  ref={(el) =>
-                                    measureComment(
-                                      comment.id.toString(),
-                                      comment.time_seconds,
-                                      el
-                                    )
-                                  }
-                                  className={`bg-black/60 backdrop-blur-sm text-white w-auto inline-block ${
-                                    isFullscreen && !isMobile
-                                      ? "px-6 py-5 text-lg max-w-[600px]"
-                                      : isFullscreen && isMobile
-                                        ? "px-5 py-4 text-base max-w-[500px]"
-                                        : isMobile
-                                          ? "px-3 py-2 text-xs max-w-[160px]"
-                                          : "px-3 py-2 text-xs max-w-[200px]"
-                                  }`}
-                                  initial={{ x: 20, opacity: 0 }}
-                                  animate={{ x: 0, opacity: 1 }}
-                                  exit={{ x: -20, opacity: 0 }}
-                                                        transition={{
-                        duration: 0.12,
-                        ease: [0.25, 0.46, 0.45, 0.94],
-                      }}
-                                >
-                                  <div className="leading-tight break-words">
-                                    <div className={`flex items-start gap-1 ${
-                                      isFullscreen && !isMobile
-                                        ? "text-lg"
-                                        : isFullscreen && isMobile
-                                          ? "text-base"
-                                          : "text-xs"
-                                    }`}>
-                                      <span className={`text-white/60 flex-shrink-0 ${
+                                  return (
+                                    <motion.div
+                                      key={comment.id}
+                                      className={`bg-black/60 backdrop-blur-sm text-white w-auto inline-block ${
                                         isFullscreen && !isMobile
-                                          ? "text-base"
+                                          ? "px-6 py-5 text-lg max-w-[600px]"
                                           : isFullscreen && isMobile
-                                            ? "text-sm"
-                                            : "text-[10px]"
-                                      }`}>
-                                        {formatTime(comment.time_seconds)}
-                                      </span>
-                                      {comment.author && (
-                                        <span className={`text-white/80 flex-shrink-0 ${
-                                          isFullscreen && !isMobile
-                                            ? "text-base"
-                                            : isFullscreen && isMobile
-                                              ? "text-sm"
-                                              : "text-[10px]"
-                                        }`}>
-                                          {comment.author}
-                                        </span>
-                                      )}
-                                    </div>
-                                    <div className="mt-1">
-                                      {renderCommentContent(truncatedText)}
-                                    </div>
-                                  </div>
-                                </motion.div>
-                              );
-                            })}
+                                            ? "px-5 py-4 text-base max-w-[500px]"
+                                            : isMobile
+                                              ? "px-3 py-2 text-xs max-w-[160px]"
+                                              : "px-3 py-2 text-xs max-w-[200px]"
+                                      }`}
+                                      initial={{ x: 20, opacity: 0 }}
+                                      animate={{ x: 0, opacity: 1 }}
+                                      exit={{ x: -20, opacity: 0 }}
+                                      transition={{
+                                        duration: 0.12,
+                                        ease: [0.25, 0.46, 0.45, 0.94],
+                                      }}
+                                    >
+                                      <div className="leading-tight break-words">
+                                        <div
+                                          className={`flex items-start gap-1 ${
+                                            isFullscreen && !isMobile
+                                              ? "text-lg"
+                                              : isFullscreen && isMobile
+                                                ? "text-base"
+                                                : "text-xs"
+                                          }`}
+                                        >
+                                          <span
+                                            className={`text-white/60 flex-shrink-0 ${
+                                              isFullscreen && !isMobile
+                                                ? "text-base"
+                                                : isFullscreen && isMobile
+                                                  ? "text-sm"
+                                                  : "text-[10px]"
+                                            }`}
+                                          >
+                                            {formatTime(comment.time_seconds)}
+                                          </span>
+                                          {comment.author && (
+                                            <span
+                                              className={`text-white/80 flex-shrink-0 ${
+                                                isFullscreen && !isMobile
+                                                  ? "text-base"
+                                                  : isFullscreen && isMobile
+                                                    ? "text-sm"
+                                                    : "text-[10px]"
+                                              }`}
+                                            >
+                                              {comment.author}
+                                            </span>
+                                          )}
+                                        </div>
+                                        <div className="mt-1">
+                                          {renderCommentContent(truncatedText)}
+                                        </div>
+                                      </div>
+                                    </motion.div>
+                                  );
+                                })}
                             </div>
                           </div>
                         </div>
@@ -1511,23 +1434,23 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         {/* Bottom Controls */}
         <div
           className={`flex items-center justify-between px-3 bg-accent-green-dark relative ${
-            isFullscreen 
-              ? "h-auto py-2 z-[10000] safari-fullscreen-controls" 
+            isFullscreen
+              ? "h-auto py-2 z-[10000] safari-fullscreen-controls"
               : "h-10 z-40"
           }`}
-          style={{ 
-            paddingBottom: isFullscreen 
-              ? `calc(0.5rem + env(safe-area-inset-bottom, 20px))` 
+          style={{
+            paddingBottom: isFullscreen
+              ? `calc(0.5rem + env(safe-area-inset-bottom, 20px))`
               : "env(safe-area-inset-bottom)",
             // Safari-specific positioning
             ...(isFullscreen && {
-              position: 'absolute',
+              position: "absolute",
               bottom: 0,
               left: 0,
               right: 0,
-              minHeight: '44px', // Minimum touch target for iOS
-              WebkitTransform: 'translateZ(0)', // Force hardware acceleration
-            })
+              minHeight: "44px", // Minimum touch target for iOS
+              WebkitTransform: "translateZ(0)", // Force hardware acceleration
+            }),
           }}
         >
           {/* Left - Video Selector Dropdown */}
@@ -1555,7 +1478,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                           x: 0,
                         }}
                         exit={{ opacity: 0, scale: 0.9, x: -15 }}
-                        transition={{ duration: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
+                        transition={{
+                          duration: 0.15,
+                          ease: [0.25, 0.46, 0.45, 0.94],
+                        }}
                         className="w-5 h-5 overflow-hidden mr-4 last:mr-0"
                       >
                         {thumb.item.thumbnailUrl ? (
@@ -1596,7 +1522,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      transition={{ duration: 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
+                      transition={{
+                        duration: 0.12,
+                        ease: [0.25, 0.46, 0.45, 0.94],
+                      }}
                       className="absolute bottom-full left-0 mb-2 w-48 md:w-64 bg-accent-green-dark border border-accent-green  shadow-lg z-50"
                     >
                       <div className="p-1.5 md:p-2">
@@ -1623,9 +1552,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                             const index = displayItems.findIndex(
                               (displayItem) => displayItem.title === item.title
                             );
-                            const isSelected = selectedDropdownIndex === filteredIndex;
+                            const isSelected =
+                              selectedDropdownIndex === filteredIndex;
                             const isCurrent = index === currentIndex;
-                            
+
                             return (
                               <button
                                 key={`${index}-${item.title}`}
@@ -1764,11 +1694,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
             >
               <Menu size={17} />
             </button>
-                    <button
-          onClick={toggleFullscreen}
-          className="text-background/60 hover:text-background transition-colors h-8 px-2 md:h-6 md:px-2 flex items-center justify-center touch-manipulation underline decoration-background/60 hover:decoration-background underline-offset-2"
-          title={`${isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} (f)`}
-        >
+            <button
+              onClick={toggleFullscreen}
+              className="text-background/60 hover:text-background transition-colors h-8 px-2 md:h-6 md:px-2 flex items-center justify-center touch-manipulation underline decoration-background/60 hover:decoration-background underline-offset-2"
+              title={`${isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} (f)`}
+            >
               {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
             </button>
           </div>
@@ -1786,24 +1716,22 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                 isFullscreen ? "absolute z-[10001]" : "relative z-50"
               }`}
               style={{
-                position: isFullscreen ? 'absolute' : 'relative',
-                bottom: isFullscreen ? 0 : 'auto',
-                left: isFullscreen ? 0 : 'auto',
-                right: isFullscreen ? 0 : 'auto',
-                width: '100%',
+                position: isFullscreen ? "absolute" : "relative",
+                bottom: isFullscreen ? 0 : "auto",
+                left: isFullscreen ? 0 : "auto",
+                right: isFullscreen ? 0 : "auto",
+                width: "100%",
               }}
             >
-              <div 
+              <div
                 className={`flex items-center px-3 ${
-                  isFullscreen 
-                    ? "h-auto py-2" 
-                    : "h-10"
+                  isFullscreen ? "h-auto py-2" : "h-10"
                 }`}
                 style={{
-                  paddingBottom: isFullscreen 
-                    ? `calc(0.5rem + env(safe-area-inset-bottom, 20px))` 
+                  paddingBottom: isFullscreen
+                    ? `calc(0.5rem + env(safe-area-inset-bottom, 20px))`
                     : undefined,
-                  minHeight: isFullscreen ? '44px' : undefined,
+                  minHeight: isFullscreen ? "44px" : undefined,
                 }}
               >
                 <div className="flex items-center gap-2 flex-1">
@@ -1852,7 +1780,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         e.stopPropagation();
                         handleAddComment();
                       }}
-                      disabled={!newComment.text.trim() || !newComment.name.trim()}
+                      disabled={
+                        !newComment.text.trim() || !newComment.name.trim()
+                      }
                       className={`${
                         isFullscreen ? "h-8 px-3" : "h-6 px-2"
                       } text-xs bg-background text-accent-green disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background/90 transition-colors flex items-center justify-center touch-manipulation`}
@@ -1883,7 +1813,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
+                    transition={{
+                      duration: 0.12,
+                      ease: [0.25, 0.46, 0.45, 0.94],
+                    }}
                     className={`overflow-hidden bg-accent-green-dark border-t border-accent-green ${
                       isFullscreen ? "z-[10002]" : "z-50"
                     }`}
@@ -1914,11 +1847,15 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                             Done
                           </button>
                         </div>
-                        <div className={`grid ${
-                          isFullscreen ? "grid-cols-4 gap-3" : "grid-cols-3 md:grid-cols-4 gap-2"
-                        } ${
-                          isFullscreen ? "max-h-80" : "max-h-40 md:max-h-48"
-                        } overflow-y-auto overflow-x-hidden`}>
+                        <div
+                          className={`grid ${
+                            isFullscreen
+                              ? "grid-cols-4 gap-3"
+                              : "grid-cols-3 md:grid-cols-4 gap-2"
+                          } ${
+                            isFullscreen ? "max-h-80" : "max-h-40 md:max-h-48"
+                          } overflow-y-auto overflow-x-hidden`}
+                        >
                           {loadingGifs ? (
                             <div className="col-span-3 md:col-span-4 flex items-center justify-center py-4">
                               <div className="text-xs text-background/60">
