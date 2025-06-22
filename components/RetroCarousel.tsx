@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, HTMLAttributes } from "react";
 import {
   VolumeX,
   Volume2,
@@ -13,6 +13,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { supabase, Comment, CommentInsert } from "../lib/supabase";
 import type { RealtimeChannel } from "@supabase/supabase-js";
+
+// Extend video element props to include allowFullScreen
+declare module "react" {
+  interface VideoHTMLAttributes<T> extends HTMLAttributes<T> {
+    allowFullScreen?: boolean;
+  }
+}
 
 interface CarouselItem {
   title: string;
@@ -1218,6 +1225,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       muted={isMuted}
                       loop
                       playsInline
+                      allowFullScreen
                       className="w-full h-full object-cover border-0 outline-0"
                       poster={item.thumbnailUrl}
                     />
@@ -1405,6 +1413,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                             className="w-full h-full object-cover"
                             muted
                             playsInline
+                            allowFullScreen
                             preload="metadata"
                             poster={thumb.item.thumbnailUrl}
                             onLoadedMetadata={(e) => {
@@ -1481,6 +1490,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                       className="w-full h-full object-cover"
                                       muted
                                       playsInline
+                                      allowFullScreen
                                       preload="metadata"
                                       poster={item.thumbnailUrl}
                                       onLoadedMetadata={(e) => {
