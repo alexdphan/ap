@@ -1387,13 +1387,18 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                             playsInline
                             preload="metadata"
                             poster={thumb.item.thumbnailUrl}
+                            onLoadedMetadata={(e) => {
+                              // Safari fix: Force seek to show first frame
+                              const video = e.target as HTMLVideoElement;
+                              if (video.duration > 0) {
+                                video.currentTime = 0.1;
+                              }
+                            }}
                           />
                         ) : thumb.item.thumbnailUrl ? (
                           <Image
                             src={thumb.item.thumbnailUrl}
                             alt={thumb.item.title}
-                            width={14}
-                            height={14}
                             className="w-full h-full object-cover"
                           />
                         ) : (
@@ -1458,13 +1463,18 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                       playsInline
                                       preload="metadata"
                                       poster={item.thumbnailUrl}
+                                      onLoadedMetadata={(e) => {
+                                        // Safari fix: Force seek to show first frame
+                                        const video = e.target as HTMLVideoElement;
+                                        if (video.duration > 0) {
+                                          video.currentTime = 0.1;
+                                        }
+                                      }}
                                     />
                                   ) : item.thumbnailUrl ? (
-                                    <Image
+                                    <img
                                       src={item.thumbnailUrl}
                                       alt={item.title}
-                                      width={32}
-                                      height={24}
                                       className="w-full h-full object-cover"
                                     />
                                   ) : (
