@@ -1750,7 +1750,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         ? isMobile ? "w-20 h-10" : "w-28 h-10"
                         : "w-20 h-6"
                     } ${
-                      isFullscreen ? "px-3 text-sm" : isMobile ? "px-2 text-base" : "px-2 text-xs"
+                      isFullscreen ? "px-3 text-sm" : "px-2 text-xs"
                     } bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none touch-manipulation`}
                   />
                   <div className="flex-1 relative">
@@ -1766,7 +1766,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                           ? "h-10"
                           : "h-6"
                       } ${
-                        isFullscreen ? "px-3 pr-12 text-sm" : isMobile ? "px-2 pr-12 text-base" : "px-2 pr-12 text-xs"
+                        isFullscreen ? "px-3 pr-12 text-sm" : "px-2 pr-12 text-xs"
                       } bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none touch-manipulation`}
                     />
                   </div>
@@ -1847,9 +1847,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                             onChange={(e) => handleSearch(e.target.value)}
                             className={`flex-1 px-3 ${
                               isFullscreen ? "py-3 h-10" : "py-2"
-                            } ${
-                              isFullscreen ? "text-sm" : isMobile ? "text-base" : "text-xs"
-                            } bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40 mr-2 touch-manipulation`}
+                            } text-xs bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40 mr-2 touch-manipulation`}
                             autoFocus={!isMobile}
                           />
                           <button

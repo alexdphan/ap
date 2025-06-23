@@ -126,6 +126,21 @@ a {
   user-select: none !important;
 }
 
+/* Prevent iOS Safari zoom on input focus without changing font size */
+@media screen and (max-width: 767px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  textarea,
+  select {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+}
+
 /* Safari fullscreen support */
 @supports (-webkit-touch-callout: none) {
   /* Safari-specific styles */

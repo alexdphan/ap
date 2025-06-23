@@ -6,7 +6,7 @@ import NavigationHandler from "./NavigationHandler";
 export const metadata: Metadata = {
   title: "Alex Phan (AP)",
   description: "Alex Phan (AP)",
-  viewport: "width=device-width, initial-scale=1, viewport-fit=cover",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover",
 };
 
 export default function RootLayout({
