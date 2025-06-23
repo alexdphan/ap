@@ -126,7 +126,7 @@ a {
   user-select: none !important;
 }
 
-/* Prevent iOS Safari zoom on input focus without changing font size */
+/* Prevent iOS Safari zoom on input focus - comprehensive approach */
 @media screen and (max-width: 767px) {
   input[type="text"],
   input[type="email"],
@@ -134,10 +134,34 @@ a {
   input[type="search"],
   textarea,
   select {
+    font-size: 16px !important;
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
     -webkit-appearance: none;
     border-radius: 0;
+    /* Additional properties to prevent zoom */
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Prevent zoom on focus */
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  
+  /* Force all text inputs to have minimum 16px font size */
+  .touch-manipulation input[type="text"] {
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+  }
+  
+  /* Additional fallback */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    font-size: 16px !important;
+    -webkit-text-size-adjust: 100%;
+    zoom: 1;
   }
 }
 

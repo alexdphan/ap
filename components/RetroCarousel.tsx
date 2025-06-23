@@ -180,6 +180,21 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       setIsMobile(window.innerWidth < 640);
     };
 
+    // Prevent iOS Safari zoom on input focus
+    const preventZoom = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+        // Temporarily set font size to 16px to prevent zoom
+        const originalFontSize = target.style.fontSize;
+        target.style.fontSize = '16px';
+        
+        // Restore original font size after a short delay
+        setTimeout(() => {
+          target.style.fontSize = originalFontSize;
+        }, 100);
+      }
+    };
+
     // Small delay to ensure hydration is complete
     const timer = setTimeout(() => {
       checkMobile();
@@ -187,6 +202,12 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       setIsTransitioning(true);
       // Reset any manual index overrides on initial load
       setManualExtendedIndex(null);
+      
+      // Add zoom prevention listeners
+      if (window.innerWidth < 640) {
+        document.addEventListener('focusin', preventZoom);
+        document.addEventListener('touchstart', preventZoom);
+      }
     }, 100);
 
     window.addEventListener("resize", checkMobile);
@@ -194,6 +215,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     return () => {
       clearTimeout(timer);
       window.removeEventListener("resize", checkMobile);
+      document.removeEventListener('focusin', preventZoom);
+      document.removeEventListener('touchstart', preventZoom);
     };
   }, []);
 
