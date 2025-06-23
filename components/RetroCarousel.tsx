@@ -1558,8 +1558,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       }}
                       className="absolute bottom-full left-0 mb-2 w-56 md:w-72 bg-accent-green-dark border border-accent-green  shadow-lg z-50"
                     >
-                      <div className="p-1.5 md:p-2">
-                        <div className="flex items-center gap-2 mb-1.5 md:mb-2 px-1.5 md:px-2">
+                      <div className="p-1 md:p-2">
+                        <div className="flex items-center gap-1 md:gap-2 mb-1.5 md:mb-2 px-1 md:px-2">
                           <div className="text-background/60 flex-shrink-0">
                             <Search size={16} />
                           </div>
@@ -1572,7 +1572,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                               setVideoSearchTerm(e.target.value);
                               setSelectedDropdownIndex(0); // Reset selection when searching
                             }}
-                            className="flex-1 px-2 py-1 bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40"
+                            className="flex-1 px-1 md:px-2 py-1 bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40 min-w-0"
                             style={{
                               fontSize: '16px'
                             }}
