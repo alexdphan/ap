@@ -1670,7 +1670,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               className="text-background/60 hover:text-background transition-colors h-8 pl-2 md:h-6 md:px-2 flex items-center justify-center touch-manipulation underline decoration-background/60 hover:decoration-background underline-offset-2"
               title="Add comment (c)"
             >
-              <MessageSquare size={13} />
+              <MessageSquare size={isFullscreen ? 18 : 13} />
             </button>
           </div>
 
@@ -1681,7 +1681,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               className="text-background/60 hover:text-background transition-colors h-8 px-2 md:h-6 md:px-2 flex items-center justify-center touch-manipulation underline decoration-background/60 hover:decoration-background underline-offset-2"
               title="Toggle mute (m)"
             >
-              {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+              {isMuted ? <VolumeX size={isFullscreen ? 20 : 15} /> : <Volume2 size={isFullscreen ? 20 : 15} />}
             </button>
             <button
               onClick={() => setShowAllComments(!showAllComments)}
@@ -1692,14 +1692,14 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               }`}
               title={`${showAllComments ? "Hide comments" : "Show comments"} (v)`}
             >
-              <Menu size={17} />
+              <Menu size={isFullscreen ? 22 : 17} />
             </button>
             <button
               onClick={toggleFullscreen}
               className="text-background/60 hover:text-background transition-colors h-8 px-2 md:h-6 md:px-2 flex items-center justify-center touch-manipulation underline decoration-background/60 hover:decoration-background underline-offset-2"
               title={`${isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} (f)`}
             >
-              {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
+              {isFullscreen ? <Minimize size={isFullscreen ? 19 : 14} /> : <Maximize size={isFullscreen ? 19 : 14} />}
             </button>
           </div>
         </div>
@@ -1725,7 +1725,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
             >
               <div
                 className={`flex items-center px-3 ${
-                  isFullscreen ? "h-auto py-2" : "h-10"
+                  isFullscreen
+                    ? "h-auto py-2"
+                    : "h-10"
                 }`}
                 style={{
                   paddingBottom: isFullscreen
@@ -1744,8 +1746,12 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       setNewComment({ ...newComment, name: e.target.value })
                     }
                     className={`${
-                      isFullscreen ? "w-24 h-8" : "w-20 h-6"
-                    } px-2 text-xs bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none touch-manipulation`}
+                      isFullscreen
+                        ? isMobile ? "w-20 h-10" : "w-28 h-10"
+                        : "w-20 h-6"
+                    } ${
+                      isFullscreen ? "px-3 text-sm" : "px-2 text-xs"
+                    } bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none touch-manipulation`}
                   />
                   <div className="flex-1 relative">
                     <input
@@ -1756,11 +1762,15 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         setNewComment({ ...newComment, text: e.target.value })
                       }
                       className={`w-full ${
-                        isFullscreen ? "h-8" : "h-6"
-                      } px-2 pr-12 text-xs bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none touch-manipulation`}
+                        isFullscreen
+                          ? "h-10"
+                          : "h-6"
+                      } ${
+                        isFullscreen ? "px-3 pr-12 text-sm" : "px-2 pr-12 text-xs"
+                      } bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none touch-manipulation`}
                     />
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-2">
                     <button
                       ref={gifButtonRef}
                       onClick={(e) => {
@@ -1769,8 +1779,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         toggleGifPicker();
                       }}
                       className={`${
-                        isFullscreen ? "h-8 px-3" : "h-6 px-2"
-                      } text-xs bg-background/20 text-background hover:bg-background/30 transition-colors flex items-center justify-center touch-manipulation`}
+                        isFullscreen
+                          ? "h-10 px-4 text-sm"
+                          : "h-6 px-2 text-xs"
+                      } bg-background/20 text-background hover:bg-background/30 transition-colors flex items-center justify-center touch-manipulation`}
                     >
                       GIF
                     </button>
@@ -1784,8 +1796,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         !newComment.text.trim() || !newComment.name.trim()
                       }
                       className={`${
-                        isFullscreen ? "h-8 px-3" : "h-6 px-2"
-                      } text-xs bg-background text-accent-green disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background/90 transition-colors flex items-center justify-center touch-manipulation`}
+                        isFullscreen
+                          ? "h-10 px-4 text-sm"
+                          : "h-6 px-2 text-xs"
+                      } bg-background text-accent-green disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background/90 transition-colors flex items-center justify-center touch-manipulation`}
                     >
                       Post
                     </button>
@@ -1797,8 +1811,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         setShowGifPicker(false);
                       }}
                       className={`${
-                        isFullscreen ? "h-8 px-3" : "h-6 px-2"
-                      } text-xs bg-background/20 text-background hover:bg-background/30 transition-colors flex items-center justify-center touch-manipulation`}
+                        isFullscreen
+                          ? "h-10 px-4 text-base"
+                          : "h-6 px-2 text-xs"
+                      } bg-background/20 text-background hover:bg-background/30 transition-colors flex items-center justify-center touch-manipulation`}
                     >
                       ×
                     </button>
