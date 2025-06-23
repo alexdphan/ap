@@ -1558,9 +1558,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       }}
                       className="absolute bottom-full left-0 mb-2 w-56 md:w-72 bg-accent-green-dark border border-accent-green  shadow-lg z-50"
                     >
-                      <div className="p-1 md:p-2">
-                        <div className="flex items-center gap-1 md:gap-2 mb-1.5 md:mb-2 px-1 md:px-2">
-                          <div className="text-background/60 flex-shrink-0">
+                      <div className="p-3">
+                        <div className="relative mb-3">
+                          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-background/60 pointer-events-none">
                             <Search size={16} />
                           </div>
                           <input
@@ -1572,7 +1572,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                               setVideoSearchTerm(e.target.value);
                               setSelectedDropdownIndex(0); // Reset selection when searching
                             }}
-                            className="flex-1 px-1 md:px-2 py-1 bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40 min-w-0"
+                            className="w-full pl-10 pr-3 py-2 bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40"
                             style={{
                               fontSize: '16px'
                             }}
@@ -1598,7 +1598,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                   goToSlide(index);
                                   setShowVideoDropdown(false);
                                 }}
-                                className={`w-full flex items-center gap-2 md:gap-3 p-1.5 md:p-2 transition-colors text-left ${
+                                className={`w-full flex items-center gap-3 p-3 transition-colors text-left ${
                                   isCurrent
                                     ? "bg-background/20 text-background"
                                     : isSelected
@@ -1606,34 +1606,34 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                       : "hover:bg-background/10 text-background/80"
                                 }`}
                               >
-                                <div className="w-6 h-4 md:w-8 md:h-6 overflow-hidden flex-shrink-0">
+                                <div className="w-5 h-5 overflow-hidden flex-shrink-0">
                                   {item.thumbnailUrl ? (
-                                    <Image
-                                      src={item.thumbnailUrl}
-                                      alt={item.title}
-                                      width={32}
-                                      height={24}
-                                      className="w-full h-full object-cover"
-                                    />
+                                                                          <Image
+                                        src={item.thumbnailUrl}
+                                        alt={item.title}
+                                        width={20}
+                                        height={20}
+                                        className="w-full h-full object-cover"
+                                      />
                                   ) : item.videoUrl ? (
-                                    <video
-                                      src={item.videoUrl}
-                                      className="w-full h-full object-cover"
-                                      muted
-                                      playsInline
-                                      preload="metadata"
-                                      onLoadedMetadata={(e) => {
-                                        // Safari fix: Force seek to show first frame
-                                        const video =
-                                          e.target as HTMLVideoElement;
-                                        if (video.duration > 0) {
-                                          video.currentTime = 0.1;
-                                        }
-                                      }}
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full bg-background/40"></div>
-                                  )}
+                                                                          <video
+                                        src={item.videoUrl}
+                                        className="w-full h-full object-cover"
+                                        muted
+                                        playsInline
+                                        preload="metadata"
+                                        onLoadedMetadata={(e) => {
+                                          // Safari fix: Force seek to show first frame
+                                          const video =
+                                            e.target as HTMLVideoElement;
+                                          if (video.duration > 0) {
+                                            video.currentTime = 0.1;
+                                          }
+                                                                                }}
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full bg-background/40"></div>
+                                    )}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="font-medium" style={{ fontSize: '16px' }}>
@@ -1642,9 +1642,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                 </div>
 
                                 {/* Comment count */}
-                                <div className="flex items-center gap-0.5 md:gap-1 text-background/60">
-                                  <MessageSquare className="w-2 h-2 md:w-2.5 md:h-2.5" />
-                                  <span className="text-[10px] md:text-xs">
+                                <div className="flex items-center gap-1 text-background/60">
+                                  <MessageSquare className="w-4 h-4" />
+                                  <span style={{ fontSize: '16px' }}>
                                     {commentCounts[index] || 0}
                                   </span>
                                 </div>
