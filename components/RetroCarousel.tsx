@@ -14,6 +14,7 @@ import {
   Maximize,
   Minimize,
   Search,
+  X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -1293,11 +1294,17 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     )}
                     {/* Title Overlay */}
                     {index === extendedIndex && (
-                      <div className="absolute top-4 left-4 z-10 bg-black/40 backdrop-blur-sm px-2 py-2 pointer-events-none h-6 flex items-center">
-                        <h3 className="text-white text-xs md:text-sm font-medium">
-                          {item.title}
-                        </h3>
-                      </div>
+                                                                      <div className="absolute top-4 left-4 z-10 bg-black/40 backdrop-blur-sm px-3 py-2 pointer-events-none flex items-center">
+                          <h3 className={`text-white font-medium ${
+                            isFullscreen && !isMobile
+                              ? "text-lg"
+                              : isFullscreen && isMobile
+                                ? "text-base"
+                                : "text-xs"
+                          }`}>
+                            {item.title}
+                          </h3>
+                        </div>
                     )}
 
                     {/* Dynamic Comment Components - Column Layout */}
@@ -1456,7 +1463,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
         {/* Bottom Controls */}
         <div
-          className={`flex items-center justify-between px-3 bg-accent-green-dark relative ${
+          className={`flex items-center justify-between px-2 bg-accent-green-dark relative ${
             isFullscreen
               ? "h-auto py-2 z-[10000] safari-fullscreen-controls"
               : "h-10 z-40"
@@ -1549,12 +1556,12 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         duration: 0.12,
                         ease: [0.25, 0.46, 0.45, 0.94],
                       }}
-                      className="absolute bottom-full left-0 mb-2 w-48 md:w-64 bg-accent-green-dark border border-accent-green  shadow-lg z-50"
+                      className="absolute bottom-full left-0 mb-2 w-56 md:w-72 bg-accent-green-dark border border-accent-green  shadow-lg z-50"
                     >
                       <div className="p-1.5 md:p-2">
                         <div className="flex items-center gap-2 mb-1.5 md:mb-2 px-1.5 md:px-2">
                           <div className="text-background/60 flex-shrink-0">
-                            <Search size={12} />
+                            <Search size={16} />
                           </div>
                           <input
                             ref={videoSearchInputRef}
@@ -1565,7 +1572,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                               setVideoSearchTerm(e.target.value);
                               setSelectedDropdownIndex(0); // Reset selection when searching
                             }}
-                            className="flex-1 px-2 py-1 text-[10px] md:text-xs bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40"
+                            className="flex-1 px-2 py-1 bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40"
+                            style={{
+                              fontSize: '16px'
+                            }}
                           />
                         </div>
                         <div
@@ -1626,7 +1636,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                   )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <div className="text-[11px] md:text-xs font-medium">
+                                  <div className="font-medium" style={{ fontSize: '16px' }}>
                                     {item.title}
                                   </div>
                                 </div>
@@ -1747,7 +1757,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               }}
             >
               <div
-                className={`flex items-center px-3 ${
+                className={`flex items-center px-4 ${
                   isFullscreen
                     ? "h-auto py-2"
                     : "h-10"
@@ -1773,13 +1783,16 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         ? isMobile ? "w-20 h-10" : "w-28 h-10"
                         : "w-20 h-6"
                     } ${
-                      isFullscreen ? "px-3 text-sm" : "px-2 text-xs"
+                      isFullscreen ? "px-3 text-sm" : "px-2"
                     } bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none touch-manipulation`}
+                    style={{
+                      fontSize: isFullscreen ? '14px' : '16px'
+                    }}
                   />
                   <div className="flex-1 relative">
                     <input
                       type="text"
-                      placeholder={`Comment @${Math.floor(currentTime)}s`}
+                      placeholder={`Comment ${Math.floor(currentTime)}s`}
                       value={newComment.text}
                       onChange={(e) =>
                         setNewComment({ ...newComment, text: e.target.value })
@@ -1789,8 +1802,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                           ? "h-10"
                           : "h-6"
                       } ${
-                        isFullscreen ? "px-3 pr-12 text-sm" : "px-2 pr-12 text-xs"
+                        isFullscreen ? "px-3 text-sm" : "px-2 "
                       } bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none touch-manipulation`}
+                      style={{
+                        fontSize: isFullscreen ? '14px' : '16px'
+                      }}
                     />
                   </div>
                   <div className="flex gap-2">
@@ -1804,8 +1820,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       className={`${
                         isFullscreen
                           ? "h-10 px-4 text-sm"
-                          : "h-6 px-2 text-xs"
+                          : "h-6 px-2"
                       } bg-background/20 text-background hover:bg-background/30 transition-colors flex items-center justify-center touch-manipulation`}
+                      style={{
+                        fontSize: isFullscreen ? '14px' : '16px'
+                      }}
                     >
                       GIF
                     </button>
@@ -1821,8 +1840,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       className={`${
                         isFullscreen
                           ? "h-10 px-4 text-sm"
-                          : "h-6 px-2 text-xs"
+                          : "h-6 px-2"
                       } bg-background text-accent-green disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background/90 transition-colors flex items-center justify-center touch-manipulation`}
+                      style={{
+                        fontSize: isFullscreen ? '14px' : '16px'
+                      }}
                     >
                       Post
                     </button>
@@ -1836,10 +1858,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       className={`${
                         isFullscreen
                           ? "h-10 px-4 text-base"
-                          : "h-6 px-2 text-xs"
+                          : "h-6 px-2"
                       } bg-background/20 text-background hover:bg-background/30 transition-colors flex items-center justify-center touch-manipulation`}
                     >
-                      ×
+                      <X size={16} />
                     </button>
                   </div>
                 </div>
@@ -1860,7 +1882,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       isFullscreen ? "z-[10002]" : "z-50"
                     }`}
                   >
-                    <div className={`${isFullscreen ? "p-4" : "p-2 md:p-3"}`}>
+                    <div className={`${isFullscreen ? "p-4" : "p-4 md:p-4"}`}>
                       <div className="w-full">
                         <div className="flex items-center justify-between mb-3">
                           <input
@@ -1870,7 +1892,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                             onChange={(e) => handleSearch(e.target.value)}
                             className={`flex-1 px-3 ${
                               isFullscreen ? "py-3 h-10" : "py-2"
-                            } text-xs bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40 mr-2 touch-manipulation`}
+                            } bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40 mr-2 touch-manipulation`}
+                            style={{
+                              fontSize: '16px'
+                            }}
                             autoFocus={!isMobile}
                           />
                           <button
@@ -1879,9 +1904,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                               e.stopPropagation();
                               setShowGifPicker(false);
                             }}
-                            className={`${
-                              isFullscreen ? "px-4 py-3 h-10" : "px-3 py-2"
-                            } text-xs bg-background/20 text-background hover:bg-background/30 transition-colors flex-shrink-0 touch-manipulation`}
+                                                          className={`${
+                                isFullscreen ? "px-4 py-3 h-10" : "px-3 py-2"
+                              } text-sm bg-background/20 text-background hover:bg-background/30 transition-colors flex-shrink-0 touch-manipulation flex items-center justify-center`}
                           >
                             Done
                           </button>
