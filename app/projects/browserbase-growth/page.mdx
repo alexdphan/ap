@@ -1,60 +1,98 @@
-import Link from 'next/link'
+import SiteHeader from '../../../components/SiteHeader'
+import SiteFooter from '../../../components/SiteFooter'
+import AnimatedSection from '../../../components/AnimatedSection'
+import ProjectLayout from '../../../components/ProjectLayout'
+import ContentContainer from '../../../components/ContentContainer'
+import ProseContainer from '../../../components/ProseContainer'
+import ContentSection from '../../../components/ContentSection'
+import FooterSection from '../../../components/FooterSection'
+import ProjectHeader from '../../../components/ProjectHeader'
+import Lead from '../../../components/Lead'
+import FeatureList, { FeatureItem } from '../../../components/FeatureList'
+import SectionHeading from '../../../components/SectionHeading'
+import Callout from '../../../components/Callout'
 
 export const metadata = {
-  title: 'Growth Engineering at Browserbase',
-  description: 'Building systems that scale user acquisition and engagement'
+  title: 'Browserbase Growth',
+  description: 'Scaling developer adoption and building growth systems'
 }
 
-<div className="min-h-screen bg-background">
-  <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
-    <div className="max-w-xl mx-auto">
-      
-      {/* Header with back link */}
-      <div className="flex items-center justify-between mb-6 md:mb-8">
-        <Link 
-          href="/projects"
-          className="text-sm text-foreground/60 hover:text-foreground transition-colors"
-        >
-          ← Back to Projects
-        </Link>
-        <div className="text-sm text-foreground/60">Dec 2024</div>
-      </div>
+<ProjectLayout>
+  <SiteHeader />
+  
+  <ContentContainer size="narrow">
+    <AnimatedSection delay={0.2}>
+      <ProjectHeader 
+        category="BROWSERBASE"
+        subcategory="GROWTH"
+        title="Growth Engineering"
+        description="Building systems and strategies to scale developer adoption. Focus on product-led growth, onboarding optimization, and data-driven iteration."
+      />
+    </AnimatedSection>
 
-      {/* Page Title */}
-      <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-8 md:mb-12 leading-tight tracking-tight">
-        Growth Engineering at Browserbase
-      </h1>
+    <AnimatedSection delay={0.3}>
+      <ProseContainer>
+        <Lead>
+          Growing a developer tool requires a different approach than traditional SaaS products. Developers try before they buy, and they share experiences.
+        </Lead>
 
-      {/* Content */}
-      <div className="prose prose-lg max-w-none">
-        <div className="space-y-6">
+        <ContentSection>
+          <SectionHeading>Growth Focus Areas</SectionHeading>
           
-          As the first growth engineer at Browserbase, I&apos;m building the foundation for scalable user acquisition and engagement systems.
+          Working on initiatives that drive sustainable growth while maintaining product quality and developer experience.
 
-          ## What I&apos;m Building
+          <div className="space-y-4 my-6">
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Onboarding optimization</h4>
+              <span className="text-sm text-foreground/70">Reducing time-to-first-value for new developers</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Product-led growth systems</h4>
+              <span className="text-sm text-foreground/70">Building growth directly into the product experience</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Developer community engagement</h4>
+              <span className="text-sm text-foreground/70">Creating sustainable channels for user feedback and advocacy</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Usage analytics and insights</h4>
+              <span className="text-sm text-foreground/70">Understanding user behavior to drive product decisions</span>
+            </div>
+          </div>
+        </ContentSection>
+        
+        <ContentSection>
+          <SectionHeading>Key Metrics</SectionHeading>
           
-          Growth engineering isn&apos;t just about metrics - it&apos;s about building systems that make the right behaviors feel natural and inevitable.
+          <FeatureList>
+            <FeatureItem><strong>Time to first API call</strong> — How quickly new users can get started</FeatureItem>
+            <FeatureItem><strong>Weekly active developers</strong> — Sustained engagement over time</FeatureItem>
+            <FeatureItem><strong>Feature adoption rates</strong> — Which capabilities drive the most value</FeatureItem>
+            <FeatureItem><strong>Community health scores</strong> — Quality of developer interactions and support</FeatureItem>
+          </FeatureList>
+        </ContentSection>
 
-          - Experimentation infrastructure for rapid A/B testing
-          - User onboarding flows that reduce time-to-value
-          - Analytics systems that surface actionable insights
-          - Automated lifecycle marketing triggers
-
-          ## Approach
+        <ContentSection>
+          <SectionHeading>Growth Stack</SectionHeading>
           
-          The best growth systems are invisible. They work in the background, nudging users toward success without feeling manipulative or forced.
+          <FeatureList>
+            <FeatureItem><strong>PostHog</strong> for product analytics</FeatureItem>
+            <FeatureItem><strong>Segment</strong> for data pipeline</FeatureItem>
+            <FeatureItem><strong>GitHub Analytics</strong> for community insights</FeatureItem>
+            <FeatureItem><strong>Custom tracking</strong> for developer-specific metrics</FeatureItem>
+          </FeatureList>
+        </ContentSection>
 
-          I focus on understanding the user journey deeply - where do people get stuck? What makes them successful? How can we remove friction while adding value?
-
-          ## Impact
-          
-          Building the growth engine for a developer tool requires a different approach than consumer products. Developers are skeptical of growth tactics, so everything must provide genuine value.
-
-          The systems I&apos;m building focus on education, clear value demonstration, and removing technical barriers to adoption.
-
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div> 
+        <Callout>
+          The best growth strategy for developer tools is building something developers genuinely want to use and share.
+        </Callout>
+      </ProseContainer>
+    </AnimatedSection>
+  </ContentContainer>
+  
+  <AnimatedSection delay={0.4}>
+    <FooterSection>
+      <SiteFooter />
+    </FooterSection>
+  </AnimatedSection>
+</ProjectLayout> 

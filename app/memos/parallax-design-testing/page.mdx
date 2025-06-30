@@ -1,0 +1,89 @@
+import SiteHeader from '../../../components/SiteHeader'
+import SiteFooter from '../../../components/SiteFooter'
+import AnimatedSection from '../../../components/AnimatedSection'
+import ProjectLayout from '../../../components/ProjectLayout'
+import ContentContainer from '../../../components/ContentContainer'
+import ProseContainer from '../../../components/ProseContainer'
+import ProjectHeader from '../../../components/ProjectHeader'
+import ImageLayout from '../../../components/ImageLayout'
+import ImageTextLayout from '../../../components/ImageTextLayout'
+import FooterSection from '../../../components/FooterSection'
+import SectionHeading from '../../../components/SectionHeading'
+import FeatureList, { FeatureItem } from '../../../components/FeatureList'
+import ContentSection from '../../../components/ContentSection'
+import Lead from '../../../components/Lead'
+import Callout from '../../../components/Callout'
+
+export const metadata = {
+  title: 'Parallax Design Testing',
+  description: 'Experimenting with depth and motion in web interfaces'
+}
+
+<ProjectLayout>
+  <SiteHeader />
+  
+  <ContentContainer size="narrow">
+    <AnimatedSection delay={0.2}>
+      <ProjectHeader 
+        category="MEMOS"
+        subcategory="DESIGN"
+        title="Parallax Design Testing"
+        description="Exploring how depth and layered motion can create more engaging and intuitive web experiences without overwhelming the user."
+      />
+    </AnimatedSection>
+
+    <AnimatedSection delay={0.3}>
+      <ProseContainer>
+        <Lead>
+          Parallax scrolling gets a bad reputation because it's often overused. But when applied thoughtfully, it can create depth and hierarchy that guides attention naturally.
+        </Lead>
+
+        <ContentSection>
+          <SectionHeading>Principles for Good Parallax</SectionHeading>
+          
+          Parallax should serve the content, not distract from it. The motion should feel natural and help users understand the spatial relationship between elements.
+
+          Use subtle speed differences rather than dramatic effects. The goal is to create depth, not motion sickness.
+
+          <Callout>
+            The best parallax effects feel inevitable—like the natural consequence of scrolling through a three-dimensional space.
+          </Callout>
+        </ContentSection>
+
+        <ContentSection>
+          <SectionHeading>Technical Considerations</SectionHeading>
+          
+          Performance is critical. Parallax effects can quickly become janky if not optimized properly.
+
+          Use CSS transforms and will-change properties to enable hardware acceleration. Debounce scroll events and use requestAnimationFrame for smooth animations.
+
+          Consider reduced motion preferences. Some users get motion sick or have vestibular disorders. Always provide alternatives.
+
+          Test on mobile devices early and often. What feels smooth on desktop might be unusable on slower devices.
+        </ContentSection>
+
+        <ContentSection>
+          <SectionHeading>Design Applications</SectionHeading>
+          
+          Parallax works best for storytelling and creating visual hierarchy. It can guide users through a narrative or help them understand complex information.
+
+          Layer background elements at different speeds to create depth. Foreground content should move at normal scroll speed while backgrounds move slower.
+
+          Use parallax to reveal information progressively. Let elements appear and disappear at natural points in the scroll journey.
+
+          Combine with other interaction patterns like sticky elements or fade-ins to create rich, layered experiences.
+        </ContentSection>
+
+        <Callout type="quote">
+          Good parallax feels like looking through a window, not riding a roller coaster.
+        </Callout>
+      </ProseContainer>
+    </AnimatedSection>
+  </ContentContainer>
+  
+  <AnimatedSection delay={0.4}>
+    <FooterSection>
+      <SiteFooter />
+    </FooterSection>
+  </AnimatedSection>
+</ProjectLayout> 

@@ -1,61 +1,86 @@
-import Link from 'next/link'
+import SiteHeader from '../../../components/SiteHeader'
+import SiteFooter from '../../../components/SiteFooter'
+import AnimatedSection from '../../../components/AnimatedSection'
+import ProjectLayout from '../../../components/ProjectLayout'
+import ContentContainer from '../../../components/ContentContainer'
+import ProseContainer from '../../../components/ProseContainer'
+import ContentSection from '../../../components/ContentSection'
+import FooterSection from '../../../components/FooterSection'
+import ProjectHeader from '../../../components/ProjectHeader'
+import Lead from '../../../components/Lead'
+import SectionHeading from '../../../components/SectionHeading'
+import Callout from '../../../components/Callout'
 
 export const metadata = {
   title: 'Growth Engineering Systems',
-  description: 'On building systems that make the right behaviors feel natural'
+  description: 'Building systems that scale human behavior'
 }
 
-<div className="min-h-screen bg-background">
-  <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
-    <div className="max-w-xl mx-auto">
-      
-      {/* Header with back link */}
-      <div className="flex items-center justify-between mb-6 md:mb-8">
-        <Link 
-          href="/memos"
-          className="text-sm text-foreground/60 hover:text-foreground transition-colors"
-        >
-          ← Back to Memos
-        </Link>
-        <div className="text-sm text-foreground/60">Nov 2024</div>
-      </div>
+<ProjectLayout>
+  <SiteHeader />
+  
+  <ContentContainer size="narrow">
+    <AnimatedSection delay={0.2}>
+      <ProjectHeader 
+        category="MEMOS"
+        subcategory="SYSTEMS"
+        title="Growth Engineering Systems"
+        description="The most effective growth systems don't feel like growth systems. They feel like the natural way to use the product."
+      />
+    </AnimatedSection>
 
-      {/* Page Title */}
-      <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-8 md:mb-12 leading-tight tracking-tight">
-        Growth Engineering Systems
-      </h1>
+    <AnimatedSection delay={0.3}>
+      <ProseContainer>
+        <Lead>
+          Growth engineering isn't about tricking people into using your product more. It's about building systems that make the right behaviors feel natural and inevitable.
+        </Lead>
 
-      {/* Content */}
-      <div className="prose prose-lg max-w-none">
-        <div className="space-y-6">
+        <ContentSection>
+          <SectionHeading>The Systems Approach</SectionHeading>
           
-          Growth engineering isn&apos;t just about metrics - it&apos;s about building systems that make the right behaviors feel natural and inevitable.
+          Most teams think about growth as a series of tactics: emails, notifications, viral loops. But tactics without systems are just noise.
 
-          The best growth systems are invisible. Users don&apos;t feel manipulated or pushed. They feel guided toward success.
+          Systems thinking asks: what are the underlying forces that drive behavior? How can we amplify the forces that lead to desired outcomes?
 
-          ## Beyond Metrics
+          <Callout>
+            The best growth engineering feels invisible. Users don't realize they're being "grown" because the experience just makes sense.
+          </Callout>
+        </ContentSection>
+
+        <ContentSection>
+          <SectionHeading>Building for Behavior</SectionHeading>
           
-          Most growth teams focus on optimizing funnels and conversion rates. But the real work is understanding why people succeed or fail.
+          Every interface is a behavioral intervention. Every interaction shapes user expectations and habits.
 
-          A 2% improvement in signup rate means nothing if those users churn immediately. A 50% reduction in signup rate could be good if the remaining users are much more likely to find value.
+          Instead of asking "how do we get users to do X," ask "what system would make X the obvious next step?"
 
-          ## Systems Thinking
+          Look for places where friction serves no purpose except to slow people down. Remove it.
+
+          Find moments where a little guidance would save users significant confusion. Add it.
+
+          Build feedback loops that help users understand the value they're getting from their actions.
+        </ContentSection>
+
+        <ContentSection>
+          <SectionHeading>The Measurement Problem</SectionHeading>
           
-          Growth isn&apos;t a feature you add. It&apos;s a property that emerges from the entire system working well together.
+          Growth engineering requires different metrics than product engineering. You're not just measuring what happened; you're measuring what changed.
 
-          The onboarding flow connects to the product experience. The product experience connects to customer support. Customer support connects to product improvements. Everything is connected.
+          Focus on leading indicators: behaviors that predict future value rather than metrics that just reflect past activity.
 
-          ## Natural Behaviors
-          
-          The goal isn&apos;t to trick users into doing what you want. It&apos;s to design systems where what&apos;s good for the user is naturally aligned with what&apos;s good for the business.
+          Cohort analysis becomes essential. You need to understand how user behavior evolves over time, not just what's happening right now.
+        </ContentSection>
 
-          When users succeed, you succeed. When users get value, they become advocates. When the product genuinely helps people, growth happens organically.
-
-          The best growth engineering removes friction from natural user motivation rather than trying to manufacture artificial motivation.
-
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div> 
+        <Callout type="quote">
+          The goal isn't to optimize for growth. The goal is to build systems so good that growth becomes a natural byproduct.
+        </Callout>
+      </ProseContainer>
+    </AnimatedSection>
+  </ContentContainer>
+  
+  <AnimatedSection delay={0.4}>
+    <FooterSection>
+      <SiteFooter />
+    </FooterSection>
+  </AnimatedSection>
+</ProjectLayout> 

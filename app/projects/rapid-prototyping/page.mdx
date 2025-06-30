@@ -1,70 +1,106 @@
-import Link from 'next/link'
+import SiteHeader from '../../../components/SiteHeader'
+import SiteFooter from '../../../components/SiteFooter'
+import AnimatedSection from '../../../components/AnimatedSection'
+import ProjectLayout from '../../../components/ProjectLayout'
+import ContentContainer from '../../../components/ContentContainer'
+import ProseContainer from '../../../components/ProseContainer'
+import ContentSection from '../../../components/ContentSection'
+import FooterSection from '../../../components/FooterSection'
+import ProjectHeader from '../../../components/ProjectHeader'
+import Lead from '../../../components/Lead'
+import FeatureList, { FeatureItem } from '../../../components/FeatureList'
+import SectionHeading from '../../../components/SectionHeading'
+import Callout from '../../../components/Callout'
 
 export const metadata = {
   title: 'Rapid Prototyping',
   description: 'Fast iteration and experimental development'
 }
 
-<div className="min-h-screen bg-background">
-  <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
-    <div className="max-w-xl mx-auto">
-      
-      {/* Header with back link */}
-      <div className="flex items-center justify-between mb-6 md:mb-8">
-        <Link 
-          href="/projects"
-          className="text-sm text-foreground/60 hover:text-foreground transition-colors"
-        >
-          ← Back to Projects
-        </Link>
-        <div className="text-sm text-foreground/60">Oct 2024</div>
-      </div>
+<ProjectLayout>
+  <SiteHeader />
+  
+  <ContentContainer size="narrow">
+    <AnimatedSection delay={0.2}>
+      <ProjectHeader 
+        category="PROTOTYPING"
+        subcategory="METHODOLOGY"
+        title="Rapid Prototyping"
+        description="Building the smallest version that can demonstrate core concepts. Fast iteration cycles to validate ideas and learn quickly."
+      />
+    </AnimatedSection>
 
-      {/* Page Title */}
-      <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-8 md:mb-12 leading-tight tracking-tight">
-        Rapid Prototyping
-      </h1>
-
-      {/* Content */}
-      <div className="prose prose-lg max-w-none">
-        <div className="space-y-6">
-          
+    <AnimatedSection delay={0.3}>
+      <ProseContainer>
+        <Lead>
           The fastest way to test an idea is to build the smallest version that can demonstrate the core concept.
+        </Lead>
 
-          ## Philosophy
+        <ContentSection>
+          <SectionHeading>Philosophy</SectionHeading>
           
           Perfect is the enemy of good, and good is often the enemy of fast. When testing new concepts, speed of iteration matters more than code quality.
 
-          The goal isn&apos;t to build production-ready software. It&apos;s to answer specific questions as quickly as possible.
+          <Callout>
+            The goal isn't to build production-ready software. It's to answer specific questions as quickly as possible.
+          </Callout>
+        </ContentSection>
 
-          ## Current Experiments
-          
-          - Voice-controlled development environments
-          - AI-assisted code review tools
-          - Real-time collaborative design systems
-          - Browser automation for testing workflows
+        <ContentSection>
+          <SectionHeading>Current Experiments</SectionHeading>
 
-          ## Tools & Stack
+          <div className="space-y-4 my-6">
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Voice-controlled development environments</h4>
+              <span className="text-sm text-foreground/70">Exploring hands-free coding and navigation workflows</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">AI-assisted code review tools</h4>
+              <span className="text-sm text-foreground/70">Automating pattern detection and optimization suggestions</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Real-time collaborative design systems</h4>
+              <span className="text-sm text-foreground/70">Multi-user design tools with live synchronization</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Browser automation testing workflows</h4>
+              <span className="text-sm text-foreground/70">Streamlined end-to-end testing and validation pipelines</span>
+            </div>
+          </div>
+        </ContentSection>
+        
+        <ContentSection>
+          <SectionHeading>Tools & Stack</SectionHeading>
           
           For maximum speed, I lean on tools that let me focus on the unique parts of each prototype:
-
-          - Next.js for web apps
-          - Vercel for instant deployment
-          - Tailwind for rapid styling
-          - Supabase for backend needs
-          - Framer Motion for interactions
-
-          ## Learnings
           
-          Most ideas don&apos;t work. The ones that do work often work for different reasons than you initially thought.
+          <FeatureList>
+            <FeatureItem><strong>Next.js</strong> for web apps</FeatureItem>
+            <FeatureItem><strong>Vercel</strong> for instant deployment</FeatureItem>
+            <FeatureItem><strong>Tailwind</strong> for rapid styling</FeatureItem>
+            <FeatureItem><strong>Supabase</strong> for backend needs</FeatureItem>
+            <FeatureItem><strong>Framer Motion</strong> for interactions</FeatureItem>
+          </FeatureList>
+        </ContentSection>
+
+        <ContentSection>
+          <SectionHeading>Key Learnings</SectionHeading>
+          
+          Most ideas don't work. The ones that do work often work for different reasons than you initially thought.
 
           The prototype that takes 2 weeks to build will teach you more than 6 months of planning.
+        </ContentSection>
 
+        <Callout type="quote">
           Build fast, learn fast, kill fast, iterate fast.
-
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div> 
+        </Callout>
+      </ProseContainer>
+    </AnimatedSection>
+  </ContentContainer>
+  
+  <AnimatedSection delay={0.4}>
+    <FooterSection>
+      <SiteFooter />
+    </FooterSection>
+  </AnimatedSection>
+</ProjectLayout> 

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface PageTransitionProps {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const prevPathRef = useRef(pathname);
   const isFirstRender = useRef(true);
+  const navigationHistory = useRef<string[]>([pathname]);
 
   // Determine transition direction based on navigation
   const getTransitionDirection = (
@@ -47,10 +49,38 @@ export default function PageTransition({ children }: PageTransitionProps) {
       }
     };
 
+    const handleBrowserNavigation = () => {
+      console.log('Browser back/forward detected');
+      
+      // Just determine direction - let the pathname effect handle the transition
+      const currentPath = window.location.pathname;
+      const historyIndex = navigationHistory.current.indexOf(currentPath);
+      
+      if (historyIndex === -1) {
+        // New page, going forward
+        setDirection("forward");
+        navigationHistory.current.push(currentPath);
+      } else if (historyIndex < navigationHistory.current.length - 1) {
+        // Going back in history  
+        setDirection("backward");
+        // Trim history to current position
+        navigationHistory.current = navigationHistory.current.slice(0, historyIndex + 1);
+      } else {
+        // Default to forward
+        setDirection("forward");
+      }
+      
+      console.log(`Browser navigation direction: ${direction}`);
+    };
+
     window.addEventListener("startPageTransition", handleTransitionStart);
-    return () =>
+    window.addEventListener("popstate", handleBrowserNavigation);
+    
+    return () => {
       window.removeEventListener("startPageTransition", handleTransitionStart);
-  }, [transitionStage]);
+      window.removeEventListener("popstate", handleBrowserNavigation);
+    };
+  }, [transitionStage, direction]);
 
   useEffect(() => {
     // Skip transition on first render
@@ -71,60 +101,78 @@ export default function PageTransition({ children }: PageTransitionProps) {
         `Transitioning from ${prevPathRef.current} to ${pathname}, direction: ${newDirection}`
       );
 
-      // Start with exit stage (overlay slides in)
+      // Start transition for pathname changes
       setTransitionStage("exit");
 
-      // After exit animation, update content and start enter stage
+      // Start the continuous sweep immediately
+      setTimeout(() => {
+        setTransitionStage("enter");
+      }, 10);
+
+      // Change content halfway through the sweep (when green overlay covers screen)
       setTimeout(() => {
         setDisplayChildren(children);
-        setTransitionStage("enter");
+      }, 400);
 
-        // After enter animation, go back to idle
-        setTimeout(() => {
-          setTransitionStage("idle");
-          prevPathRef.current = pathname;
-        });
-      });
+      // After sweep completes, go back to idle
+      setTimeout(() => {
+        setTransitionStage("idle");
+        prevPathRef.current = pathname;
+      }, 800);
     }
   }, [pathname, children]);
 
   // Calculate transform based on stage and direction
   const getTransform = () => {
     if (direction === "forward") {
-      // Forward: right to left
+      // Forward navigation: sweep left to right
       if (transitionStage === "idle") {
-        return "translateX(-101%)"; // Off-screen right
+        return "translateX(-100%)"; // Hidden off-screen left
       }
       if (transitionStage === "exit") {
-        return "translateX(0%)"; // Cover the screen from right
+        return "translateX(-100%)"; // Start from left
       }
       if (transitionStage === "enter") {
-        return "translateX(-101%)"; // Exit to left
+        return "translateX(100%)"; // Sweep all the way to right
       }
     } else {
-      // Backward: left to right
+      // Backward navigation: sweep right to left
       if (transitionStage === "idle") {
-        return "translateX(101%)"; // Off-screen left
+        return "translateX(100%)"; // Hidden off-screen right
       }
       if (transitionStage === "exit") {
-        return "translateX(0%)"; // Cover the screen from left
+        return "translateX(100%)"; // Start from right
       }
       if (transitionStage === "enter") {
-        return "translateX(101%)"; // Exit to right
+        return "translateX(-100%)"; // Sweep all the way to left
       }
     }
 
-    return "translateX(101%)";
+    return "translateX(100%)";
   };
 
   return (
     <div className="relative min-h-screen">
-      {/* Page Content */}
-      <div className="relative z-10">{displayChildren}</div>
+      {/* Page Content with animations */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={pathname}
+          className="relative z-10"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{
+            duration: 0.6,
+            ease: "easeOut",
+          }}
+        >
+          {displayChildren}
+        </motion.div>
+      </AnimatePresence>
 
       {/* Transition Overlay - Always rendered for smooth transitions */}
       <div
-        className="fixed inset-0 bg-accent-green z-50 pointer-events-none transition-transform duration-400 ease-in-out"
+        className="fixed inset-0 bg-accent-green z-50 pointer-events-none transition-transform duration-800 ease-in-out"
         style={{
           transform: getTransform(),
         }}

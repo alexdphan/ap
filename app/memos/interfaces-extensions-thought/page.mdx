@@ -1,69 +1,86 @@
-import Link from 'next/link'
+import SiteHeader from '../../../components/SiteHeader'
+import SiteFooter from '../../../components/SiteFooter'
+import AnimatedSection from '../../../components/AnimatedSection'
+import ProjectLayout from '../../../components/ProjectLayout'
+import ContentContainer from '../../../components/ContentContainer'
+import ProseContainer from '../../../components/ProseContainer'
+import ContentSection from '../../../components/ContentSection'
+import FooterSection from '../../../components/FooterSection'
+import ProjectHeader from '../../../components/ProjectHeader'
+import Lead from '../../../components/Lead'
+import SectionHeading from '../../../components/SectionHeading'
+import Callout from '../../../components/Callout'
 
 export const metadata = {
   title: 'Interfaces as Extensions of Thought',
-  description: 'On designing interfaces that feel like natural extensions of cognition'
+  description: 'When tools become transparent to the user'
 }
 
-<div className="min-h-screen bg-background">
-  <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
-    <div className="max-w-xl mx-auto">
-      
-      {/* Header with back link */}
-      <div className="flex items-center justify-between mb-6 md:mb-8">
-        <Link 
-          href="/memos"
-          className="text-sm text-foreground/60 hover:text-foreground transition-colors"
-        >
-          ← Back to Memos
-        </Link>
-        <div className="text-sm text-foreground/60">Nov 2024</div>
-      </div>
+<ProjectLayout>
+  <SiteHeader />
+  
+  <ContentContainer size="narrow">
+    <AnimatedSection delay={0.2}>
+      <ProjectHeader 
+        category="MEMOS"
+        subcategory="INTERFACES"
+        title="Interfaces as Extensions of Thought"
+        description="The best interfaces don't feel like interfaces at all. They feel like extensions of your mind—transparent conduits between intention and outcome."
+      />
+    </AnimatedSection>
 
-      {/* Page Title */}
-      <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-8 md:mb-12 leading-tight tracking-tight">
-        Interfaces as Extensions of Thought
-      </h1>
+    <AnimatedSection delay={0.3}>
+      <ProseContainer>
+        <Lead>
+          When you're writing with a good pen, you stop thinking about the pen. Your thoughts flow directly onto the page. The tool becomes invisible.
+        </Lead>
 
-      {/* Content */}
-      <div className="prose prose-lg max-w-none">
-        <div className="space-y-6">
+        <ContentSection>
+          <SectionHeading>The Transparency Principle</SectionHeading>
           
-          The best interfaces don&apos;t feel like interfaces at all. They feel like extensions of thought.
+          Transparent interfaces let you focus on what you're trying to accomplish, not on how to operate the tool.
 
-          When you&apos;re writing, the keyboard disappears. When you&apos;re drawing, the stylus becomes invisible. The tool becomes transparent, and you&apos;re directly manipulating your ideas.
+          This transparency emerges from deep understanding of user mental models. The interface should match how people naturally think about the problem, not how the system works internally.
 
-          ## The Transparency Problem
+          <Callout>
+            The interface should feel like a natural extension of human capability, not a foreign system to be learned.
+          </Callout>
+        </ContentSection>
+
+        <ContentSection>
+          <SectionHeading>Beyond Visual Design</SectionHeading>
           
-          Most software interfaces are opaque. They demand your attention. They make you think about buttons and menus instead of your actual work.
+          Interface design isn't just about layouts and colors. It's about information architecture, interaction patterns, and feedback systems.
 
-          Every click is a tax on your attention. Every menu is a barrier between intention and execution.
+          The best interfaces provide the right information at the right time, in the right format, with the right level of detail.
 
-          ## Natural Gestures
+          They anticipate what you need next. They remember what you've done before. They adapt to your workflow rather than forcing you to adapt to theirs.
+
+          Every click, every screen transition, every notification is an opportunity to either support or interrupt your thinking process.
+        </ContentSection>
+
+        <ContentSection>
+          <SectionHeading>The Design Process</SectionHeading>
           
-          Our hands know how to grasp, rotate, and manipulate objects. Our eyes know how to track movement and focus attention.
+          Start by understanding the cognitive task, not the technical requirements. What is the user trying to think through? What decisions are they making?
 
-          Why should digital interfaces require learning an entirely new vocabulary of interaction?
+          Map the natural flow of thought from initial intention to final outcome. Where do people get stuck? What information do they need at each step?
 
-          The most successful interfaces map digital actions to physical intuitions we already have.
+          Prototype early and test with real users doing real tasks. Watch where their attention goes. Notice where they hesitate or look confused.
 
-          ## Cognitive Load
-          
-          Good interfaces reduce cognitive load. Great interfaces redistribute it.
+          The goal is to eliminate the gap between thought and action.
+        </ContentSection>
 
-          Instead of making you remember commands, they make patterns visible. Instead of requiring precise input, they anticipate your intent.
-
-          ## The Future
-          
-          We&apos;re moving toward interfaces that adapt to how we naturally think and move.
-
-          Voice, gesture, eye tracking, and brain-computer interfaces are all steps toward the same goal: making the boundary between thought and action disappear.
-
-          The ultimate interface is no interface at all.
-
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div> 
+        <Callout type="quote">
+          When the interface disappears, the user's full cognitive capacity can focus on the actual problem they're trying to solve.
+        </Callout>
+      </ProseContainer>
+    </AnimatedSection>
+  </ContentContainer>
+  
+  <AnimatedSection delay={0.4}>
+    <FooterSection>
+      <SiteFooter />
+    </FooterSection>
+  </AnimatedSection>
+</ProjectLayout> 

@@ -1,65 +1,107 @@
-import Link from 'next/link'
+import SiteHeader from '../../../components/SiteHeader'
+import SiteFooter from '../../../components/SiteFooter'
+import AnimatedSection from '../../../components/AnimatedSection'
+import ProjectLayout from '../../../components/ProjectLayout'
+import ContentContainer from '../../../components/ContentContainer'
+import ProseContainer from '../../../components/ProseContainer'
+import ContentSection from '../../../components/ContentSection'
+import FooterSection from '../../../components/FooterSection'
+import ProjectHeader from '../../../components/ProjectHeader'
+import Lead from '../../../components/Lead'
+import FeatureList, { FeatureItem } from '../../../components/FeatureList'
+import SectionHeading from '../../../components/SectionHeading'
+import Callout from '../../../components/Callout'
 
 export const metadata = {
-  title: 'Experimental Interface Design',
-  description: 'Exploring new patterns for human-computer interaction'
+  title: 'Experimental Interfaces',
+  description: 'Novel interaction patterns and interface design explorations'
 }
 
-<div className="min-h-screen bg-background">
-  <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
-    <div className="max-w-xl mx-auto">
-      
-      {/* Header with back link */}
-      <div className="flex items-center justify-between mb-6 md:mb-8">
-        <Link 
-          href="/projects"
-          className="text-sm text-foreground/60 hover:text-foreground transition-colors"
-        >
-          ← Back to Projects
-        </Link>
-        <div className="text-sm text-foreground/60">Nov 2024</div>
-      </div>
+<ProjectLayout>
+  <SiteHeader />
+  
+  <ContentContainer size="narrow">
+    <AnimatedSection delay={0.2}>
+      <ProjectHeader 
+        category="INTERFACES"
+        subcategory="DESIGN"
+        title="Experimental Interfaces"
+        description="Exploring novel interaction patterns and interface paradigms. Testing new ways for humans to interact with digital systems."
+      />
+    </AnimatedSection>
 
-      {/* Page Title */}
-      <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-8 md:mb-12 leading-tight tracking-tight">
-        Experimental Interface Design
-      </h1>
+    <AnimatedSection delay={0.3}>
+      <ProseContainer>
+        <Lead>
+          Most interfaces follow predictable patterns. But what if they didn't have to?
+        </Lead>
 
-      {/* Content */}
-      <div className="prose prose-lg max-w-none">
-        <div className="space-y-6">
+        <ContentSection>
+          <SectionHeading>Current Direction</SectionHeading>
           
-          The best interfaces don&apos;t feel like interfaces at all. They feel like extensions of thought.
+          I'm exploring interfaces that adapt to context, respond to environment, and break traditional paradigms. This includes gesture-based navigation, voice-first interactions, and ambient computing patterns.
 
-          ## Current Explorations
+          <Callout>
+            The best interface is often the one you don't notice you're using.
+          </Callout>
+        </ContentSection>
+
+        <ContentSection>
+          <SectionHeading>Active Explorations</SectionHeading>
+
+          <div className="space-y-4 my-6">
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Context-aware navigation</h4>
+              <span className="text-sm text-foreground/70">Interfaces that predict what you need next</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Gesture-controlled workflows</h4>
+              <span className="text-sm text-foreground/70">Hand tracking for 3D manipulation and selection</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Ambient information display</h4>
+              <span className="text-sm text-foreground/70">Peripheral awareness without direct attention</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Voice-first design patterns</h4>
+              <span className="text-sm text-foreground/70">Interfaces optimized for spoken interaction</span>
+            </div>
+          </div>
+        </ContentSection>
+        
+        <ContentSection>
+          <SectionHeading>Design Principles</SectionHeading>
           
-          I&apos;m investigating interaction patterns that feel more natural and intuitive than traditional UI paradigms.
+          <FeatureList>
+            <FeatureItem><strong>Invisible complexity</strong> — Hide technical details behind simple interactions</FeatureItem>
+            <FeatureItem><strong>Contextual adaptation</strong> — Interface changes based on situation and usage patterns</FeatureItem>
+            <FeatureItem><strong>Progressive disclosure</strong> — Reveal information and controls only when needed</FeatureItem>
+            <FeatureItem><strong>Natural mapping</strong> — Digital actions should feel intuitive and physically grounded</FeatureItem>
+          </FeatureList>
+        </ContentSection>
 
-          - Gesture-based navigation that mimics physical intuition
-          - Contextual interfaces that adapt to user intent
-          - Micro-interactions that provide meaningful feedback
-          - Spatial computing interfaces for 3D environments
-
-          ## Philosophy
+        <ContentSection>
+          <SectionHeading>Technology Stack</SectionHeading>
           
-          Most interfaces today are still trapped in desktop metaphors from the 1980s. We&apos;re designing for screens, but thinking is spatial and embodied.
+          <FeatureList>
+            <FeatureItem><strong>React</strong> for component-based UI</FeatureItem>
+            <FeatureItem><strong>Framer Motion</strong> for fluid animations</FeatureItem>
+            <FeatureItem><strong>Three.js</strong> for 3D interfaces</FeatureItem>
+            <FeatureItem><strong>WebRTC</strong> for real-time communication</FeatureItem>
+            <FeatureItem><strong>Web Audio API</strong> for sound-based interactions</FeatureItem>
+          </FeatureList>
+        </ContentSection>
 
-          What if interfaces responded to the way we naturally move, gesture, and think? What if the boundary between tool and thought became blurred?
-
-          ## Prototypes
-          
-          Currently building experimental prototypes that explore:
-
-          - Voice + gesture multimodal controls
-          - AI-assisted interface generation
-          - Haptic feedback systems for web interfaces
-          - Eye-tracking for implicit user research
-
-          Each prototype challenges a fundamental assumption about how we interact with computers.
-
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div> 
+        <Callout type="quote">
+          The interface should feel like an extension of your intent, not an obstacle to it.
+        </Callout>
+      </ProseContainer>
+    </AnimatedSection>
+  </ContentContainer>
+  
+  <AnimatedSection delay={0.4}>
+    <FooterSection>
+      <SiteFooter />
+    </FooterSection>
+  </AnimatedSection>
+</ProjectLayout> 

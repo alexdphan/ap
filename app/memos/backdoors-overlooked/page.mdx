@@ -1,61 +1,74 @@
-import Link from 'next/link'
+import SiteHeader from '../../../components/SiteHeader'
+import SiteFooter from '../../../components/SiteFooter'
+import AnimatedSection from '../../../components/AnimatedSection'
+import ProjectLayout from '../../../components/ProjectLayout'
+import ContentContainer from '../../../components/ContentContainer'
+import ProseContainer from '../../../components/ProseContainer'
+import ContentSection from '../../../components/ContentSection'
+import FooterSection from '../../../components/FooterSection'
+import ProjectHeader from '../../../components/ProjectHeader'
+import Lead from '../../../components/Lead'
+import SectionHeading from '../../../components/SectionHeading'
+import Callout from '../../../components/Callout'
 
 export const metadata = {
-  title: 'The Backdoors That Are Often Overlooked',
-  description: 'On finding the obvious patterns we dismiss'
+  title: 'Backdoors Overlooked',
+  description: 'Hidden opportunities in everyday systems'
 }
 
-<div className="min-h-screen bg-background">
-  <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
-    <div className="max-w-xl mx-auto">
-      
-      {/* Header with back link */}
-      <div className="flex items-center justify-between mb-6 md:mb-8">
-        <Link 
-          href="/memos"
-          className="text-sm text-foreground/60 hover:text-foreground transition-colors"
-        >
-          ← Back to Memos
-        </Link>
-        <div className="text-sm text-foreground/60">Dec 2024</div>
-      </div>
+<ProjectLayout>
+  <SiteHeader />
+  
+  <ContentContainer size="narrow">
+    <AnimatedSection delay={0.2}>
+      <ProjectHeader 
+        category="MEMOS"
+        subcategory="OBSERVATION"
+        title="Backdoors Overlooked"
+        description="The most valuable opportunities often hide in plain sight. They're disguised as inefficiencies, complaints, or 'the way things have always been done.'"
+      />
+    </AnimatedSection>
 
-      {/* Page Title */}
-      <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-8 md:mb-12 leading-tight tracking-tight">
-        The Backdoors That Are Often Overlooked
-      </h1>
+    <AnimatedSection delay={0.3}>
+      <ProseContainer>
+        <Lead>
+          Every complex system has unofficial shortcuts. Most people don't see them. Those who do often ignore them. But these backdoors are where leverage lives.
+        </Lead>
 
-      {/* Content */}
-      <div className="prose prose-lg max-w-none">
-        <div className="space-y-6">
+        <ContentSection>
+          <SectionHeading>Why We Miss Them</SectionHeading>
           
-          The backdoors that are often overlooked are usually the most obvious ones - the patterns we dismiss because they seem too simple or too direct.
+          We're trained to follow the official process. Use the proper channels. Go through the right people. This conditioning makes us blind to the actual flow of power and information.
 
-          In software, we spend enormous effort on complex architectures while ignoring the simple configuration file that could solve the problem in five lines.
+          Most backdoors look like bugs, not features. They seem too simple, too obvious, or too good to be true. We dismiss them before we understand their potential.
 
-          In business, we build elaborate funnels while the biggest conversion improvement might be fixing a broken checkout button.
+          <Callout>
+            The best opportunities don't come with announcements. They come disguised as problems.
+          </Callout>
+        </ContentSection>
 
-          In life, we optimize elaborate systems while ignoring that we just need to sleep better.
-
-          ## Why We Miss Them
+        <ContentSection>
+          <SectionHeading>The Practice</SectionHeading>
           
-          Simple solutions don&apos;t feel important. They don&apos;t signal intelligence or sophistication. There&apos;s no glory in fixing the obvious thing.
+          Start by mapping how things actually work versus how they're supposed to work. The gaps between intention and reality are where backdoors live.
 
-          But often the obvious thing is obvious because it&apos;s fundamental. It&apos;s the foundation that everything else depends on.
+          Look for recurring complaints in your organization. Each complaint points to a friction point. Friction points are just unpaved paths waiting for someone to see them.
 
-          ## The Practice
-          
-          Before building anything complex, ask: what&apos;s the most embarrassingly simple version of this?
+          Pay attention to workarounds. When people consistently bypass a system, they're teaching you something about the system's inadequacy and revealing an opportunity.
 
-          Before optimizing the system, ask: what basic assumptions haven&apos;t we questioned?
+          Find the people who seem to get things done impossibly fast. Study their methods. They've discovered paths that others haven't.
+        </ContentSection>
 
-          Before adding features, ask: what&apos;s broken about what we already have?
-
-          The backdoor is usually hiding in plain sight.
-
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div> 
+        <Callout type="quote">
+          The question isn't whether backdoors exist. The question is whether you're looking for them.
+        </Callout>
+      </ProseContainer>
+    </AnimatedSection>
+  </ContentContainer>
+  
+  <AnimatedSection delay={0.4}>
+    <FooterSection>
+      <SiteFooter />
+    </FooterSection>
+  </AnimatedSection>
+</ProjectLayout> 

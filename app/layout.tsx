@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import PageTransition from "./PageTransition";
-import NavigationHandler from "./NavigationHandler";
 
 export const metadata: Metadata = {
   title: "Alex Phan (AP)",
@@ -17,10 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <NavigationHandler />
-        <PageTransition>
-          {children}
-        </PageTransition>
+        {children}
       </body>
     </html>
   );

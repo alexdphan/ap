@@ -17,6 +17,64 @@ const execAsync = promisify(exec);
 // Import video data
 const videosPath = path.join(__dirname, '../data/videos.ts');
 
+async function checkThumbnailStatus() {
+  console.log('🔍 Checking thumbnail status...');
+
+  try {
+    // Read and parse the videos file
+    const videosContent = fs.readFileSync(videosPath, 'utf8');
+    
+    // Extract video URLs and check for thumbnailUrl
+    const videoEntries = [];
+    const videoRegex = /\{[^}]*?videoUrl:\s*["']([^"']+)["'][^}]*?\}/gs;
+    let match;
+    
+    while ((match = videoRegex.exec(videosContent)) !== null) {
+      const videoObject = match[0];
+      const videoUrl = match[1];
+      const hasThumbnailUrl = videoObject.includes('thumbnailUrl:');
+      const videoName = path.basename(videoUrl, '.mp4');
+      
+      // Check if thumbnail file exists
+      const thumbnailPath = path.join(__dirname, '../public/thumbnails', `${videoName}.jpg`);
+      const thumbnailExists = fs.existsSync(thumbnailPath);
+      
+      videoEntries.push({
+        videoUrl,
+        videoName,
+        hasThumbnailUrl,
+        thumbnailExists
+      });
+    }
+
+    const missingThumbnailUrls = videoEntries.filter(entry => !entry.hasThumbnailUrl);
+    const missingThumbnailFiles = videoEntries.filter(entry => entry.hasThumbnailUrl && !entry.thumbnailExists);
+    const needsGeneration = videoEntries.filter(entry => !entry.hasThumbnailUrl || !entry.thumbnailExists);
+
+    console.log(`📊 Thumbnail Status Report:`);
+    console.log(`   Total videos: ${videoEntries.length}`);
+    console.log(`   ✅ Complete (URL + file): ${videoEntries.length - needsGeneration.length}`);
+    console.log(`   ❌ Missing thumbnailUrl in data/videos.ts: ${missingThumbnailUrls.length}`);
+    console.log(`   ❌ Missing thumbnail files: ${missingThumbnailFiles.length}`);
+    
+    if (needsGeneration.length > 0) {
+      console.log(`\n🎯 Action needed: Run "npm run thumbnails" to generate ${needsGeneration.length} thumbnails`);
+      needsGeneration.forEach(entry => {
+        const reason = !entry.hasThumbnailUrl ? 'missing URL' : 'missing file';
+        console.log(`   - ${entry.videoName} (${reason})`);
+      });
+      return false;
+    } else {
+      console.log('\n✅ All thumbnails are ready! No action needed.');
+      return true;
+    }
+
+  } catch (error) {
+    console.error('❌ Error checking thumbnail status:', error);
+    return false;
+  }
+}
+
 async function generateThumbnailsFromVideos() {
   console.log('🎬 Starting thumbnail generation with ffmpeg...');
 
@@ -129,13 +187,24 @@ async function updateVideosWithThumbnails(thumbnailData) {
 
 // Main execution
 if (require.main === module) {
-  generateThumbnailsFromVideos().then(() => {
-    console.log('🔄 Thumbnail generation complete. Server can start now.');
-    process.exit(0);
-  }).catch(error => {
-    console.error('❌ Thumbnail generation failed:', error);
-    process.exit(1);
-  });
+  // Check if we should run status check or generation
+  const args = process.argv.slice(2);
+  if (args.includes('--check') || args.includes('-c')) {
+    checkThumbnailStatus().then(() => {
+      process.exit(0);
+    }).catch(error => {
+      console.error('❌ Status check failed:', error);
+      process.exit(1);
+    });
+  } else {
+    generateThumbnailsFromVideos().then(() => {
+      console.log('🔄 Thumbnail generation complete. Server can start now.');
+      process.exit(0);
+    }).catch(error => {
+      console.error('❌ Thumbnail generation failed:', error);
+      process.exit(1);
+    });
+  }
 }
 
-module.exports = { generateThumbnailsFromVideos, updateVideosWithThumbnails }; 
+module.exports = { generateThumbnailsFromVideos, updateVideosWithThumbnails, checkThumbnailStatus }; 

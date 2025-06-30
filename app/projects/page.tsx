@@ -1,72 +1,128 @@
 import React from 'react';
 import Link from 'next/link';
+import SiteHeader from '../../components/SiteHeader';
+import SiteFooter from '../../components/SiteFooter';
+import AnimatedSection from '../../components/AnimatedSection';
 
 export default function Projects() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-6 py-6 md:py-12">
-        <div className="max-w-xl mx-auto">
-          
-          {/* Header with back link */}
-          <div className="flex items-center justify-between mb-6 md:mb-8">
-            <Link 
-              href="/"
-              className="text-sm text-foreground/60 hover:text-foreground transition-colors"
-            >
-              ← Back
-            </Link>
-            <div className="text-sm text-foreground/60">Projects</div>
-          </div>
+    <div className="min-h-screen">
+      <div className="py-6">
+        <AnimatedSection delay={0.1}>
+          <SiteHeader />
+        </AnimatedSection>
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="max-w-2xl mx-auto">
 
-          {/* Page Title */}
-          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-8 md:mb-12 leading-tight tracking-tight">
-            Projects
-          </h1>
+          {/* Page Title & Description */}
+          <AnimatedSection delay={0.2} className="mb-12 md:mb-16 mt-12 md:mt-16">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4 leading-tight tracking-tight">
+              Projects
+            </h1>
+            <p className="text-foreground/60 text-lg leading-relaxed">
+              Product work and experiments in design systems, growth engineering, and user experience.
+            </p>
+          </AnimatedSection>
 
           {/* Projects Content */}
-          <div className="space-y-8">
-            <div>
-              <h3 className="text-lg font-bold text-foreground mb-3">Current Work</h3>
-              <div className="space-y-3">
-                <Link 
-                  href="/projects/browserbase-growth"
-                  className="text-foreground hover:text-foreground/80 transition-colors block"
-                >
-                  Growth Engineering at Browserbase
-                </Link>
-                <Link 
-                  href="/projects/experimental-interfaces"
-                  className="text-foreground hover:text-foreground/80 transition-colors block"
-                >
-                  Experimental Interface Design
-                </Link>
-                <Link 
-                  href="/projects/rapid-prototyping"
-                  className="text-foreground hover:text-foreground/80 transition-colors block"
-                >
-                  Rapid Prototyping
-                </Link>
-              </div>
-            </div>
+          <div className="space-y-12">
+            <AnimatedSection delay={0.3}>
+              <div>
+                <h2 className="text-lg font-semibold text-foreground mb-6 tracking-wide border-b border-foreground/10 pb-2">
+                  Recent Work
+                </h2>
+              <div className="space-y-8">
+                <article className="group">
+                  <div className="text-xs text-foreground/40 mb-2 font-medium tracking-wide">2024 • PRODUCT DESIGN</div>
+                  <Link 
+                    href="/projects/browserbase-growth"
+                    className="block"
+                  >
+                    <h3 className="text-foreground font-medium mb-2 group-hover:text-accent-green transition-colors leading-tight">
+                      Browserbase Growth
+                    </h3>
+                    <p className="text-foreground/70 leading-relaxed group-hover:text-foreground/80 transition-colors">
+                      Scaling browser automation infrastructure through iterative product development, 
+                      user feedback loops, and growth optimization strategies.
+                    </p>
+                  </Link>
+                </article>
+                
+                <article className="group">
+                  <div className="text-xs text-foreground/40 mb-2 font-medium tracking-wide">2024 • PROTOTYPING</div>
+                  <Link 
+                    href="/projects/rapid-prototyping"
+                    className="block"
+                  >
+                    <h3 className="text-foreground font-medium mb-2 group-hover:text-accent-green transition-colors leading-tight">
+                      Rapid Prototyping
+                    </h3>
+                    <p className="text-foreground/70 leading-relaxed group-hover:text-foreground/80 transition-colors">
+                      Quick iteration cycles and experimental approaches to validate ideas fast. 
+                      Building to learn, not just to ship.
+                    </p>
+                  </Link>
+                </article>
 
-            <div>
-              <h3 className="text-lg font-bold text-foreground mb-3">Side Projects</h3>
-              <div className="space-y-3">
-                <div className="text-foreground/60">Developer Tools & Automation</div>
-                <div className="text-foreground/60">Creative Technology Projects</div>
-                <div className="text-foreground/60">Open Source Contributions</div>
+                <article className="group">
+                  <div className="text-xs text-foreground/40 mb-2 font-medium tracking-wide">2024 • INTERFACE DESIGN</div>
+                  <Link 
+                    href="/projects/experimental-interfaces"
+                    className="block"
+                  >
+                    <h3 className="text-foreground font-medium mb-2 group-hover:text-accent-green transition-colors leading-tight">
+                      Experimental Interfaces
+                    </h3>
+                    <p className="text-foreground/70 leading-relaxed group-hover:text-foreground/80 transition-colors">
+                      Exploring unconventional interaction patterns and interface paradigms. 
+                      How can design push beyond traditional expectations?
+                    </p>
+                  </Link>
+                </article>
               </div>
-            </div>
+              </div>
+            </AnimatedSection>
 
-            <div>
-              <h3 className="text-lg font-bold text-foreground mb-3">Coming Soon</h3>
-              <div className="text-foreground/60">
-                More detailed project breakdowns and case studies...
+            <AnimatedSection delay={0.4}>
+              <div>
+                <h2 className="text-lg font-semibold text-foreground mb-6 tracking-wide border-b border-foreground/10 pb-2">
+                  Experiments
+                </h2>
+                <div className="space-y-6">
+                  <div className="text-foreground/60 leading-relaxed">
+                    <p className="mb-4">
+                      Ongoing experiments in design systems, animation, and user interaction.
+                    </p>
+                    <div className="text-sm text-foreground/40 space-y-2">
+                      <div>• Parallax scrolling systems</div>
+                      <div>• Micro-interaction libraries</div>
+                      <div>• AI-assisted design workflows</div>
+                      <div>• Performance optimization techniques</div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </AnimatedSection>
+
+            <AnimatedSection delay={0.5}>
+              <div>
+                <h2 className="text-lg font-semibold text-foreground mb-6 tracking-wide border-b border-foreground/10 pb-2">
+                  Archive
+                </h2>
+                <p className="text-foreground/60 leading-relaxed">
+                  Previous projects and case studies coming soon...
+                </p>
+              </div>
+            </AnimatedSection>
           </div>
 
+          </div>
         </div>
+        
+        {/* Footer */}
+        <AnimatedSection delay={0.6} className="mt-16">
+          <SiteFooter />
+        </AnimatedSection>
       </div>
     </div>
   );
