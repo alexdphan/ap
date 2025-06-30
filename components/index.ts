@@ -18,6 +18,7 @@ export { default as SiteHeader } from './SiteHeader'
 export { default as SiteFooter } from './SiteFooter'
 export { default as TableOfContents } from './TableOfContents'
 export { default as ArticleLayout } from './ArticleLayout'
+export { default as CustomCursor } from './CustomCursor'
 
 // Specialized Components
 export { default as ImageLayout } from './ImageLayout'

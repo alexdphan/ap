@@ -31,11 +31,11 @@ export default function Home() {
               {/* <h3 className="text-sm text-foreground/60 mb-4 md:mb-6 tracking-wide">
                 Description
               </h3> */}
-              <p className="text-foreground/70 text-lg leading-relaxed">
+              <p className="text-foreground/70 leading-relaxed group-hover:text-foreground/80 transition-colors text-lg">
                 I spend a lot of my time thinking about what backdoors are
                 overlooked or unseen.
-            </p>
-              <p className="mt-2 text-foreground/70 text-lg leading-relaxed">
+              </p>
+              <p className="mt-2 text-foreground/70 leading-relaxed group-hover:text-foreground/80 transition-colors text-lg">
               Open to opportunities, feel free to reach out
               </p>
               {/* <p className="text-foreground text-base md:text-lg leading-relaxed mt-2">

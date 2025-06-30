@@ -67,6 +67,56 @@
   --font-mono: 'Satoshi', ui-monospace, monospace;
 }
 
+/* Custom Circular Cursor */
+* {
+  cursor: none !important;
+}
+
+body {
+  cursor: none !important;
+}
+
+/* Cursor dot */
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  background-color: #000000;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s ease-out, background-color 0.2s ease-out;
+}
+
+/* Hover states */
+.cursor-hover .cursor-dot {
+  transform: translate(-50%, -50%) scale(1.2);
+  background-color: #333333;
+}
+
+/* Click state */
+.cursor-click .cursor-dot {
+  transform: translate(-50%, -50%) scale(0.8);
+}
+
+/* Hide cursor on mobile devices */
+@media (hover: none) and (pointer: coarse) {
+  .cursor-dot {
+    display: none !important;
+  }
+  
+  * {
+    cursor: auto !important;
+  }
+  
+  body {
+    cursor: auto !important;
+  }
+}
+
 /* Removed dark mode override to maintain consistent colors */
 
 html {
