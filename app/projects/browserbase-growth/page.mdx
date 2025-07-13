@@ -1,21 +1,20 @@
-import SiteHeader from '../../../components/SiteHeader'
-import SiteFooter from '../../../components/SiteFooter'
-import AnimatedSection from '../../../components/AnimatedSection'
-import ProjectLayout from '../../../components/ProjectLayout'
-import ContentContainer from '../../../components/ContentContainer'
-import ProseContainer from '../../../components/ProseContainer'
-import ContentSection from '../../../components/ContentSection'
-import FooterSection from '../../../components/FooterSection'
-import ProjectHeader from '../../../components/ProjectHeader'
-import Lead from '../../../components/Lead'
-import FeatureList, { FeatureItem } from '../../../components/FeatureList'
-import SectionHeading from '../../../components/SectionHeading'
-import Callout from '../../../components/Callout'
+import SiteHeader from "../../../components/SiteHeader";
+import SiteFooter from "../../../components/SiteFooter";
+import AnimatedSection from "../../../components/AnimatedSection";
+import ProjectLayout from "../../../components/ProjectLayout";
+import ContentContainer from "../../../components/ContentContainer";
+import ProseContainer from "../../../components/ProseContainer";
+import ContentSection from "../../../components/ContentSection";
+import FooterSection from "../../../components/FooterSection";
+import ProjectHeader from "../../../components/ProjectHeader";
+import Lead from "../../../components/Lead";
+import SectionHeading from "../../../components/SectionHeading";
+import Callout from "../../../components/Callout";
 
 export const metadata = {
-  title: 'Browserbase Growth',
-  description: 'Scaling developer adoption and building growth systems'
-}
+  title: "Browserbase Growth",
+  description: "Scaling developer adoption and building growth systems",
+};
 
 <ProjectLayout>
   <SiteHeader />
@@ -26,68 +25,121 @@ export const metadata = {
         category="BROWSERBASE"
         subcategory="GROWTH"
         title="Growth Engineering"
-        description="Building systems and strategies to scale developer adoption. Focus on product-led growth, onboarding optimization, and data-driven iteration."
+        description="Building systems and strategies to scale developer adoption through product-led growth, viral projects, and community engagement."
       />
     </AnimatedSection>
 
     <AnimatedSection delay={0.3}>
       <ProseContainer>
         <Lead>
-          Growing a developer tool requires a different approach than traditional SaaS products. Developers try before they buy, and they share experiences.
+          Joining Browserbase as the first GTM hire, it was hard to know where to start. I decided that doing a simple demo is where it shines.
         </Lead>
 
         <ContentSection>
-          <SectionHeading>Growth Focus Areas</SectionHeading>
-          
-          Working on initiatives that drive sustainable growth while maintaining product quality and developer experience.
+          <SectionHeading>The Demo That Started It All</SectionHeading>
+
+          <div className="bg-accent-green/5 border border-accent-green/20 p-4 rounded my-6">
+            <div className="text-sm text-foreground/70 mb-2">[Demo Video Placeholder]</div>
+            <div className="text-sm text-foreground/60">Interactive demo showing Browserbase capabilities</div>
+          </div>
+
+          <div className="text-foreground/80 leading-relaxed mb-6">
+            As this was my leap toward SF, I noticed common patterns and boosted growth by being relatable—evoking reactions that are commonly experienced by others.
+          </div>
+
+          <div className="bg-accent-green/5 border border-accent-green/20 p-4 rounded my-6">
+            <div className="text-sm text-foreground/70 mb-2">[Tweet & Cover Image Placeholder]</div>
+            <div className="text-sm text-foreground/60">Viral content capturing SF tech culture emotions</div>
+          </div>
+
+          <div className="text-foreground/80 leading-relaxed mb-6">
+            This was when I caught the emotions evoked by SF tech culture and decided to build projects focused on emotion—leading users down the rabbit hole to discover what Browserbase eventually came to be.
+          </div>
+        </ContentSection>
+
+        <ContentSection>
+          <SectionHeading>The Brainrot.run Phenomenon</SectionHeading>
+
+          <div className="text-foreground/80 leading-relaxed mb-6">
+            Our top customers surprisingly came from projects like <strong>Brainrot.run</strong>, an AI agent that generates memes. At one point, this project became our most used implementation, had a memecoin made by a random person that reached a $1 million market cap, received YouTube reviews, and hit several rate limits after generating over 55,000 memes.
+          </div>
+        </ContentSection>
+
+        <ContentSection>
+          <SectionHeading>Growth Strategy</SectionHeading>
 
           <div className="space-y-4 my-6">
             <div className="border-l-2 border-accent-green/20 pl-4">
-              <h4 className="font-semibold text-foreground mb-1">Onboarding optimization</h4>
-              <span className="text-sm text-foreground/70">Reducing time-to-first-value for new developers</span>
+              <h4 className="font-semibold text-foreground mb-1">Viral project development</h4>
+              <span className="text-sm text-foreground/70">Building emotionally engaging demos that showcase platform capabilities</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Community-driven discovery</h4>
+              <span className="text-sm text-foreground/70">Creating rabbit holes that lead developers to explore the platform</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Cultural resonance</h4>
+              <span className="text-sm text-foreground/70">Tapping into shared experiences and emotions within developer communities</span>
             </div>
             <div className="border-l-2 border-accent-green/20 pl-4">
               <h4 className="font-semibold text-foreground mb-1">Product-led growth systems</h4>
-              <span className="text-sm text-foreground/70">Building growth directly into the product experience</span>
-            </div>
-            <div className="border-l-2 border-accent-green/20 pl-4">
-              <h4 className="font-semibold text-foreground mb-1">Developer community engagement</h4>
-              <span className="text-sm text-foreground/70">Creating sustainable channels for user feedback and advocacy</span>
-            </div>
-            <div className="border-l-2 border-accent-green/20 pl-4">
-              <h4 className="font-semibold text-foreground mb-1">Usage analytics and insights</h4>
-              <span className="text-sm text-foreground/70">Understanding user behavior to drive product decisions</span>
+              <span className="text-sm text-foreground/70">Building growth directly into the product experience through engaging use cases</span>
             </div>
           </div>
         </ContentSection>
-        
+
         <ContentSection>
-          <SectionHeading>Key Metrics</SectionHeading>
-          
-          <FeatureList>
-            <FeatureItem><strong>Time to first API call</strong> — How quickly new users can get started</FeatureItem>
-            <FeatureItem><strong>Weekly active developers</strong> — Sustained engagement over time</FeatureItem>
-            <FeatureItem><strong>Feature adoption rates</strong> — Which capabilities drive the most value</FeatureItem>
-            <FeatureItem><strong>Community health scores</strong> — Quality of developer interactions and support</FeatureItem>
-          </FeatureList>
+          <SectionHeading>Impact & Results</SectionHeading>
+
+          <div className="space-y-4 my-6">
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Viral project engagement</h4>
+              <span className="text-sm text-foreground/70">55,000+ memes generated, YouTube reviews, $1M memecoin market cap</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Customer acquisition</h4>
+              <span className="text-sm text-foreground/70">Top customers discovered through viral projects and demos</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Platform adoption</h4>
+              <span className="text-sm text-foreground/70">Rate limits hit from organic usage and developer experimentation</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Community growth</h4>
+              <span className="text-sm text-foreground/70">Organic social sharing and developer advocacy</span>
+            </div>
+          </div>
         </ContentSection>
 
         <ContentSection>
-          <SectionHeading>Growth Stack</SectionHeading>
-          
-          <FeatureList>
-            <FeatureItem><strong>PostHog</strong> for product analytics</FeatureItem>
-            <FeatureItem><strong>Segment</strong> for data pipeline</FeatureItem>
-            <FeatureItem><strong>GitHub Analytics</strong> for community insights</FeatureItem>
-            <FeatureItem><strong>Custom tracking</strong> for developer-specific metrics</FeatureItem>
-          </FeatureList>
+          <SectionHeading>Technical Implementation</SectionHeading>
+
+          <div className="space-y-4 my-6">
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Browserbase Platform</h4>
+              <span className="text-sm text-foreground/70">Core infrastructure for web automation and AI agents</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">AI Integration</h4>
+              <span className="text-sm text-foreground/70">OpenAI and other AI services for content generation</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Social Media APIs</h4>
+              <span className="text-sm text-foreground/70">Twitter, YouTube, and other platforms for viral distribution</span>
+            </div>
+            <div className="border-l-2 border-accent-green/20 pl-4">
+              <h4 className="font-semibold text-foreground mb-1">Analytics & Monitoring</h4>
+              <span className="text-sm text-foreground/70">Custom tracking for viral project performance and user behavior</span>
+            </div>
+          </div>
         </ContentSection>
 
         <Callout>
-          The best growth strategy for developer tools is building something developers genuinely want to use and share.
+          The best growth strategy for developer tools is building something developers genuinely want to use and share—sometimes in ways you never expected.
         </Callout>
       </ProseContainer>
     </AnimatedSection>
+
   </ContentContainer>
   
   <AnimatedSection delay={0.4}>
@@ -95,4 +147,4 @@ export const metadata = {
       <SiteFooter />
     </FooterSection>
   </AnimatedSection>
-</ProjectLayout> 
+</ProjectLayout>
