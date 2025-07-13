@@ -184,11 +184,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     // Prevent iOS Safari zoom on input focus
     const preventZoom = (e: Event) => {
       const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
         // Temporarily set font size to 16px to prevent zoom
         const originalFontSize = target.style.fontSize;
-        target.style.fontSize = '16px';
-        
+        target.style.fontSize = "16px";
+
         // Restore original font size after a short delay
         setTimeout(() => {
           target.style.fontSize = originalFontSize;
@@ -203,11 +203,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       setIsTransitioning(true);
       // Reset any manual index overrides on initial load
       setManualExtendedIndex(null);
-      
+
       // Add zoom prevention listeners
       if (window.innerWidth < 640) {
-        document.addEventListener('focusin', preventZoom);
-        document.addEventListener('touchstart', preventZoom);
+        document.addEventListener("focusin", preventZoom);
+        document.addEventListener("touchstart", preventZoom);
       }
     }, 100);
 
@@ -216,8 +216,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     return () => {
       clearTimeout(timer);
       window.removeEventListener("resize", checkMobile);
-      document.removeEventListener('focusin', preventZoom);
-      document.removeEventListener('touchstart', preventZoom);
+      document.removeEventListener("focusin", preventZoom);
+      document.removeEventListener("touchstart", preventZoom);
     };
   }, []);
 
@@ -531,7 +531,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     try {
       // Using Tenor's public API key
       const endpoint = query
-        ? `https://tenor.googleapis.com/v2/search?key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&q=${encodeURIComponent(query)}&limit=12`
+        ? `https://tenor.googleapis.com/v2/search?key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&q=${encodeURIComponent(
+            query
+          )}&limit=12`
         : "https://tenor.googleapis.com/v2/featured?key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&limit=12";
 
       const response = await fetch(endpoint);
@@ -576,7 +578,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       // Insert GIF at cursor position
       const beforeCursor = prev.text.substring(0, cursorPosition);
       const afterCursor = prev.text.substring(cursorPosition);
-      const gifText = `[GIF|${gif.media_formats.gif.url}|${gif.title || "GIF"}]`;
+      const gifText = `[GIF|${gif.media_formats.gif.url}|${
+        gif.title || "GIF"
+      }]`;
 
       return {
         ...prev,
@@ -792,8 +796,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
     return () => clearTimeout(timeoutId);
   }, [currentIndex, isMuted, isPlaying, isClient, extendedIndex]);
-
-
 
   // Reset video time only when switching to a new video
   useEffect(() => {
@@ -1196,9 +1198,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   return (
     <div
       ref={fullscreenContainerRef}
-      className={`${
+      className={` ${
         isFullscreen
-          ? "fixed inset-0 w-screen h-screen z-[9999] bg-black safari-fullscreen"
+          ? "fixed w-screen h-screen z-[9999] bg-black safari-fullscreen"
           : "relative w-full"
       }`}
       style={{
@@ -1219,14 +1221,14 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     >
       {/* Minimal Carousel */}
       <div
-        className={`relative overflow-hidden ${
-          isFullscreen ? "h-full flex flex-col bg-black" : "bg-accent-green"
+        className={`relative overflow-hidden  ${
+          isFullscreen ? "h-full flex flex-col bg-black" : ""
         }`}
       >
         {/* Screen */}
         <div
           ref={carouselRef}
-          className={`relative overflow-hidden cursor-grab active:cursor-grabbing ${
+          className={`relative overflow-hidden cursor-grab active:cursor-grabbing  ${
             isFullscreen ? "flex-1" : "aspect-video"
           }`}
           onMouseDown={handleMouseDown}
@@ -1239,14 +1241,24 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         >
           {/* Carousel Content */}
           <div
-            className={`h-full ${isTransitioning ? "transition-transform duration-150 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] will-change-transform" : ""} ${
-              isFullscreen && isMobile ? "flex flex-col" : "flex"
-            }`}
+            className={`h-full ${
+              isTransitioning
+                ? "transition-transform duration-150 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] will-change-transform"
+                : ""
+            } ${isFullscreen && isMobile ? "flex flex-col" : "flex"}`}
             style={{
               transform:
                 isFullscreen && isMobile
-                  ? `translate3d(0, ${-extendedIndex * 100 + (dragOffset / (carouselRef.current?.offsetHeight || 1)) * 100}%, 0)`
-                  : `translate3d(${-extendedIndex * 100 + (dragOffset / (carouselRef.current?.offsetWidth || 1)) * 100}%, 0, 0)`,
+                  ? `translate3d(0, ${
+                      -extendedIndex * 100 +
+                      (dragOffset / (carouselRef.current?.offsetHeight || 1)) *
+                        100
+                    }%, 0)`
+                  : `translate3d(${
+                      -extendedIndex * 100 +
+                      (dragOffset / (carouselRef.current?.offsetWidth || 1)) *
+                        100
+                    }%, 0, 0)`,
             }}
           >
             {extendedItems.map((item, index) => (
@@ -1262,7 +1274,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       muted={isMuted}
                       loop
                       playsInline
-                      className={`w-full h-full border-0 outline-0 ${
+                      className={`w-full h-full ${
                         isFullscreen ? "object-contain" : "object-cover"
                       }`}
                       poster={item.thumbnailUrl}
@@ -1294,17 +1306,19 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     )}
                     {/* Title Overlay */}
                     {index === extendedIndex && (
-                                                                      <div className="absolute top-4 left-4 z-10 bg-black/40 backdrop-blur-sm px-3 py-2 pointer-events-none flex items-center">
-                          <h3 className={`text-white font-medium ${
+                      <div className="absolute top-4 left-4 z-10 bg-black/40 backdrop-blur-sm px-3 py-2 pointer-events-none flex items-center">
+                        <h3
+                          className={`text-white font-medium ${
                             isFullscreen && !isMobile
                               ? "text-lg"
                               : isFullscreen && isMobile
-                                ? "text-base"
-                                : "text-xs"
-                          }`}>
-                            {item.title}
-                          </h3>
-                        </div>
+                              ? "text-base"
+                              : "text-xs"
+                          }`}
+                        >
+                          {item.title}
+                        </h3>
+                      </div>
                     )}
 
                     {/* Dynamic Comment Components - Column Layout */}
@@ -1316,8 +1330,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                             isFullscreen
                               ? "top-4 bottom-16 right-4 w-auto max-w-[50%]"
                               : isMobile
-                                ? "top-4 bottom-4 right-1 w-auto max-w-[70%]"
-                                : "top-4 bottom-4 right-2 w-auto max-w-[40%]"
+                              ? "top-4 bottom-4 right-1 w-auto max-w-[70%]"
+                              : "top-4 bottom-4 right-2 w-auto max-w-[40%]"
                           }`}
                           style={{
                             maskImage:
@@ -1347,7 +1361,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                   const formatTime = (seconds: number) => {
                                     const mins = Math.floor(seconds / 60);
                                     const secs = Math.floor(seconds % 60);
-                                    return `${mins}:${secs.toString().padStart(2, "0")}`;
+                                    return `${mins}:${secs
+                                      .toString()
+                                      .padStart(2, "0")}`;
                                   };
 
                                   const truncateTextWithGifs = (
@@ -1372,8 +1388,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                   const truncatedText = isFullscreen
                                     ? comment.text // Don't truncate in fullscreen
                                     : isMobile
-                                      ? truncateTextWithGifs(comment.text, 30)
-                                      : comment.text;
+                                    ? truncateTextWithGifs(comment.text, 30)
+                                    : comment.text;
 
                                   return (
                                     <motion.div
@@ -1382,10 +1398,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                         isFullscreen && !isMobile
                                           ? "px-6 py-5 text-lg max-w-[600px]"
                                           : isFullscreen && isMobile
-                                            ? "px-5 py-4 text-base max-w-[500px]"
-                                            : isMobile
-                                              ? "px-3 py-2 text-xs max-w-[160px]"
-                                              : "px-3 py-2 text-xs max-w-[200px]"
+                                          ? "px-5 py-4 text-base max-w-[500px]"
+                                          : isMobile
+                                          ? "px-3 py-2 text-xs max-w-[160px]"
+                                          : "px-3 py-2 text-xs max-w-[200px]"
                                       }`}
                                       initial={{ x: 20, opacity: 0 }}
                                       animate={{ x: 0, opacity: 1 }}
@@ -1401,8 +1417,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                             isFullscreen && !isMobile
                                               ? "text-lg"
                                               : isFullscreen && isMobile
-                                                ? "text-base"
-                                                : "text-xs"
+                                              ? "text-base"
+                                              : "text-xs"
                                           }`}
                                         >
                                           <span
@@ -1410,8 +1426,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                               isFullscreen && !isMobile
                                                 ? "text-base"
                                                 : isFullscreen && isMobile
-                                                  ? "text-sm"
-                                                  : "text-[10px]"
+                                                ? "text-sm"
+                                                : "text-[10px]"
                                             }`}
                                           >
                                             {formatTime(comment.time_seconds)}
@@ -1422,8 +1438,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                                 isFullscreen && !isMobile
                                                   ? "text-base"
                                                   : isFullscreen && isMobile
-                                                    ? "text-sm"
-                                                    : "text-[10px]"
+                                                  ? "text-sm"
+                                                  : "text-[10px]"
                                               }`}
                                             >
                                               {comment.author}
@@ -1574,12 +1590,16 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                             }}
                             className="w-full pl-10 pr-3 py-2 bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40"
                             style={{
-                              fontSize: '16px'
+                              fontSize: "16px",
                             }}
                           />
                         </div>
                         <div
-                          className={`${isMobile && isFullscreen ? "max-h-64" : "max-h-32 md:max-h-48"} overflow-y-auto space-y-1`}
+                          className={`${
+                            isMobile && isFullscreen
+                              ? "max-h-64"
+                              : "max-h-32 md:max-h-48"
+                          } overflow-y-auto space-y-1`}
                         >
                           {getFilteredVideos().map((item, filteredIndex) => {
                             const index = displayItems.findIndex(
@@ -1602,41 +1622,44 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                   isCurrent
                                     ? "bg-background/20 text-background"
                                     : isSelected
-                                      ? "bg-background/15 text-background"
-                                      : "hover:bg-background/10 text-background/80"
+                                    ? "bg-background/15 text-background"
+                                    : "hover:bg-background/10 text-background/80"
                                 }`}
                               >
                                 <div className="w-5 h-5 overflow-hidden flex-shrink-0">
                                   {item.thumbnailUrl ? (
-                                                                          <Image
-                                        src={item.thumbnailUrl}
-                                        alt={item.title}
-                                        width={20}
-                                        height={20}
-                                        className="w-full h-full object-cover"
-                                      />
+                                    <Image
+                                      src={item.thumbnailUrl}
+                                      alt={item.title}
+                                      width={20}
+                                      height={20}
+                                      className="w-full h-full object-cover"
+                                    />
                                   ) : item.videoUrl ? (
-                                                                          <video
-                                        src={item.videoUrl}
-                                        className="w-full h-full object-cover"
-                                        muted
-                                        playsInline
-                                        preload="metadata"
-                                        onLoadedMetadata={(e) => {
-                                          // Safari fix: Force seek to show first frame
-                                          const video =
-                                            e.target as HTMLVideoElement;
-                                          if (video.duration > 0) {
-                                            video.currentTime = 0.1;
-                                          }
-                                                                                }}
-                                      />
-                                    ) : (
-                                      <div className="w-full h-full bg-background/40"></div>
-                                    )}
+                                    <video
+                                      src={item.videoUrl}
+                                      className="w-full h-full object-cover"
+                                      muted
+                                      playsInline
+                                      preload="metadata"
+                                      onLoadedMetadata={(e) => {
+                                        // Safari fix: Force seek to show first frame
+                                        const video =
+                                          e.target as HTMLVideoElement;
+                                        if (video.duration > 0) {
+                                          video.currentTime = 0.1;
+                                        }
+                                      }}
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full bg-background/40"></div>
+                                  )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <div className="font-medium" style={{ fontSize: '16px' }}>
+                                  <div
+                                    className="font-medium"
+                                    style={{ fontSize: "16px" }}
+                                  >
                                     {item.title}
                                   </div>
                                 </div>
@@ -1644,7 +1667,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                 {/* Comment count */}
                                 <div className="flex items-center gap-1 text-background/60">
                                   <MessageSquare className="w-4 h-4" />
-                                  <span style={{ fontSize: '16px' }}>
+                                  <span style={{ fontSize: "16px" }}>
                                     {commentCounts[index] || 0}
                                   </span>
                                 </div>
@@ -1714,7 +1737,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               className="text-background/60 hover:text-background transition-colors h-8 px-2 md:h-6 md:px-2 flex items-center justify-center touch-manipulation underline decoration-background/60 hover:decoration-background underline-offset-2"
               title="Toggle mute (m)"
             >
-              {isMuted ? <VolumeX size={isFullscreen ? 20 : 15} /> : <Volume2 size={isFullscreen ? 20 : 15} />}
+              {isMuted ? (
+                <VolumeX size={isFullscreen ? 20 : 15} />
+              ) : (
+                <Volume2 size={isFullscreen ? 20 : 15} />
+              )}
             </button>
             <button
               onClick={() => setShowAllComments(!showAllComments)}
@@ -1723,16 +1750,24 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                   ? "text-background hover:text-background/80 decoration-background hover:decoration-background/80"
                   : "text-background/40 hover:text-background/60 decoration-background/40 hover:decoration-background/60"
               }`}
-              title={`${showAllComments ? "Hide comments" : "Show comments"} (v)`}
+              title={`${
+                showAllComments ? "Hide comments" : "Show comments"
+              } (v)`}
             >
               <Menu size={isFullscreen ? 22 : 17} />
             </button>
             <button
               onClick={toggleFullscreen}
               className="text-background/60 hover:text-background transition-colors h-8 px-2 md:h-6 md:px-2 flex items-center justify-center touch-manipulation underline decoration-background/60 hover:decoration-background underline-offset-2"
-              title={`${isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} (f)`}
+              title={`${
+                isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
+              } (f)`}
             >
-              {isFullscreen ? <Minimize size={isFullscreen ? 19 : 14} /> : <Maximize size={isFullscreen ? 19 : 14} />}
+              {isFullscreen ? (
+                <Minimize size={isFullscreen ? 19 : 14} />
+              ) : (
+                <Maximize size={isFullscreen ? 19 : 14} />
+              )}
             </button>
           </div>
         </div>
@@ -1745,7 +1780,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className={`overflow-hidden bg-accent-green-dark border-t border-accent-green ${
+              className={`overflow-hidden bg-accent-green-dark ${
                 isFullscreen ? "absolute z-[10001]" : "relative z-50"
               }`}
               style={{
@@ -1758,9 +1793,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
             >
               <div
                 className={`flex items-center px-4 ${
-                  isFullscreen
-                    ? "h-auto py-2"
-                    : "h-10"
+                  isFullscreen ? "h-auto py-2" : "h-10"
                 }`}
                 style={{
                   paddingBottom: isFullscreen
@@ -1780,13 +1813,15 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                     }
                     className={`${
                       isFullscreen
-                        ? isMobile ? "w-20 h-10" : "w-28 h-10"
+                        ? isMobile
+                          ? "w-20 h-10"
+                          : "w-28 h-10"
                         : "w-20 h-6"
                     } ${
                       isFullscreen ? "px-3 text-sm" : "px-2"
-                    } bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none touch-manipulation`}
+                    } bg-background/10 text-background placeholder-background/50   touch-manipulation`}
                     style={{
-                      fontSize: isFullscreen ? '14px' : '16px'
+                      fontSize: isFullscreen ? "14px" : "16px",
                     }}
                   />
                   <div className="flex-1 relative">
@@ -1797,15 +1832,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       onChange={(e) =>
                         setNewComment({ ...newComment, text: e.target.value })
                       }
-                      className={`w-full ${
-                        isFullscreen
-                          ? "h-10"
-                          : "h-6"
-                      } ${
+                      className={`w-full ${isFullscreen ? "h-10" : "h-6"} ${
                         isFullscreen ? "px-3 text-sm" : "px-2 "
-                      } bg-background/10 text-background placeholder-background/50 border-0 focus:outline-none touch-manipulation`}
+                      } bg-background/10 text-background placeholder-background/50 touch-manipulation`}
                       style={{
-                        fontSize: isFullscreen ? '14px' : '16px'
+                        fontSize: isFullscreen ? "14px" : "16px",
                       }}
                     />
                   </div>
@@ -1818,12 +1849,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         toggleGifPicker();
                       }}
                       className={`${
-                        isFullscreen
-                          ? "h-10 px-4 text-sm"
-                          : "h-6 px-2"
+                        isFullscreen ? "h-10 px-4 text-sm" : "h-6 px-2"
                       } bg-background/20 text-background hover:bg-background/30 transition-colors flex items-center justify-center touch-manipulation`}
                       style={{
-                        fontSize: isFullscreen ? '14px' : '16px'
+                        fontSize: isFullscreen ? "14px" : "16px",
                       }}
                     >
                       GIF
@@ -1838,12 +1867,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         !newComment.text.trim() || !newComment.name.trim()
                       }
                       className={`${
-                        isFullscreen
-                          ? "h-10 px-4 text-sm"
-                          : "h-6 px-2"
+                        isFullscreen ? "h-10 px-4 text-sm" : "h-6 px-2"
                       } bg-background text-accent-green disabled:opacity-50 disabled:cursor-not-allowed hover:bg-background/90 transition-colors flex items-center justify-center touch-manipulation`}
                       style={{
-                        fontSize: isFullscreen ? '14px' : '16px'
+                        fontSize: isFullscreen ? "14px" : "16px",
                       }}
                     >
                       Post
@@ -1856,9 +1883,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         setShowGifPicker(false);
                       }}
                       className={`${
-                        isFullscreen
-                          ? "h-10 px-4 text-base"
-                          : "h-6 px-2"
+                        isFullscreen ? "h-10 px-4 text-base" : "h-6 px-2"
                       } bg-background/20 text-background hover:bg-background/30 transition-colors flex items-center justify-center touch-manipulation`}
                     >
                       <X size={16} />
@@ -1878,7 +1903,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       duration: 0.12,
                       ease: [0.25, 0.46, 0.45, 0.94],
                     }}
-                    className={`overflow-hidden bg-accent-green-dark border-t border-accent-green ${
+                    className={`overflow-hidden bg-accent-green-dark ${
                       isFullscreen ? "z-[10002]" : "z-50"
                     }`}
                   >
@@ -1894,7 +1919,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                               isFullscreen ? "py-3 h-10" : "py-2"
                             } bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40 mr-2 touch-manipulation`}
                             style={{
-                              fontSize: '16px'
+                              fontSize: "16px",
                             }}
                             autoFocus={!isMobile}
                           />
@@ -1904,9 +1929,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                               e.stopPropagation();
                               setShowGifPicker(false);
                             }}
-                                                          className={`${
-                                isFullscreen ? "px-4 py-3 h-10" : "px-3 py-2"
-                              } text-sm bg-background/20 text-background hover:bg-background/30 transition-colors flex-shrink-0 touch-manipulation flex items-center justify-center`}
+                            className={`${
+                              isFullscreen ? "px-4 py-3 h-10" : "px-3 py-2"
+                            } text-sm bg-background/20 text-background hover:bg-background/30 transition-colors flex-shrink-0 touch-manipulation flex items-center justify-center`}
                           >
                             Done
                           </button>
@@ -1935,7 +1960,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                   e.stopPropagation();
                                   handleGifSelect(gif);
                                 }}
-                                className="w-full relative bg-background/10 hover:bg-background/20 transition-colors overflow-hidden border-0 p-0 touch-manipulation flex items-center justify-center"
+                                className="w-full relative bg-background/10 hover:bg-background/20 transition-colors overflow-hidden p-0 touch-manipulation flex items-center justify-center"
                                 style={{
                                   height: isFullscreen ? "120px" : "80px",
                                   aspectRatio: "1 / 1",

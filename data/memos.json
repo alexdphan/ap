@@ -1,0 +1,34 @@
+[
+  {
+    "id": "parallax-design-testing",
+    "title": "Parallax Design Testing",
+    "description": "Testing parallax scrolling effects with images and content - exploring how visual depth can enhance the reading experience.",
+    "date": "DEC 2024",
+    "category": "DESIGN",
+    "href": "/memos/parallax-design-testing"
+  },
+  {
+    "id": "backdoors-overlooked",
+    "title": "Backdoors Overlooked",
+    "description": "The backdoors that are often overlooked are usually the most obvious ones - the patterns we dismiss because they seem too simple or too direct.",
+    "date": "DEC 2024",
+    "category": "OBSERVATION",
+    "href": "/memos/backdoors-overlooked"
+  },
+  {
+    "id": "growth-engineering-systems",
+    "title": "Growth Engineering Systems",
+    "description": "Growth engineering isn't just about metrics - it's about building systems that make the right behaviors feel natural and inevitable.",
+    "date": "NOV 2024",
+    "category": "SYSTEMS",
+    "href": "/memos/growth-engineering-systems"
+  },
+  {
+    "id": "interfaces-extensions-thought",
+    "title": "Interfaces as Extensions of Thought",
+    "description": "The best interfaces don't feel like interfaces at all. They feel like extensions of thought.",
+    "date": "NOV 2024",
+    "category": "INTERFACES",
+    "href": "/memos/interfaces-extensions-thought"
+  }
+]

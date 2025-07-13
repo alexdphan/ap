@@ -1,70 +1,70 @@
 @import "tailwindcss";
 
 @font-face {
-  font-family: 'Satoshi';
-  src: url('../fonts/Satoshi-Variable.woff2') format('woff2'),
-       url('../fonts/Satoshi-Variable.woff') format('woff');
+  font-family: "Satoshi";
+  src: url("../fonts/Satoshi-Variable.woff2") format("woff2"),
+    url("../fonts/Satoshi-Variable.woff") format("woff");
   font-weight: 100 900;
   font-style: normal;
   font-display: block;
 }
 
 @font-face {
-  font-family: 'Satoshi';
-  src: url('../fonts/Satoshi-VariableItalic.woff2') format('woff2'),
-       url('../fonts/Satoshi-VariableItalic.woff') format('woff');
+  font-family: "Satoshi";
+  src: url("../fonts/Satoshi-VariableItalic.woff2") format("woff2"),
+    url("../fonts/Satoshi-VariableItalic.woff") format("woff");
   font-weight: 100 900;
   font-style: italic;
   font-display: block;
 }
 
 @font-face {
-  font-family: 'Satoshi';
-  src: url('../fonts/Satoshi-Regular.woff2') format('woff2'),
-       url('../fonts/Satoshi-Regular.woff') format('woff');
+  font-family: "Satoshi";
+  src: url("../fonts/Satoshi-Regular.woff2") format("woff2"),
+    url("../fonts/Satoshi-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: block;
 }
 
 @font-face {
-  font-family: 'Satoshi';
-  src: url('../fonts/Satoshi-Medium.woff2') format('woff2'),
-       url('../fonts/Satoshi-Medium.woff') format('woff');
+  font-family: "Satoshi";
+  src: url("../fonts/Satoshi-Medium.woff2") format("woff2"),
+    url("../fonts/Satoshi-Medium.woff") format("woff");
   font-weight: 500;
   font-style: normal;
   font-display: block;
 }
 
 @font-face {
-  font-family: 'Satoshi';
-  src: url('../fonts/Satoshi-Bold.woff2') format('woff2'),
-       url('../fonts/Satoshi-Bold.woff') format('woff');
+  font-family: "Satoshi";
+  src: url("../fonts/Satoshi-Bold.woff2") format("woff2"),
+    url("../fonts/Satoshi-Bold.woff") format("woff");
   font-weight: 700;
   font-style: normal;
   font-display: block;
 }
 
 :root {
-  --background: #F7F7F7;
-  --background-solid: #F7F7F7;
-  --foreground: #10100E;
-  --border: #30302A;
-  --accent-green: #05402C;
-  --accent-green-light: #0A5A3A;
-  --accent-green-dark: #033022;
+  --background: #f7f5ee;
+  --background-solid: #f7f5ee;
+  /* --foreground: #10100e; */
+  /* --border: #30302a; */
+  /* --accent-green: #05402c; */
+  /* --accent-green-light: #0a5a3a; */
+  /* --accent-green-dark: #033022; */
 }
 
 @theme inline {
-  --color-background: #F7F7F7;
-  --color-background-solid: #F7F7F7;
-  --color-foreground: #10100E;
-  --color-border: #30302A;
-  --color-accent-green: #05402C;
-  --color-accent-green-light: #0A5A3A;
+  --color-background: #f7f7f7;
+  --color-background-solid: #f7f7f7;
+  --color-foreground: #10100e;
+  --color-border: #30302a;
+  --color-accent-green: #05402c;
+  --color-accent-green-light: #0a5a3a;
   --color-accent-green-dark: #033022;
-  --font-sans: 'Satoshi', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'Satoshi', ui-monospace, monospace;
+  --font-sans: "Satoshi", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Satoshi", ui-monospace, monospace;
 }
 
 /* Custom Circular Cursor */
@@ -88,13 +88,23 @@ body {
   pointer-events: none;
   z-index: 9999;
   transform: translate(-50%, -50%);
-  transition: transform 0.1s ease-out, background-color 0.2s ease-out;
+  transition: transform 0.1s ease-out, background-color 0.2s ease-out,
+    width 0.2s ease-out, height 0.2s ease-out, border-radius 0.2s ease-out,
+    border-left 0.2s ease-out, border-right 0.2s ease-out,
+    border-top 0.2s ease-out, border-bottom 0.2s ease-out;
+
+  /* Default circle cursor */
+  border: none;
 }
 
-/* Hover states */
+/* Hover states for interactive elements (carousel, buttons, links) */
 .cursor-hover .cursor-dot {
-  transform: translate(-50%, -50%) scale(1.2);
-  background-color: #333333;
+  width: 16px;
+  height: 16px;
+  background-color: #000000;
+  border-radius: 50%;
+  border: none;
+  transform: translate(-50%, -50%) scale(1.5);
 }
 
 /* Click state */
@@ -102,19 +112,50 @@ body {
   transform: translate(-50%, -50%) scale(0.8);
 }
 
+/* Click state for hover elements (buttons, carousel) */
+.cursor-click.cursor-hover .cursor-dot {
+  transform: translate(-50%, -50%) scale(0.8);
+}
+
+/* Click state for text cursor */
+.cursor-click.cursor-text .cursor-dot {
+  transform: translate(-50%, -50%) scale(0.8);
+}
+
+/* Text cursor state - I-beam */
+.cursor-text:not(.cursor-hover) .cursor-dot {
+  width: 2px;
+  height: 20px;
+  border-radius: 1px;
+  background-color: #000000;
+  border: none;
+  transform: translate(-50%, -50%);
+}
+
 /* Hide cursor on mobile devices */
 @media (hover: none) and (pointer: coarse) {
   .cursor-dot {
     display: none !important;
   }
-  
+
   * {
     cursor: auto !important;
   }
-  
+
   body {
     cursor: auto !important;
   }
+}
+
+/* Custom text selection styling */
+::selection {
+  background-color: #05402c; /* accent-green */
+  color: #ffffff; /* white text */
+}
+
+::-moz-selection {
+  background-color: #05402c; /* accent-green */
+  color: #ffffff; /* white text */
 }
 
 /* Removed dark mode override to maintain consistent colors */
@@ -127,13 +168,13 @@ html {
 }
 
 html::before {
-  content: '';
+  content: "";
   position: fixed;
   top: -10%;
   left: -10%;
   width: 120%;
   height: 120%;
-  background-image: url('/background.png');
+  background-image: url("/background.png");
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
@@ -141,7 +182,7 @@ html::before {
 }
 
 html::after {
-  content: '';
+  content: "";
   position: fixed;
   top: -10%;
   left: -10%;
@@ -157,34 +198,31 @@ body {
   position: relative;
 }
 
-
-
 /* Updated background utilities */
 .bg-background {
-  background-color: #F7F7F7 !important;
+  background-color: #f7f7f7 !important;
 }
 
 .bg-background-solid {
-  background-color: #F7F7F7 !important;
+  background-color: #f7f7f7 !important;
 }
 
 /* Ensure consistent color application */
 .text-foreground {
-  color: #10100E !important;
+  color: #10100e !important;
 }
 
 .border-border {
-  border-color: #30302A !important;
+  border-color: #30302a !important;
 }
 
 .text-accent-green {
-  color: #05402C !important;
+  color: #05402c !important;
 }
 
 .bg-accent-green {
-  background-color: #05402C !important;
+  background-color: #05402c !important;
 }
-
 
 /* AP title animation on page load */
 @keyframes apTitleLoad {
@@ -192,7 +230,7 @@ body {
     color: rgba(16, 16, 14, 0.1); /* text-foreground/10 */
   }
   100% {
-    color: #05402C; /* text-accent-green */
+    color: #05402c; /* text-accent-green */
   }
 }
 
@@ -236,6 +274,20 @@ a {
   user-select: none !important;
 }
 
+/* Make text elements selectable */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+span:not(:has(a)),
+div:not([role]):not(:has(button)):not(:has(a)) {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+}
+
 /* Prevent iOS Safari zoom on input focus - comprehensive approach */
 @media screen and (max-width: 767px) {
   input[type="text"],
@@ -258,13 +310,13 @@ a {
     -webkit-user-select: text;
     user-select: text;
   }
-  
+
   /* Force all text inputs to have minimum 16px font size */
   .touch-manipulation input[type="text"] {
     font-size: 16px !important;
     line-height: 1.2 !important;
   }
-  
+
   /* Additional fallback */
   input:focus,
   textarea:focus,
@@ -291,7 +343,7 @@ a {
     -webkit-transform: translateZ(0) !important;
     transform: translateZ(0) !important;
   }
-  
+
   .safari-fullscreen-controls {
     position: fixed !important;
     bottom: env(safe-area-inset-bottom, 0px) !important;
@@ -304,4 +356,50 @@ a {
     min-height: 44px !important;
     background-color: #033022 !important;
   }
+}
+
+/* RetroCarousel specific border removal */
+.aspect-video {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure no gaps between carousel elements */
+.aspect-video * {
+  border: none !important;
+  outline: none !important;
+}
+
+/* Remove any default video element borders */
+video {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure carousel containers have no borders */
+[data-video-index] {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove any borders from carousel wrapper */
+.relative.overflow-hidden.cursor-grab {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Target the main carousel container */
+.relative.overflow-hidden.cursor-grab.active\:cursor-grabbing {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure bottom controls don't have top borders */
+.bg-accent-green-dark {
+  border-top: none !important;
 }

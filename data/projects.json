@@ -1,0 +1,26 @@
+[
+  {
+    "id": "browserbase-growth",
+    "title": "Browserbase Growth",
+    "description": "Scaling browser automation infrastructure through iterative product development, user feedback loops, and growth optimization strategies.",
+    "date": "2024",
+    "category": "PRODUCT DESIGN",
+    "href": "/projects/browserbase-growth"
+  },
+  {
+    "id": "rapid-prototyping",
+    "title": "Rapid Prototyping",
+    "description": "Quick iteration cycles and experimental approaches to validate ideas fast. Building to learn, not just to ship.",
+    "date": "2024",
+    "category": "PROTOTYPING",
+    "href": "/projects/rapid-prototyping"
+  },
+  {
+    "id": "experimental-interfaces",
+    "title": "Experimental Interfaces",
+    "description": "Exploring unconventional interaction patterns and interface paradigms. How can design push beyond traditional expectations?",
+    "date": "2024",
+    "category": "INTERFACE DESIGN",
+    "href": "/projects/experimental-interfaces"
+  }
+]
