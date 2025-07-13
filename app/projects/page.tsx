@@ -58,21 +58,18 @@ export default function Projects() {
                   <div className="space-y-6">
                     <div className="text-foreground/60 leading-relaxed">
                       <p className="mb-4">
-                        Ongoing experiments in design systems, animation, and
-                        user interaction.
+                        Experiments pre-2024, you can check it out{" "}
+                        <Link href="/experiments" className="underline">
+                          here
+                        </Link>
+                        .
                       </p>
-                      <div className="text-sm text-foreground/40 space-y-2">
-                        <div>• Parallax scrolling systems</div>
-                        <div>• Micro-interaction libraries</div>
-                        <div>• AI-assisted design workflows</div>
-                        <div>• Performance optimization techniques</div>
-                      </div>
                     </div>
                   </div>
                 </div>
               </AnimatedSection>
 
-              <AnimatedSection delay={0.5}>
+              {/* <AnimatedSection delay={0.5}>
                 <div>
                   <h2 className="text-lg font-semibold text-foreground mb-8 tracking-wide border-b border-foreground/10 pb-3">
                     Archive
@@ -81,7 +78,7 @@ export default function Projects() {
                     Previous projects and case studies coming soon...
                   </p>
                 </div>
-              </AnimatedSection>
+              </AnimatedSection> */}
             </div>
           </div>
         </div>

@@ -13,7 +13,7 @@ export default function SiteHeader({
   ];
 
   const linkClassName =
-    "relative text-base font-normal text-foreground tracking-wide hover:text-white transition-colors cursor-pointer overflow-hidden group py-1 underline decoration-accent-green underline-offset-4";
+    "relative text-base font-normal text-foreground tracking-wide hover:text-white hover:bg-foreground/10 transition-all duration-200 cursor-pointer overflow-hidden group py-1 px-2 underline decoration-foreground underline-offset-4 text-center";
 
   return (
     <div className="max-w-4xl mx-auto w-full px-6">

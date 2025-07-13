@@ -1792,8 +1792,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               }}
             >
               <div
-                className={`flex items-center px-4 ${
-                  isFullscreen ? "h-auto py-2" : "h-10"
+                className={`flex items-center ${
+                  isFullscreen ? "p-4" : "px-4 h-10"
                 }`}
                 style={{
                   paddingBottom: isFullscreen
@@ -1907,7 +1907,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       isFullscreen ? "z-[10002]" : "z-50"
                     }`}
                   >
-                    <div className={`${isFullscreen ? "p-4" : "p-4 md:p-4"}`}>
+                    <div
+                      className={`${
+                        isFullscreen ? "p-4" : "px-4 md:px-4 pb-4"
+                      }`}
+                    >
                       <div className="w-full">
                         <div className="flex items-center justify-between mb-3">
                           <input
@@ -1915,9 +1919,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                             placeholder="Search for GIFs..."
                             value={searchQuery}
                             onChange={(e) => handleSearch(e.target.value)}
-                            className={`flex-1 px-3 ${
-                              isFullscreen ? "py-3 h-10" : "py-2"
-                            } bg-background/10 text-background placeholder-background/50 border border-background/20 focus:outline-none focus:border-background/40 mr-2 touch-manipulation`}
+                            className={`flex-1 ${
+                              isFullscreen ? "h-10 px-3" : "h-6 px-2"
+                            } bg-background/10 text-background placeholder-background/50 focus:outline-none mr-2 touch-manipulation`}
                             style={{
                               fontSize: "16px",
                             }}
@@ -1930,7 +1934,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                               setShowGifPicker(false);
                             }}
                             className={`${
-                              isFullscreen ? "px-4 py-3 h-10" : "px-3 py-2"
+                              isFullscreen ? "h-10 px-3" : "h-6 px-2"
                             } text-sm bg-background/20 text-background hover:bg-background/30 transition-colors flex-shrink-0 touch-manipulation flex items-center justify-center`}
                           >
                             Done
