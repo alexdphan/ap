@@ -288,6 +288,51 @@ div:not([role]):not(:has(button)):not(:has(a)) {
   user-select: text !important;
 }
 
+/* Auto-style paragraphs within prose containers */
+.prose p {
+  @apply text-foreground/80 leading-relaxed mb-6;
+}
+
+/* Video hover controls */
+.video-hover-controls {
+  transition: all 0.3s ease;
+}
+
+/* Hide all video controls by default - cross-browser approach */
+.group:not(:hover) .video-hover-controls::-webkit-media-controls,
+.group:not(:hover) .video-hover-controls::-webkit-media-controls-panel,
+.group:not(:hover) .video-hover-controls::-webkit-media-controls-play-button,
+.group:not(:hover) .video-hover-controls::-webkit-media-controls-timeline,
+.group:not(:hover) .video-hover-controls::-webkit-media-controls-volume-slider,
+.group:not(:hover) .video-hover-controls::-webkit-media-controls-mute-button,
+.group:not(:hover)
+  .video-hover-controls::-webkit-media-controls-fullscreen-button {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Show controls on group hover */
+.group:hover .video-hover-controls::-webkit-media-controls,
+.group:hover .video-hover-controls::-webkit-media-controls-panel,
+.group:hover .video-hover-controls::-webkit-media-controls-play-button,
+.group:hover .video-hover-controls::-webkit-media-controls-timeline,
+.group:hover .video-hover-controls::-webkit-media-controls-volume-slider,
+.group:hover .video-hover-controls::-webkit-media-controls-mute-button,
+.group:hover .video-hover-controls::-webkit-media-controls-fullscreen-button {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* Firefox support */
+.group:not(:hover) .video-hover-controls {
+  /* Firefox doesn't support webkit controls, so we handle this differently */
+  --controls-opacity: 0;
+}
+
+.group:hover .video-hover-controls {
+  --controls-opacity: 1;
+}
+
 /* Prevent iOS Safari zoom on input focus - comprehensive approach */
 @media screen and (max-width: 767px) {
   input[type="text"],

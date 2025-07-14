@@ -19,13 +19,13 @@ export default function SiteHeader({
     <div className="max-w-4xl mx-auto w-full px-6">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between">
-          <Link
+          <Link 
             href="/"
             className={`text-5xl md:text-5xl font-bold tracking-tighter hover:text-accent-green ap-title-animate cursor-pointer ${titleColor}`}
           >
             [ AP ]
           </Link>
-
+          
           {/* Projects + Memos Stack */}
           <div className="flex flex-col gap-1 text-right justify-center">
             {navigationLinks.map((link) => (
@@ -38,4 +38,4 @@ export default function SiteHeader({
       </div>
     </div>
   );
-}
+} 
