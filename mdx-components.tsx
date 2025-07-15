@@ -60,12 +60,12 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       </blockquote>
     ),
     code: ({ children }) => (
-      <code className="bg-foreground/10 px-1 py-0.5 rounded text-sm font-mono text-foreground">
+      <code className="bg-foreground/10 px-1 py-0.5 text-sm font-mono text-foreground">
         {children}
       </code>
     ),
     pre: ({ children }) => (
-      <pre className="bg-foreground/10 p-4 rounded overflow-x-auto">
+      <pre className="bg-foreground/10 p-4 overflow-x-auto">
         <code className="text-sm font-mono text-foreground">{children}</code>
       </pre>
     ),

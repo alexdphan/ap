@@ -43,6 +43,33 @@ export default function ImageTextLayout({
   const [isVisible, setIsVisible] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
+  // Always call hooks at the top level
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+
+  const y = useTransform(
+    scrollYProgress,
+    [0, 1],
+    [`${parallax * 40}%`, `-${parallax * 40}%`]
+  );
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   // Don't render anything if src is empty or undefined
   if (!src) return null;
 
@@ -88,32 +115,6 @@ export default function ImageTextLayout({
 
     return parts.length > 0 ? parts : caption;
   };
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  });
-
-  const y = useTransform(
-    scrollYProgress,
-    [0, 1],
-    [`${parallax * 40}%`, `-${parallax * 40}%`]
-  );
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting);
-      },
-      { threshold: 0.1 }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
 
   const isImageLeft = imagePosition === "left";
 

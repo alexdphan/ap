@@ -464,7 +464,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     if (!isClient || !commentsScrollRef.current) return;
 
     const scrollContainer = commentsScrollRef.current;
-    const currentComments = getCurrentComments().filter(
+    const currentComments = comments.filter(
       (comment) => currentTime >= comment.time_seconds
     );
 
@@ -479,7 +479,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
       return () => clearTimeout(timeoutId);
     }
-  }, [comments.length, currentTime, isClient]);
+  }, [comments, currentTime, isClient]);
 
   // Fetch comment counts on mount
   useEffect(() => {

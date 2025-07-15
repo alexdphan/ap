@@ -94,7 +94,7 @@ export default function ProjectHeader({
         </div>
         <span className="text-xs text-foreground/20">•</span>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-foreground/50 font-medium tracking-wide bg-foreground/3 px-2 py-1 border border-foreground/5 rounded-sm">
+          <span className="text-xs text-foreground/50 font-medium tracking-wide bg-foreground/3 px-2 py-1 border border-foreground/5">
             {finalData.category}
           </span>
           {finalData.subcategory && (

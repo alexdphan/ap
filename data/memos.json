@@ -3,8 +3,8 @@
     "id": "backdoors-overlooked",
     "title": "Backdoors Overlooked",
     "description": "The backdoors that are often overlooked are usually the most obvious ones - the patterns we dismiss because they seem too simple or too direct.",
-    "date": "DEC 2024",
-    "category": "OBSERVATION",
+    "date": "December 2024",
+    "category": "Observation",
     "href": "/memos/backdoors-overlooked",
     "icon": "/file.svg"
   },
@@ -12,8 +12,8 @@
     "id": "growth-engineering-systems",
     "title": "People don't get growth",
     "description": "Growth engineering isn't just about metrics - it's about building systems that make the right behaviors feel natural and inevitable.",
-    "date": "NOV 2024",
-    "category": "SYSTEMS",
+    "date": "November 2024",
+    "category": "Systems",
     "href": "/memos/growth-engineering-systems",
     "icon": "/file.svg"
   }

@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
 
 export interface Heading {
@@ -23,14 +22,12 @@ interface FloatingBottomNavProps {
   headings: Heading[];
   currentPath: string;
   allItems?: NavigationItem[];
-  type?: "projects" | "memos" | "investments";
 }
 
 export default function FloatingBottomNav({
   headings,
   currentPath,
   allItems = [],
-  type,
 }: FloatingBottomNavProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -121,7 +118,7 @@ export default function FloatingBottomNav({
     elements.forEach((el) => observer.current?.observe(el!));
 
     return () => observer.current?.disconnect();
-  }, [headings.length, headings.map((h) => h.id).join(",")]);
+  }, [headings]);
 
   // Scroll to section
   const scrollToSection = (headingId: string) => {

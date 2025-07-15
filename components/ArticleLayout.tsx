@@ -28,7 +28,6 @@ export default function ArticleLayout({ children }: ArticleLayoutProps) {
     : isInvestment
     ? investmentsData
     : [];
-  const type = isProject ? "projects" : isMemo ? "memos" : "investments";
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -82,7 +81,6 @@ export default function ArticleLayout({ children }: ArticleLayoutProps) {
           headings={headings}
           currentPath={pathname}
           allItems={allItems}
-          type={type as "projects" | "memos" | "investments"}
         />
       )}
       <div ref={contentRef}>{children}</div>

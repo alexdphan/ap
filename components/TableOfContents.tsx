@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export interface Heading {
   id: string;
@@ -34,14 +34,16 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
       { rootMargin: `0% 0% -80% 0%` }
     );
 
-    const elements = headings.map(heading => document.getElementById(heading.id)).filter(Boolean);
-    elements.forEach(el => observer.current?.observe(el!));
+    const elements = headings
+      .map((heading) => document.getElementById(heading.id))
+      .filter(Boolean);
+    elements.forEach((el) => observer.current?.observe(el!));
 
     return () => observer.current?.disconnect();
   }, [headings]);
 
   // Get the minimum heading level to normalize indentation
-  const minLevel = Math.min(...headings.map(h => h.level));
+  const minLevel = Math.min(...headings.map((h) => h.level));
 
   // Smooth scroll to section
   const scrollToSection = (headingId: string) => {
@@ -53,23 +55,23 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
 
       window.scrollTo({
         top: offsetPosition,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   };
 
   return (
-    <div 
+    <div
       className="hidden lg:block fixed left-10 top-1/2 -translate-y-1/2 z-50"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <motion.nav
         initial={{ opacity: 0.3, x: -20, scale: 0.95 }}
-        animate={{ 
+        animate={{
           opacity: isHovered ? 1 : 1,
           x: isHovered ? 0 : -20,
-          scale: isHovered ? 1 : 0.95
+          scale: isHovered ? 1 : 0.95,
         }}
         transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
         className="space-y-1"
@@ -78,20 +80,20 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
           {headings.map((heading, index) => {
             const isActive = activeId === heading.id;
             const indentLevel = heading.level - minLevel;
-            
+
             return (
               <motion.div
                 key={heading.id}
                 initial={{ opacity: 0, x: -10 }}
-                animate={{ 
-                  opacity: isHovered ? 1 : (isActive ? 0.8 : 0.3),
-                  x: 0
+                animate={{
+                  opacity: isHovered ? 1 : isActive ? 0.8 : 0.3,
+                  x: 0,
                 }}
                 exit={{ opacity: 0, x: -10 }}
-                transition={{ 
-                  duration: 0.3, 
+                transition={{
+                  duration: 0.3,
                   delay: isHovered ? index * 0.05 : 0,
-                  ease: [0.4, 0, 0.2, 1]
+                  ease: [0.4, 0, 0.2, 1],
                 }}
               >
                 <button
@@ -103,8 +105,8 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
                 >
                   <motion.div
                     className="flex items-center gap-2 py-1 cursor-pointer"
-                    style={{ 
-                      paddingLeft: `${indentLevel * 12}px` 
+                    style={{
+                      paddingLeft: `${indentLevel * 12}px`,
                     }}
                     whileHover={{ x: 4 }}
                     whileTap={{ scale: 0.98 }}
@@ -112,29 +114,29 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
                   >
                     {/* Active indicator */}
                     <motion.div
-                      className="w-0.5 bg-accent-green rounded-full"
+                      className="w-0.5 bg-accent-green"
                       initial={{ height: 0, opacity: 0 }}
-                      animate={{ 
+                      animate={{
                         height: isActive ? 16 : 0,
-                        opacity: isActive ? 1 : 0
+                        opacity: isActive ? 1 : 0,
                       }}
                       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
                     />
-                    
+
                     {/* Text content */}
                     <motion.span
                       className="text-sm font-medium"
-                      animate={{ 
-                        color: isActive ? '#05402C' : '#10100E',
-                        opacity: isActive ? 1 : (isHovered ? 0.8 : 0.6)
+                      animate={{
+                        color: isActive ? "#05402C" : "#10100E",
+                        opacity: isActive ? 1 : isHovered ? 0.8 : 0.6,
                       }}
                       whileHover={{
                         opacity: 1,
-                        color: '#05402C'
+                        color: "#05402C",
                       }}
                       transition={{ duration: 0.2 }}
                       style={{
-                        fontSize: indentLevel === 0 ? '14px' : '13px',
+                        fontSize: indentLevel === 0 ? "14px" : "13px",
                       }}
                     >
                       {heading.text}
@@ -148,4 +150,4 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
       </motion.nav>
     </div>
   );
-} 
+}
