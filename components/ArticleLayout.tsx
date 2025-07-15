@@ -2,7 +2,7 @@
 
 import { useState, useEffect, ReactNode, useRef } from "react";
 import { usePathname } from "next/navigation";
-import FloatingBottomNav, { Heading } from "./FloatingBottomNav";
+import FloatingBottomNav, { Heading } from "./FloatingNav";
 import projectsData from "../data/projects.json";
 import memosData from "../data/memos.json";
 
@@ -70,12 +70,7 @@ export default function ArticleLayout({ children }: ArticleLayoutProps) {
   return (
     <>
       {(isProject || isMemo) && (
-        <FloatingBottomNav
-          headings={headings}
-          currentPath={pathname}
-          allItems={allItems}
-          type={type as "projects" | "memos"}
-        />
+        <FloatingBottomNav headings={headings} currentPath={pathname} />
       )}
       <div ref={contentRef}>{children}</div>
     </>
