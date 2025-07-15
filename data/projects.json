@@ -1,10 +1,11 @@
 [
   {
-    "id": "browserbase-growth",
-    "title": "Browserbase Growth",
+    "id": "browserbase",
+    "title": "Browserbase",
     "description": "Scaling browser automation infrastructure through iterative product development, user feedback loops, and growth optimization strategies.",
-    "date": "2024",
-    "category": "PRODUCT DESIGN",
-    "href": "/projects/browserbase-growth"
+    "date": "May 2024 - July 2025",
+    "category": "Founding Growth Engineer",
+    "href": "/projects/browserbase",
+    "icon": "/browserbase.svg"
   }
 ]

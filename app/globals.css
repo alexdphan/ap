@@ -81,8 +81,8 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   background-color: #10100e !important;
   border-radius: 50%;
   pointer-events: none;
@@ -99,8 +99,8 @@ body {
 
 /* Hover states for interactive elements (carousel, buttons, links) */
 .cursor-hover .cursor-dot {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   background-color: #10100e !important;
   border-radius: 50%;
   border: none;
@@ -125,7 +125,7 @@ body {
 /* Text cursor state - I-beam */
 .cursor-text:not(.cursor-hover) .cursor-dot {
   width: 2px;
-  height: 20px;
+  height: 16px;
   border-radius: 1px;
   background-color: #10100e !important;
   border: none;

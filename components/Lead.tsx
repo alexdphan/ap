@@ -1,11 +1,11 @@
 interface LeadProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export default function Lead({ children }: LeadProps) {
   return (
-    <div className="text-xl leading-relaxed text-foreground/90 font-medium">
+    <div className="text-lg leading-relaxed text-foreground/75 font-normal">
       {children}
     </div>
-  )
-} 
+  );
+}

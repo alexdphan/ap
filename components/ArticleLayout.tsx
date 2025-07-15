@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import FloatingBottomNav, { Heading } from "./FloatingNav";
 import projectsData from "../data/projects.json";
 import memosData from "../data/memos.json";
+import investmentsData from "../data/investments.json";
 
 interface ArticleLayoutProps {
   children: ReactNode;
@@ -15,12 +16,19 @@ export default function ArticleLayout({ children }: ArticleLayoutProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
-  // Determine if this is a project or memo and get navigation data
+  // Determine if this is a project, memo, or investment and get navigation data
   const isProject = pathname.startsWith("/projects");
   const isMemo = pathname.startsWith("/memos");
+  const isInvestment = pathname.startsWith("/investments");
 
-  const allItems = isProject ? projectsData : isMemo ? memosData : [];
-  const type = isProject ? "projects" : "memos";
+  const allItems = isProject
+    ? projectsData
+    : isMemo
+    ? memosData
+    : isInvestment
+    ? investmentsData
+    : [];
+  const type = isProject ? "projects" : isMemo ? "memos" : "investments";
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -69,8 +77,13 @@ export default function ArticleLayout({ children }: ArticleLayoutProps) {
 
   return (
     <>
-      {(isProject || isMemo) && (
-        <FloatingBottomNav headings={headings} currentPath={pathname} />
+      {(isProject || isMemo || isInvestment) && (
+        <FloatingBottomNav
+          headings={headings}
+          currentPath={pathname}
+          allItems={allItems}
+          type={type as "projects" | "memos" | "investments"}
+        />
       )}
       <div ref={contentRef}>{children}</div>
     </>

@@ -1,43 +1,22 @@
-import SiteHeader from '../../../components/SiteHeader'
-import SiteFooter from '../../../components/SiteFooter'
-import AnimatedSection from '../../../components/AnimatedSection'
-import ProjectLayout from '../../../components/ProjectLayout'
-import ContentContainer from '../../../components/ContentContainer'
-import ProseContainer from '../../../components/ProseContainer'
-import ContentSection from '../../../components/ContentSection'
-import FooterSection from '../../../components/FooterSection'
-import ProjectHeader from '../../../components/ProjectHeader'
-import Lead from '../../../components/Lead'
-import SectionHeading from '../../../components/SectionHeading'
-import Callout from '../../../components/Callout'
+import ArticleTemplate from "../../../components/ProjectTemplate";
+import Lead from "../../../components/Lead";
+import SectionHeading from "../../../components/SectionHeading";
+import ContentSection from "../../../components/ContentSection";
+import Callout from "../../../components/Callout";
 
 export const metadata = {
-  title: 'Backdoors Overlooked',
-  description: 'Hidden opportunities in everyday systems'
-}
+  title: "Backdoors Overlooked",
+  description: "Hidden opportunities in everyday systems",
+};
 
-<ProjectLayout>
-  <SiteHeader />
-  
-  <ContentContainer size="narrow">
-    <AnimatedSection delay={0.2}>
-      <ProjectHeader 
-        category="MEMOS"
-        subcategory="OBSERVATION"
-        title="Backdoors Overlooked"
-        description="The most valuable opportunities often hide in plain sight. They're disguised as inefficiencies, complaints, or 'the way things have always been done.'"
-      />
-    </AnimatedSection>
-
-    <AnimatedSection delay={0.3}>
-      <ProseContainer>
+<ArticleTemplate>
         <Lead>
           Every complex system has unofficial shortcuts. Most people don't see them. Those who do often ignore them. But these backdoors are where leverage lives.
         </Lead>
 
         <ContentSection>
           <SectionHeading>Why We Miss Them</SectionHeading>
-          
+
           We're trained to follow the official process. Use the proper channels. Go through the right people. This conditioning makes us blind to the actual flow of power and information.
 
           Most backdoors look like bugs, not features. They seem too simple, too obvious, or too good to be true. We dismiss them before we understand their potential.
@@ -49,7 +28,7 @@ export const metadata = {
 
         <ContentSection>
           <SectionHeading>The Practice</SectionHeading>
-          
+
           Start by mapping how things actually work versus how they're supposed to work. The gaps between intention and reality are where backdoors live.
 
           Look for recurring complaints in your organization. Each complaint points to a friction point. Friction points are just unpaved paths waiting for someone to see them.
@@ -62,13 +41,5 @@ export const metadata = {
         <Callout type="quote">
           The question isn't whether backdoors exist. The question is whether you're looking for them.
         </Callout>
-      </ProseContainer>
-    </AnimatedSection>
-  </ContentContainer>
-  
-  <AnimatedSection delay={0.4}>
-    <FooterSection>
-      <SiteFooter />
-    </FooterSection>
-  </AnimatedSection>
-</ProjectLayout> 
+
+</ArticleTemplate>

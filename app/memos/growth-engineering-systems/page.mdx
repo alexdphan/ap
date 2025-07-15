@@ -1,43 +1,22 @@
-import SiteHeader from '../../../components/SiteHeader'
-import SiteFooter from '../../../components/SiteFooter'
-import AnimatedSection from '../../../components/AnimatedSection'
-import ProjectLayout from '../../../components/ProjectLayout'
-import ContentContainer from '../../../components/ContentContainer'
-import ProseContainer from '../../../components/ProseContainer'
-import ContentSection from '../../../components/ContentSection'
-import FooterSection from '../../../components/FooterSection'
-import ProjectHeader from '../../../components/ProjectHeader'
-import Lead from '../../../components/Lead'
-import SectionHeading from '../../../components/SectionHeading'
-import Callout from '../../../components/Callout'
+import ArticleTemplate from "../../../components/ProjectTemplate";
+import ContentSection from "../../../components/ContentSection";
+import Lead from "../../../components/Lead";
+import SectionHeading from "../../../components/SectionHeading";
+import Callout from "../../../components/Callout";
 
 export const metadata = {
-  title: 'Growth Engineering Systems',
-  description: 'Building systems that scale human behavior'
-}
+  title: "Growth Engineering Systems",
+  description: "Building systems that scale human behavior",
+};
 
-<ProjectLayout>
-  <SiteHeader />
-  
-  <ContentContainer size="narrow">
-    <AnimatedSection delay={0.2}>
-      <ProjectHeader 
-        category="MEMOS"
-        subcategory="SYSTEMS"
-        title="Growth Engineering Systems"
-        description="The most effective growth systems don't feel like growth systems. They feel like the natural way to use the product."
-      />
-    </AnimatedSection>
-
-    <AnimatedSection delay={0.3}>
-      <ProseContainer>
+<ArticleTemplate>
         <Lead>
           Growth engineering isn't about tricking people into using your product more. It's about building systems that make the right behaviors feel natural and inevitable.
         </Lead>
 
         <ContentSection>
           <SectionHeading>The Systems Approach</SectionHeading>
-          
+
           Most teams think about growth as a series of tactics: emails, notifications, viral loops. But tactics without systems are just noise.
 
           Systems thinking asks: what are the underlying forces that drive behavior? How can we amplify the forces that lead to desired outcomes?
@@ -49,7 +28,7 @@ export const metadata = {
 
         <ContentSection>
           <SectionHeading>Building for Behavior</SectionHeading>
-          
+
           Every interface is a behavioral intervention. Every interaction shapes user expectations and habits.
 
           Instead of asking "how do we get users to do X," ask "what system would make X the obvious next step?"
@@ -63,7 +42,7 @@ export const metadata = {
 
         <ContentSection>
           <SectionHeading>The Measurement Problem</SectionHeading>
-          
+
           Growth engineering requires different metrics than product engineering. You're not just measuring what happened; you're measuring what changed.
 
           Focus on leading indicators: behaviors that predict future value rather than metrics that just reflect past activity.
@@ -74,13 +53,5 @@ export const metadata = {
         <Callout type="quote">
           The goal isn't to optimize for growth. The goal is to build systems so good that growth becomes a natural byproduct.
         </Callout>
-      </ProseContainer>
-    </AnimatedSection>
-  </ContentContainer>
-  
-  <AnimatedSection delay={0.4}>
-    <FooterSection>
-      <SiteFooter />
-    </FooterSection>
-  </AnimatedSection>
-</ProjectLayout> 
+
+</ArticleTemplate>

@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import SiteHeader from "../../components/SiteHeader";
 import SiteFooter from "../../components/SiteFooter";
 import AnimatedSection from "../../components/AnimatedSection";
@@ -18,8 +19,8 @@ export default function Projects() {
                 Projects
               </h1>
               <p className="text-foreground/60 text-lg leading-relaxed">
-                Product work and experiments in design systems, growth
-                engineering, and user experience.
+                Work and experiments in systems, growth engineering, and user
+                experience.
               </p>
             </AnimatedSection>
 
@@ -28,17 +29,38 @@ export default function Projects() {
               <AnimatedSection delay={0.3}>
                 <div>
                   <h2 className="text-lg font-semibold text-foreground mb-8 tracking-wide border-b border-foreground/10 pb-3">
-                    Recent Work
+                    Work
                   </h2>
                   <div className="space-y-10">
                     {projectsData.map((project) => (
                       <article key={project.id} className="group">
-                        <div className="text-xs text-foreground/40 mb-3 font-medium tracking-wide">
-                          {project.date} • {project.category}
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-foreground/50 font-medium tracking-wider uppercase">
+                              {project.date}
+                            </span>
+                          </div>
+                          <span className="hidden sm:block text-xs text-foreground/20">
+                            •
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-foreground/50 font-medium tracking-wide bg-foreground/3 px-2 py-1 border border-foreground/5">
+                              {project.category}
+                            </span>
+                          </div>
                         </div>
                         <Link href={project.href} className="block">
-                          <h3 className="text-foreground font-medium mb-3 group-hover:text-accent-green transition-colors leading-tight">
-                            {project.title}
+                          <h3 className="text-foreground font-medium mb-3 group-hover:text-accent-green transition-colors leading-tight flex items-center gap-2">
+                            {project.icon && (
+                              <Image
+                                src={project.icon}
+                                alt={project.title}
+                                width={18}
+                                height={18}
+                                className="flex-shrink-0"
+                              />
+                            )}
+                            <span>{project.title}</span>
                           </h3>
                           <p className="text-foreground/70 leading-relaxed group-hover:text-foreground/80 transition-colors">
                             {project.description}
@@ -59,7 +81,12 @@ export default function Projects() {
                     <div className="text-foreground/60 leading-relaxed">
                       <p className="mb-4">
                         Experiments pre-2024, you can check it out{" "}
-                        <Link href="/experiments" className="underline">
+                        <Link
+                          href="https://www.alexdphan.com/projects"
+                          className="underline"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           here
                         </Link>
                         .

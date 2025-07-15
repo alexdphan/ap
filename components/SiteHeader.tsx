@@ -10,6 +10,7 @@ export default function SiteHeader({
   const navigationLinks = [
     { href: "/projects", label: "Projects" },
     { href: "/memos", label: "Memos" },
+    { href: "/investments", label: "Investments" },
   ];
 
   const linkClassName =
@@ -19,15 +20,15 @@ export default function SiteHeader({
     <div className="max-w-4xl mx-auto w-full px-6">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between">
-          <Link 
+          <Link
             href="/"
             className={`text-5xl md:text-5xl font-bold tracking-tighter hover:text-accent-green ap-title-animate cursor-pointer ${titleColor}`}
           >
             [ AP ]
           </Link>
-          
-          {/* Projects + Memos Stack */}
-          <div className="flex flex-col gap-1 text-right justify-center">
+
+          {/* Navigation Links */}
+          <div className="flex flex-row gap-4 items-center">
             {navigationLinks.map((link) => (
               <Link key={link.href} href={link.href} className={linkClassName}>
                 {link.label}
@@ -38,4 +39,4 @@ export default function SiteHeader({
       </div>
     </div>
   );
-} 
+}

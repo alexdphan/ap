@@ -1,0 +1,52 @@
+[
+  {
+    "id": "conduit-ai",
+    "title": "Conduit",
+    "description": "Automate support and conversations for real estate, services, retail, and financial businesses.",
+    "date": "2024",
+    "category": "AI Infrastructure",
+    "stage": "Seed",
+    "href": "https://conduit.ai",
+    "icon": "/conduit.png"
+  },
+  {
+    "id": "sixtyfour-ai",
+    "title": "SixtyFour",
+    "description": "AI research agents that discover and enrich information on people and businesses",
+    "date": "2025",
+    "category": "Productivity Tech",
+    "stage": "Seed",
+    "href": "https://sixtyfour.ai",
+    "icon": "/sixtyfour.webp"
+  },
+  {
+    "id": "virio-ai",
+    "title": "Virio",
+    "description": "Helping B2B companies book meetings with key decision makers through content & warm outbound",
+    "date": "2024",
+    "category": "Marketing Tech",
+    "stage": "Seed",
+    "href": "https://virio.ai",
+    "icon": "/virio.png"
+  },
+  {
+    "id": "zero-email",
+    "title": "Mail0",
+    "description": "Email client that manages, summarizes, and automates your inbox for faster email processing",
+    "date": "2025",
+    "category": "Sales Tech",
+    "stage": "Seed",
+    "href": "https://0.email",
+    "icon": "/0email.jpg"
+  },
+  {
+    "id": "kairos-computer",
+    "title": "Kairos",
+    "description": "Platform that automates boring and repetitive tasks",
+    "date": "2025",
+    "category": "Edge Computing",
+    "stage": "Seed",
+    "href": "https://kairos.computer",
+    "icon": "/kairos.png"
+  }
+]
