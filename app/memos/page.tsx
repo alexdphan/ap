@@ -34,17 +34,15 @@ export default function Memos() {
                   <div className="space-y-10">
                     {memosData.map((memo) => (
                       <article key={memo.id} className="group">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
+                        <div className="flex flex-row items-center gap-2 sm:gap-3 mb-3">
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-foreground/50 font-medium tracking-wider uppercase">
                               {memo.date}
                             </span>
                           </div>
-                          <span className="hidden sm:block text-xs text-foreground/20">
-                            •
-                          </span>
+                          <span className="text-xs text-foreground/20">•</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-foreground/50 font-medium tracking-wide bg-foreground/3 px-2 py-1 border border-foreground/5">
+                            <span className="text-xs text-foreground/50 font-medium tracking-wide bg-foreground/3 px-2 py-1 border border-foreground/5 rounded-sm">
                               {memo.category}
                             </span>
                           </div>

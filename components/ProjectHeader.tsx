@@ -86,15 +86,15 @@ export default function ProjectHeader({
 
   return (
     <div className="mb-12 md:mb-12 mt-12 md:mt-16">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-6">
+      <div className="flex flex-row items-center gap-2 sm:gap-3 mb-6">
         <div className="flex items-center gap-2">
           <span className="text-xs text-foreground/50 font-medium tracking-wider uppercase">
             {finalData.year}
           </span>
         </div>
-        <span className="hidden sm:block text-xs text-foreground/20">•</span>
+        <span className="text-xs text-foreground/20">•</span>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-foreground/50 font-medium tracking-wide bg-foreground/3 px-2 py-1 border border-foreground/5">
+          <span className="text-xs text-foreground/50 font-medium tracking-wide bg-foreground/3 px-2 py-1 border border-foreground/5 rounded-sm">
             {finalData.category}
           </span>
           {finalData.subcategory && (
