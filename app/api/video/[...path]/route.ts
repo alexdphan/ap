@@ -13,6 +13,7 @@ export async function GET(
     
     const fetchHeaders: Record<string, string> = {
       'Accept-Encoding': 'gzip, deflate, br',
+      'User-Agent': request.headers.get('user-agent') || '',
     };
     
     // Forward range requests for video seeking
@@ -49,6 +50,7 @@ export async function GET(
       'Access-Control-Allow-Headers': 'Range',
       'Access-Control-Expose-Headers': 'Accept-Ranges, Content-Length, Content-Range, Content-Type',
       'X-Content-Type-Options': 'nosniff',
+      'Connection': 'keep-alive',
     };
 
     // Forward important headers from R2

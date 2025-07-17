@@ -127,7 +127,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
       const video = document.createElement("video");
       video.src = videoUrl;
-      video.preload = "auto"; // Preload entire video for faster playback
+      video.preload = "none"; // Safari mobile prefers no preload
       video.muted = true;
       video.playsInline = true;
 
@@ -173,13 +173,21 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     }
   }, [isClient, displayItems, preloadVideo]);
 
-  // Prevent hydration mismatch and detect mobile
+  // Prevent hydration mismatch and detect mobile/Safari
   useEffect(() => {
     setIsClient(true);
 
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640);
     };
+    
+    // Detect Safari for specific optimizations
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    
+    // For Safari mobile, use more conservative loading
+    if (isSafari && window.innerWidth <= 768) {
+      console.log("Safari mobile detected - using conservative video loading");
+    }
 
     // Prevent iOS Safari zoom on input focus
     const preventZoom = (e: Event) => {
@@ -1282,7 +1290,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       muted={isMuted}
                       loop
                       playsInline
-                      preload="metadata"
+                      preload={index === extendedIndex ? "metadata" : "none"}
                       className={`w-full h-full ${
                         isFullscreen ? "object-contain" : "object-cover"
                       }`}
@@ -1291,6 +1299,17 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         // Video data loaded, can play smoothly
                         if (!preloadedVideos.has(item.videoUrl!)) {
                           setPreloadedVideos(prev => new Set([...prev, item.videoUrl!]));
+                        }
+                      }}
+                      onCanPlay={() => {
+                        // Safari: Force play when video can play
+                        if (index === extendedIndex && isPlaying) {
+                          const video = document.querySelector(
+                            `[data-video-index="${extendedIndex}"] video`
+                          ) as HTMLVideoElement;
+                          if (video && video.paused) {
+                            video.play().catch(() => {});
+                          }
                         }
                       }}
                     />
