@@ -13,6 +13,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@anthropic-ai/claude-code": "^1.0.53",
     "@base-ui-components/react": "^1.0.0-beta.0",
     "@mdx-js/loader": "^3.1.0",
     "@mdx-js/react": "^3.1.0",

@@ -127,7 +127,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
       const video = document.createElement("video");
       video.src = videoUrl;
-      video.preload = "metadata"; // More conservative for Safari
+      video.preload = "auto"; // Preload entire video for faster playback
       video.muted = true;
       video.playsInline = true;
 
@@ -787,7 +787,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       if (currentVideo) {
         currentVideo.muted = isMuted;
         if (isPlaying) {
-          currentVideo.play().catch(() => {
+          currentVideo.play().catch((error) => {
+            console.log("Autoplay failed:", error);
             // Handle autoplay restrictions
           });
         }
@@ -806,9 +807,16 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       if (currentVideo) {
         currentVideo.currentTime = 0;
         setCurrentTime(0); // Reset comment timing
+        
+        // Auto-start video if playing state is true
+        if (isPlaying && currentVideo.paused) {
+          currentVideo.play().catch((error) => {
+            console.log("Failed to auto-start video:", error);
+          });
+        }
       }
     }
-  }, [currentIndex, isClient, extendedIndex]);
+  }, [currentIndex, isClient, extendedIndex, isPlaying]);
 
   // Track video progress
   useEffect(() => {
@@ -1274,20 +1282,27 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       muted={isMuted}
                       loop
                       playsInline
+                      preload="metadata"
                       className={`w-full h-full ${
                         isFullscreen ? "object-contain" : "object-cover"
                       }`}
                       poster={item.thumbnailUrl}
+                      onLoadedData={() => {
+                        // Video data loaded, can play smoothly
+                        if (!preloadedVideos.has(item.videoUrl!)) {
+                          setPreloadedVideos(prev => new Set([...prev, item.videoUrl!]));
+                        }
+                      }}
                     />
 
                     {/* Loading indicator for videos that aren't preloaded */}
                     {item.videoUrl &&
                       !preloadedVideos.has(item.videoUrl) &&
                       index === extendedIndex && (
-                        <div className="absolute inset-0 flex items-center justify-center z-10">
+                        <div className="absolute inset-0 flex items-center justify-center z-10 bg-black bg-opacity-20">
                           <div className="text-white text-sm flex items-center gap-2">
-                            {/* <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> */}
-                            {/* Loading... */}
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Loading...
                           </div>
                         </div>
                       )}
