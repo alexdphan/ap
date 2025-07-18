@@ -127,7 +127,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
       const video = document.createElement("video");
       video.src = videoUrl;
-      video.preload = "none"; // Safari mobile prefers no preload
+      video.preload = "metadata"; // Load metadata for smoother playback
       video.muted = true;
       video.playsInline = true;
 
@@ -149,15 +149,31 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     if (!isClient) return;
 
     const { prev, current, next } = getAdjacentIndices(currentIndex);
+    const isMobileDevice = window.innerWidth <= 768;
 
-    // Preload current, previous, and next videos
-    [prev, current, next].forEach((idx) => {
+    // For mobile, be more aggressive with current video
+    const currentItem = displayItems[current];
+    if (currentItem?.videoUrl && !preloadedVideos.has(currentItem.videoUrl)) {
+      const video = document.createElement("video");
+      video.src = currentItem.videoUrl;
+      video.preload = isMobileDevice ? "auto" : "metadata";
+      video.muted = true;
+      video.playsInline = true;
+      video.load(); // Force load immediately
+      
+      video.addEventListener("loadeddata", () => {
+        setPreloadedVideos(prev => new Set([...prev, currentItem.videoUrl!]));
+      });
+    }
+
+    // Preload adjacent videos
+    [prev, next].forEach((idx) => {
       const item = displayItems[idx];
       if (item?.videoUrl) {
         preloadVideo(item.videoUrl);
       }
     });
-  }, [currentIndex, isClient, displayItems, getAdjacentIndices, preloadVideo]);
+  }, [currentIndex, isClient, displayItems, getAdjacentIndices, preloadVideo, preloadedVideos]);
 
   // Initial preload on mount
   useEffect(() => {
@@ -1290,7 +1306,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       muted={isMuted}
                       loop
                       playsInline
-                      preload={index === extendedIndex ? "metadata" : "none"}
+                      preload="metadata"
                       className={`w-full h-full ${
                         isFullscreen ? "object-contain" : "object-cover"
                       }`}
