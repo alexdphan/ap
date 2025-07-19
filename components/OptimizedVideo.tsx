@@ -259,7 +259,7 @@ export default function OptimizedVideo({
         hlsRef.current = null;
       }
     };
-  }, [src, onCanPlay, onLoadStart, hasUserInteracted]);
+  }, [src, onCanPlay, onLoadStart, hasUserInteracted, autoPlay]);
 
   // Handle autoplay with user interaction requirement
   useEffect(() => {
