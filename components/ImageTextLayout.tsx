@@ -138,7 +138,6 @@ export default function ImageTextLayout({
                 loop
                 preload="metadata"
                 controls
-                priority="high"
               />
             </div>
           ) : (

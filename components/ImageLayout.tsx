@@ -73,7 +73,6 @@ export default function ImageLayout({
             loop
             preload="metadata"
             controls
-            priority="high"
           />
         </div>
         {caption && (
