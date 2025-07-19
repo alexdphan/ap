@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
 import { VideoOptimizations } from "../lib/video-config";
 
@@ -53,40 +53,23 @@ export default function OptimizedVideo({
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
-  const [shouldAutoPlay, setShouldAutoPlay] = useState(false);
   const [showLoading, setShowLoading] = useState(true);
   const retryCountRef = useRef(0);
   const maxRetries = 3;
 
-  // Handle user interaction for mobile autoplay
-  const handleUserInteraction = useCallback(() => {
-    if (!hasUserInteracted) {
-      setHasUserInteracted(true);
-      setShowLoading(false); // Hide loading on user interaction
-      if (autoPlay && videoRef.current) {
-        setShouldAutoPlay(true);
-      }
+  // Removed user interaction handler - using aggressive autoplay instead
+
+  // Auto-trigger user interaction on mobile for better autoplay
+  useEffect(() => {
+    if (isMobile() && autoPlay && !hasUserInteracted) {
+      // Automatically mark as interacted after a short delay to help with autoplay
+      const timer = setTimeout(() => {
+        setHasUserInteracted(true);
+      }, 500);
+
+      return () => clearTimeout(timer);
     }
   }, [autoPlay, hasUserInteracted]);
-
-  // Setup user interaction listeners for mobile
-  useEffect(() => {
-    if (isMobile()) {
-      const events = ["touchstart", "click", "scroll"];
-      events.forEach((event) => {
-        document.addEventListener(event, handleUserInteraction, {
-          once: true,
-          passive: true,
-        });
-      });
-
-      return () => {
-        events.forEach((event) => {
-          document.removeEventListener(event, handleUserInteraction);
-        });
-      };
-    }
-  }, [handleUserInteraction]);
 
   useEffect(() => {
     if (!videoRef.current || !src) return;
@@ -130,10 +113,18 @@ export default function OptimizedVideo({
       setShowLoading(false); // Hide loading when video is ready
       onCanPlay?.();
 
-      // Auto-play logic for mobile
-      if (autoPlay && mobile && hasUserInteracted && video.paused) {
+      // Aggressive auto-play for all devices
+      if (autoPlay && video.paused) {
         video.play().catch(() => {
-          // Silent fail for autoplay
+          // If autoplay fails, try again with user interaction flag
+          setHasUserInteracted(true);
+          setTimeout(() => {
+            if (video.paused) {
+              video.play().catch(() => {
+                // Final fallback - autoplay not supported
+              });
+            }
+          }, 100);
         });
       }
     };
@@ -214,12 +205,8 @@ export default function OptimizedVideo({
         const hls = new Hls(hlsConfig);
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          // Start loading manually on mobile after user interaction
-          if (mobile && !hasUserInteracted) {
-            // Wait for user interaction before starting load
-          } else {
-            hls.startLoad();
-          }
+          // Always start loading immediately for better performance
+          hls.startLoad();
         });
 
         hls.on(Hls.Events.ERROR, (event, data) => {
@@ -254,10 +241,7 @@ export default function OptimizedVideo({
         hls.attachMedia(video);
         hlsRef.current = hls;
 
-        // Start loading on mobile after user interaction
-        if (mobile && hasUserInteracted && !hlsConfig.autoStartLoad) {
-          hls.startLoad();
-        }
+        // HLS will auto-start loading from MANIFEST_PARSED event
       } else {
         console.error("HLS is not supported in this browser");
         setError("HLS not supported in this browser");
@@ -289,40 +273,38 @@ export default function OptimizedVideo({
     if (!videoRef.current || !isLoaded) return;
 
     const video = videoRef.current;
-    const mobile = isMobile();
 
-    // Aggressive autoplay handling
-    if (autoPlay || shouldAutoPlay) {
+    // Aggressive autoplay handling - try immediately without user interaction checks
+    if (autoPlay) {
       if (video.paused) {
+        // First attempt
         video.play().catch((error) => {
-          console.log("Autoplay failed:", error.message);
+          console.log("Autoplay attempt 1 failed:", error.message);
 
-          // If autoplay fails on mobile, hide loading after a brief delay
-          if (mobile && !hasUserInteracted) {
-            setTimeout(() => {
-              setShowLoading(false); // Hide loading if autoplay fails
+          // Second attempt with muted flag
+          video.muted = true;
+          setTimeout(() => {
+            video.play().catch((error) => {
+              console.log("Autoplay attempt 2 failed:", error.message);
+
+              // Third attempt after marking user interaction
               setHasUserInteracted(true);
-              // Try to play once more
-              if (videoRef.current && videoRef.current.paused) {
-                videoRef.current.play().catch(() => {
-                  // Final fallback - video needs manual interaction
+              setTimeout(() => {
+                video.play().catch((error) => {
+                  console.log("Final autoplay attempt failed:", error.message);
+                  setShowLoading(false); // Hide loading if all attempts fail
                 });
-              }
-            }, 1000); // Give it 1 second then hide loading
-          }
+              }, 200);
+            });
+          }, 100);
         });
       }
     } else if (!autoPlay && !video.paused) {
       video.pause();
     }
-  }, [autoPlay, shouldAutoPlay, isLoaded, hasUserInteracted]);
+  }, [autoPlay, isLoaded]);
 
-  // Start HLS loading after user interaction on mobile
-  useEffect(() => {
-    if (hasUserInteracted && hlsRef.current && isMobile()) {
-      hlsRef.current.startLoad();
-    }
-  }, [hasUserInteracted]);
+  // HLS loading is handled automatically in the main effect
 
   return (
     <div className="relative w-full h-full">
@@ -351,22 +333,11 @@ export default function OptimizedVideo({
 
       {/* Loading indicator */}
       {showLoading && (
-        <div
-          className="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer"
-          onClick={() => {
-            setHasUserInteracted(true);
-            setShowLoading(false);
-            if (videoRef.current) {
-              videoRef.current.play().catch(() => {
-                // Manual play failed
-              });
-            }
-          }}
-        >
-          <div className="flex items-center space-x-2 bg-black/60 text-white px-4 py-2 rounded">
-            {/* Simple spinning dot */}
-            <div className="w-3 h-3 bg-white/60 rounded-full animate-pulse"></div>
-            <span className="text-sm">Loading...</span>
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+          <div className="flex items-center space-x-2">
+            {/* Circular loading spinner */}
+            <div className="w-4 h-4 border border-white/30 border-t-white rounded-full animate-spin"></div>
+            <span className="text-white text-sm">Loading...</span>
           </div>
         </div>
       )}
