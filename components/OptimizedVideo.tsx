@@ -125,11 +125,13 @@ export default function OptimizedVideo({
         // Use hls.js for browsers without native HLS support (Chrome)
         const hls = new Hls({
           debug: false, // Turn off debug to reduce console noise
-          enableWorker: false,
+          enableWorker: false, // Disable worker for better mobile compatibility
           lowLatencyMode: false,
-          maxBufferLength: 30,
-          maxMaxBufferLength: 600,
-          backBufferLength: 90,
+          maxBufferLength: 10, // Reduce buffer for mobile
+          maxMaxBufferLength: 30, // Reduce max buffer for mobile
+          backBufferLength: 10, // Reduce back buffer for mobile
+          maxBufferSize: 60 * 1000 * 1000, // 60MB buffer limit
+          maxBufferHole: 0.5, // Smaller buffer hole tolerance
         });
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
