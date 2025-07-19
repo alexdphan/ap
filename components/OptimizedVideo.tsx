@@ -54,6 +54,7 @@ export default function OptimizedVideo({
   const [error, setError] = useState<string | null>(null);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [shouldAutoPlay, setShouldAutoPlay] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const retryCountRef = useRef(0);
   const maxRetries = 3;
 
@@ -103,6 +104,7 @@ export default function OptimizedVideo({
 
     setIsLoaded(false);
     setError(null);
+    setIsPlaying(false);
     retryCountRef.current = 0;
 
     // Mobile-specific video setup
@@ -127,6 +129,14 @@ export default function OptimizedVideo({
           // Silent fail for autoplay
         });
       }
+    };
+
+    const handlePlay = () => {
+      setIsPlaying(true);
+    };
+
+    const handlePause = () => {
+      setIsPlaying(false);
     };
 
     const handleLoadStart = () => {
@@ -184,6 +194,8 @@ export default function OptimizedVideo({
     video.addEventListener("loadstart", handleLoadStart);
     video.addEventListener("error", handleError);
     video.addEventListener("loadedmetadata", handleLoadedMetadata);
+    video.addEventListener("play", handlePlay);
+    video.addEventListener("pause", handlePause);
 
     if (isHLS) {
       // Native HLS support (Safari)
@@ -253,6 +265,8 @@ export default function OptimizedVideo({
       video.removeEventListener("loadstart", handleLoadStart);
       video.removeEventListener("error", handleError);
       video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      video.removeEventListener("play", handlePlay);
+      video.removeEventListener("pause", handlePause);
 
       if (hlsRef.current) {
         hlsRef.current.destroy();
@@ -261,24 +275,36 @@ export default function OptimizedVideo({
     };
   }, [src, onCanPlay, onLoadStart, hasUserInteracted, autoPlay]);
 
-  // Handle autoplay with user interaction requirement
+  // Handle autoplay with aggressive retry logic
   useEffect(() => {
     if (!videoRef.current || !isLoaded) return;
 
     const video = videoRef.current;
     const mobile = isMobile();
 
-    // Mobile autoplay handling
+    // Aggressive autoplay handling
     if (autoPlay || shouldAutoPlay) {
-      if (mobile && !hasUserInteracted) {
-        // Wait for user interaction on mobile
-        return;
-      }
-
       if (video.paused) {
         video.play().catch((error) => {
           console.log("Autoplay failed:", error.message);
-          // Don't set error state for autoplay failures
+
+          // If autoplay fails on mobile and we haven't tried user interaction yet
+          if (mobile && !hasUserInteracted) {
+            // Try to trigger user interaction automatically
+            const tryAutoInteraction = () => {
+              setHasUserInteracted(true);
+              setTimeout(() => {
+                if (videoRef.current && videoRef.current.paused) {
+                  videoRef.current.play().catch(() => {
+                    // Final fallback - video needs manual interaction
+                  });
+                }
+              }, 100);
+            };
+
+            // Attempt interaction after a short delay
+            setTimeout(tryAutoInteraction, 500);
+          }
         });
       }
     } else if (!autoPlay && !video.paused) {
@@ -318,11 +344,28 @@ export default function OptimizedVideo({
         Your browser does not support the video tag.
       </video>
 
-      {/* Mobile autoplay hint */}
-      {isMobile() && autoPlay && !hasUserInteracted && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-          <div className="bg-white/90 text-black px-4 py-2 rounded-lg text-sm font-medium">
-            Tap to play
+      {/* Loading indicator */}
+      {(!isLoaded ||
+        (autoPlay && !isPlaying && !hasUserInteracted && isMobile())) && (
+        <div
+          className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm cursor-pointer"
+          onClick={() => {
+            if (!hasUserInteracted) {
+              setHasUserInteracted(true);
+              if (videoRef.current && autoPlay) {
+                videoRef.current.play().catch(() => {
+                  // Manual play failed
+                });
+              }
+            }
+          }}
+        >
+          <div className="flex flex-col items-center space-y-3 pointer-events-none">
+            {/* Spinning loader */}
+            <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            <div className="bg-black/50 text-white px-3 py-1 rounded text-sm font-medium">
+              {!isLoaded ? "Loading video..." : "Starting playback..."}
+            </div>
           </div>
         </div>
       )}
