@@ -22,6 +22,11 @@ import { supabase, Comment, CommentInsert } from "../lib/supabase";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import OptimizedVideo from "./OptimizedVideo";
 import { VideoOptimizations } from "../lib/video-config";
+import {
+  isSafari,
+  safariOptimizer,
+  getSafariOptimalFormat,
+} from "../lib/safari-video-optimizations";
 
 interface CarouselItem {
   title: string;
@@ -98,17 +103,18 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   const displayItems = items.length > 0 ? items : defaultItems;
 
   // Create extended array for seamless infinite loop
-  const extendedItems = [
-    displayItems[displayItems.length - 1], // Clone of last item at beginning
-    ...displayItems,
-    displayItems[0], // Clone of first item at end
-  ];
+  const extendedItems = useMemo(
+    () => [
+      displayItems[displayItems.length - 1], // Clone of last item at beginning
+      ...displayItems,
+      displayItems[0], // Clone of first item at end
+    ],
+    [displayItems]
+  );
 
   // Adjust index for extended array (real index + 1 because of leading clone)
   const extendedIndex =
     manualExtendedIndex !== null ? manualExtendedIndex : currentIndex + 1;
-
-
 
   // Prevent hydration mismatch and detect mobile/Safari
   useEffect(() => {
@@ -716,6 +722,29 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     VideoOptimizations.preconnectToCDN();
   }, []);
 
+  // Safari-specific aggressive preloading for instant video switching
+  useEffect(() => {
+    const safari = isSafari();
+    if (safari && extendedItems.length > 0) {
+      // Aggressive preloading for current Safari video
+      const currentItem = extendedItems[extendedIndex];
+      if (currentItem?.videoUrl) {
+        safariOptimizer.preloadForSafari(
+          getSafariOptimalFormat(currentItem.videoUrl),
+          "high"
+        );
+      }
+
+      // Preload adjacent videos for instant switching
+      const videoUrls = extendedItems
+        .map((item) => item.videoUrl)
+        .filter((url): url is string => Boolean(url))
+        .map((url) => getSafariOptimalFormat(url));
+
+      safariOptimizer.predictivePreload(extendedIndex, videoUrls);
+    }
+  }, [extendedIndex, extendedItems]);
+
   // Simple autoplay for Safari compatibility
   useEffect(() => {
     if (!isClient) return;
@@ -1229,7 +1258,11 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                 {item.videoUrl ? (
                   <>
                     <OptimizedVideo
-                      src={item.videoUrl}
+                      src={
+                        isSafari()
+                          ? getSafariOptimalFormat(item.videoUrl)
+                          : item.videoUrl
+                      }
                       muted={isMuted}
                       loop
                       preload={
