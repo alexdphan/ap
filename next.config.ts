@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
       "pub-5018f734e2604654b16c6609e8c82280.r2.dev",
     ],
   },
-  // Optimize headers for video delivery
+  // Basic headers for video delivery
   async headers() {
     return [
       {
@@ -27,7 +27,7 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // Optimize R2 video delivery
+      // Basic thumbnail caching
       {
         source: "/thumbnails/:path*",
         headers: [
