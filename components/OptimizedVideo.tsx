@@ -11,7 +11,6 @@ interface OptimizedVideoProps {
   loop?: boolean;
   controls?: boolean;
   preload?: "none" | "metadata" | "auto";
-  priority?: "high" | "low";
   onCanPlay?: () => void;
   onLoadStart?: () => void;
   [key: string]: unknown;
@@ -26,7 +25,6 @@ export default function OptimizedVideo({
   loop = false,
   controls = false,
   preload = "metadata",
-  priority = "low",
   onCanPlay,
   onLoadStart,
   ...props
@@ -35,7 +33,6 @@ export default function OptimizedVideo({
   const hlsRef = useRef<Hls | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isVertical, setIsVertical] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (!videoRef.current || !src) return;
@@ -61,7 +58,7 @@ export default function OptimizedVideo({
       onLoadStart?.();
     };
 
-    const handleError = (e: any) => {
+    const handleError = (e: Event) => {
       console.error("Video error:", e);
       setError("Video failed to load");
     };
@@ -70,7 +67,7 @@ export default function OptimizedVideo({
       if (video.videoWidth && video.videoHeight) {
         const aspectRatio = video.videoWidth / video.videoHeight;
         const vertical = aspectRatio < 1;
-        setIsVertical(vertical);
+        // Removed unused isVertical state
 
         // Force all videos to use the same display format
         const objectFitValue = "cover"; // Fills container, may crop but stays centered
@@ -214,7 +211,8 @@ export default function OptimizedVideo({
         playsInline
         {...props}
         style={{
-          ...((props as any).style || {}),
+          ...((props as React.VideoHTMLAttributes<HTMLVideoElement>).style ||
+            {}),
           objectFit: "cover",
           objectPosition: "center",
           display: "block",

@@ -28,9 +28,3 @@ export { default as RetroCarousel } from "./RetroCarousel";
 export { default as ProjectList, ProjectItem } from "./ProjectList";
 export { default as DelayedLink } from "./DelayedLink";
 export { default as OptimizedVideo } from "./OptimizedVideo";
-export {
-  isSafari,
-  isIOSSafari,
-  safariOptimizer,
-  getSafariOptimalFormat,
-} from "../lib/safari-video-optimizations";

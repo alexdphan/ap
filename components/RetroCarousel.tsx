@@ -121,11 +121,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       setIsMobile(window.innerWidth < 640);
     };
 
-    // Simple Safari detection
-    const isSafariBrowser = /^((?!chrome|android).)*safari/i.test(
-      navigator.userAgent
-    );
-
     // Simple mobile detection for conservative loading
     if (window.innerWidth <= 768) {
       console.log("Mobile device detected - using conservative video loading");
@@ -1217,7 +1212,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       preload={
                         Math.abs(index - extendedIndex) <= 1 ? "auto" : "none"
                       }
-                      priority={index === extendedIndex ? "high" : "low"}
                       className="w-full h-full object-cover"
                       poster={item.thumbnailUrl}
                       autoPlay={index === extendedIndex && isPlaying}
