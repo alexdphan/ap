@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { ReactNode } from "react";
+import OptimizedVideo from "./OptimizedVideo";
 
 interface MediaProps {
   src: string;
@@ -64,18 +65,16 @@ export default function ImageLayout({
     return (
       <div className={`relative overflow-hidden my-8 group ${className}`}>
         <div className="relative w-full">
-          <video
+          <OptimizedVideo
             src={src}
             className="w-full h-auto object-cover video-hover-controls"
             autoPlay
             muted
             loop
-            playsInline
             preload="metadata"
             controls
-          >
-            Your browser does not support the video tag.
-          </video>
+            priority="high"
+          />
         </div>
         {caption && (
           <div className="mt-3 text-sm text-foreground/60 text-center italic">

@@ -20,6 +20,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { supabase, Comment, CommentInsert } from "../lib/supabase";
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import OptimizedVideo from "./OptimizedVideo";
+import { VideoOptimizations } from "../lib/video-config";
 
 interface CarouselItem {
   title: string;
@@ -106,18 +108,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   const extendedIndex =
     manualExtendedIndex !== null ? manualExtendedIndex : currentIndex + 1;
 
-  // Function to get adjacent video indices for preloading
-  const getAdjacentIndices = useCallback(
-    (currentIdx: number) => {
-      const total = displayItems.length;
-      const prev = (currentIdx - 1 + total) % total;
-      const next = (currentIdx + 1) % total;
-      return { prev, current: currentIdx, next };
-    },
-    [displayItems.length]
-  );
-
-
 
 
   // Prevent hydration mismatch and detect mobile/Safari
@@ -127,10 +117,10 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640);
     };
-    
+
     // Detect Safari for specific optimizations
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    
+
     // For Safari mobile, use more conservative loading
     if (isSafari && window.innerWidth <= 768) {
       console.log("Safari mobile detected - using conservative video loading");
@@ -720,6 +710,12 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     }
   };
 
+  // Initialize video optimizations
+  useEffect(() => {
+    VideoOptimizations.prefetchDomains();
+    VideoOptimizations.preconnectToCDN();
+  }, []);
+
   // Simple autoplay for Safari compatibility
   useEffect(() => {
     if (!isClient) return;
@@ -762,7 +758,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       if (currentVideo) {
         currentVideo.currentTime = 0;
         setCurrentTime(0); // Reset comment timing
-        
+
         // Auto-start video if playing state is true
         if (isPlaying && currentVideo.paused) {
           currentVideo.play().catch((error) => {
@@ -1232,12 +1228,14 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
               >
                 {item.videoUrl ? (
                   <>
-                    <video
+                    <OptimizedVideo
                       src={item.videoUrl}
                       muted={isMuted}
                       loop
-                      playsInline
-                      preload={Math.abs(index - extendedIndex) <= 1 ? "auto" : "none"}
+                      preload={
+                        Math.abs(index - extendedIndex) <= 1 ? "auto" : "none"
+                      }
+                      priority={index === extendedIndex ? "high" : "low"}
                       className={`w-full h-full ${
                         isFullscreen ? "object-contain" : "object-cover"
                       }`}
@@ -1254,7 +1252,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         }
                       }}
                     />
-
 
                     {/* Simple Play/Pause Overlay for Testing */}
                     {index === extendedIndex && (

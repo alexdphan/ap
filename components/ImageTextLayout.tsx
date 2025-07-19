@@ -10,6 +10,7 @@ import {
 import Image from "next/image";
 import { ReactNode } from "react";
 import { PARALLAX_STRENGTH } from "../lib/parallax-config";
+import OptimizedVideo from "./OptimizedVideo";
 
 interface ImageTextLayoutProps {
   src: string;
@@ -129,18 +130,16 @@ export default function ImageTextLayout({
         >
           {isVideo ? (
             <div className="relative w-full group">
-              <video
+              <OptimizedVideo
                 src={src}
                 className="w-full h-auto object-cover video-hover-controls"
                 autoPlay
                 muted
                 loop
-                playsInline
                 preload="metadata"
                 controls
-              >
-                Your browser does not support the video tag.
-              </video>
+                priority="high"
+              />
             </div>
           ) : (
             <div ref={containerRef}>
