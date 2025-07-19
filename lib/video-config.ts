@@ -44,7 +44,7 @@ export const VideoOptimizations = {
 
     const link = document.createElement("link");
     link.rel = "preconnect";
-    link.href = "https://pub-5018f734e2604654b16c6609e8c82280.r2.dev";
+    link.href = "https://customer-vs7mnf7pn9caalyg.cloudflarestream.com";
     document.head.appendChild(link);
   },
 

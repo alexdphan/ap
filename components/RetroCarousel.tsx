@@ -86,6 +86,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
   const [selectedDropdownIndex, setSelectedDropdownIndex] = useState(0);
   const videoSearchInputRef = useRef<HTMLInputElement>(null);
   const commentsScrollRef = useRef<HTMLDivElement>(null);
+  // Removed currentVideoAspectRatio state as we're using consistent aspect ratio
 
   // Placeholder items if none provided
   const defaultItems: CarouselItem[] = [
@@ -721,38 +722,18 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
 
   // Removed Safari-specific preloading for simplicity
 
-  // Simple autoplay for Safari compatibility
+  // Simplified video management - let OptimizedVideo handle its own playback
   useEffect(() => {
     if (!isClient) return;
 
-    const timeoutId = setTimeout(() => {
-      // First, pause all videos
-      const allVideos = document.querySelectorAll(
-        "[data-video-index] video"
-      ) as NodeListOf<HTMLVideoElement>;
-      allVideos.forEach((video) => {
-        video.pause();
-        video.muted = isMuted;
-      });
-
-      // Then play only the current video if it should be playing
-      const currentVideo = document.querySelector(
-        `[data-video-index="${extendedIndex}"] video`
-      ) as HTMLVideoElement;
-
-      if (currentVideo) {
-        currentVideo.muted = isMuted;
-        if (isPlaying) {
-          currentVideo.play().catch((error) => {
-            console.log("Autoplay failed:", error);
-            // Handle autoplay restrictions
-          });
-        }
-      }
-    }, 50);
-
-    return () => clearTimeout(timeoutId);
-  }, [currentIndex, isMuted, isPlaying, isClient, extendedIndex]);
+    // Only handle mute state, let OptimizedVideo handle play/pause
+    const allVideos = document.querySelectorAll(
+      "[data-video-index] video"
+    ) as NodeListOf<HTMLVideoElement>;
+    allVideos.forEach((video) => {
+      video.muted = isMuted;
+    });
+  }, [isMuted, isClient]);
 
   // Reset video time only when switching to a new video
   useEffect(() => {
@@ -763,16 +744,12 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
       if (currentVideo) {
         currentVideo.currentTime = 0;
         setCurrentTime(0); // Reset comment timing
-
-        // Auto-start video if playing state is true
-        if (isPlaying && currentVideo.paused) {
-          currentVideo.play().catch((error) => {
-            console.log("Failed to auto-start video:", error);
-          });
-        }
+        // Let OptimizedVideo handle autoplay to avoid conflicts
       }
     }
-  }, [currentIndex, isClient, extendedIndex, isPlaying]);
+
+    // Using consistent aspect ratio to prevent layout shifts
+  }, [currentIndex, isClient, extendedIndex]);
 
   // Track video progress
   useEffect(() => {
@@ -1192,8 +1169,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
         {/* Screen */}
         <div
           ref={carouselRef}
-          className={`relative overflow-hidden cursor-grab active:cursor-grabbing  ${
-            isFullscreen ? "flex-1" : "aspect-video"
+          className={`relative overflow-hidden cursor-grab active:cursor-grabbing ${
+            isFullscreen ? "flex-1" : "aspect-video" // Use consistent aspect ratio to prevent height shifts
           }`}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
@@ -1241,21 +1218,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                         Math.abs(index - extendedIndex) <= 1 ? "auto" : "none"
                       }
                       priority={index === extendedIndex ? "high" : "low"}
-                      className={`w-full h-full ${
-                        isFullscreen ? "object-contain" : "object-cover"
-                      }`}
+                      className="w-full h-full object-cover"
                       poster={item.thumbnailUrl}
-                      onCanPlay={() => {
-                        // Start playing immediately when video can play
-                        if (index === extendedIndex && isPlaying) {
-                          const video = document.querySelector(
-                            `[data-video-index="${extendedIndex}"] video`
-                          ) as HTMLVideoElement;
-                          if (video && video.paused) {
-                            video.play().catch(() => {});
-                          }
-                        }
-                      }}
+                      autoPlay={index === extendedIndex && isPlaying}
                     />
 
                     {/* Simple Play/Pause Overlay for Testing */}

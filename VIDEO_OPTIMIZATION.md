@@ -82,7 +82,7 @@ optimizeVideoElement: (video: HTMLVideoElement) => {
 import { OptimizedVideo } from "./components";
 
 <OptimizedVideo
-  src="https://pub-5018f734e2604654b16c6609e8c82280.r2.dev/video.mp4"
+  src="https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/VIDEO_ID/manifest/video.m3u8"
   poster="/thumbnail.jpg"
   autoPlay
   muted

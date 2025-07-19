@@ -132,7 +132,7 @@ export default function ImageTextLayout({
             <div className="relative w-full group">
               <OptimizedVideo
                 src={src}
-                className="w-full h-auto object-cover video-hover-controls"
+                className="w-full h-auto object-contain video-hover-controls"
                 autoPlay
                 muted
                 loop

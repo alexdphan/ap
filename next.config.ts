@@ -5,10 +5,19 @@ const nextConfig: NextConfig = {
   // Configure `pageExtensions` to include markdown and MDX files
   pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
   images: {
-    domains: [
-      "media.tenor.com",
-      "pub-abc07a46b5d24733ab6e6ce723154196.r2.dev",
-      "pub-5018f734e2604654b16c6609e8c82280.r2.dev",
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "media.tenor.com",
+      },
+      {
+        protocol: "https",
+        hostname: "customer-vs7mnf7pn9caalyg.cloudflarestream.com",
+      },
+      {
+        protocol: "https",
+        hostname: "videodelivery.net",
+      },
     ],
   },
   // Basic headers for video delivery

@@ -67,7 +67,7 @@ export default function ImageLayout({
         <div className="relative w-full">
           <OptimizedVideo
             src={src}
-            className="w-full h-auto object-cover video-hover-controls"
+            className="w-full h-auto object-contain video-hover-controls mx-auto"
             autoPlay
             muted
             loop
