@@ -80,9 +80,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     null
   );
   const nameInputRef = useRef<HTMLInputElement>(null);
-  const [preloadedVideos, setPreloadedVideos] = useState<Set<string>>(
-    new Set()
-  );
   const [selectedDropdownIndex, setSelectedDropdownIndex] = useState(0);
   const videoSearchInputRef = useRef<HTMLInputElement>(null);
   const commentsScrollRef = useRef<HTMLDivElement>(null);
@@ -120,74 +117,8 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
     [displayItems.length]
   );
 
-  // Simplified preloading for Safari compatibility
-  const preloadVideo = useCallback(
-    (videoUrl: string) => {
-      if (!videoUrl || preloadedVideos.has(videoUrl)) return;
 
-      const video = document.createElement("video");
-      video.src = videoUrl;
-      video.preload = "metadata"; // Load metadata for smoother playback
-      video.muted = true;
-      video.playsInline = true;
 
-      video.addEventListener(
-        "loadeddata",
-        () => {
-          setPreloadedVideos((prev) => new Set([...prev, videoUrl]));
-        },
-        { once: true }
-      );
-
-      video.load();
-    },
-    [preloadedVideos]
-  );
-
-  // Preload adjacent videos when current video changes
-  useEffect(() => {
-    if (!isClient) return;
-
-    const { prev, current, next } = getAdjacentIndices(currentIndex);
-    const isMobileDevice = window.innerWidth <= 768;
-
-    // For mobile, be more aggressive with current video
-    const currentItem = displayItems[current];
-    if (currentItem?.videoUrl && !preloadedVideos.has(currentItem.videoUrl)) {
-      const video = document.createElement("video");
-      video.src = currentItem.videoUrl;
-      video.preload = isMobileDevice ? "auto" : "metadata";
-      video.muted = true;
-      video.playsInline = true;
-      video.load(); // Force load immediately
-      
-      video.addEventListener("loadeddata", () => {
-        setPreloadedVideos(prev => new Set([...prev, currentItem.videoUrl!]));
-      });
-    }
-
-    // Preload adjacent videos
-    [prev, next].forEach((idx) => {
-      const item = displayItems[idx];
-      if (item?.videoUrl) {
-        preloadVideo(item.videoUrl);
-      }
-    });
-  }, [currentIndex, isClient, displayItems, getAdjacentIndices, preloadVideo, preloadedVideos]);
-
-  // Initial preload on mount
-  useEffect(() => {
-    if (!isClient || displayItems.length === 0) return;
-
-    // Preload first few videos immediately
-    const videosToPreload = Math.min(3, displayItems.length);
-    for (let i = 0; i < videosToPreload; i++) {
-      const item = displayItems[i];
-      if (item?.videoUrl) {
-        preloadVideo(item.videoUrl);
-      }
-    }
-  }, [isClient, displayItems, preloadVideo]);
 
   // Prevent hydration mismatch and detect mobile/Safari
   useEffect(() => {
@@ -1306,19 +1237,13 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       muted={isMuted}
                       loop
                       playsInline
-                      preload="metadata"
+                      preload={Math.abs(index - extendedIndex) <= 1 ? "auto" : "none"}
                       className={`w-full h-full ${
                         isFullscreen ? "object-contain" : "object-cover"
                       }`}
                       poster={item.thumbnailUrl}
-                      onLoadedData={() => {
-                        // Video data loaded, can play smoothly
-                        if (!preloadedVideos.has(item.videoUrl!)) {
-                          setPreloadedVideos(prev => new Set([...prev, item.videoUrl!]));
-                        }
-                      }}
                       onCanPlay={() => {
-                        // Safari: Force play when video can play
+                        // Start playing immediately when video can play
                         if (index === extendedIndex && isPlaying) {
                           const video = document.querySelector(
                             `[data-video-index="${extendedIndex}"] video`
@@ -1330,17 +1255,6 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                       }}
                     />
 
-                    {/* Loading indicator for videos that aren't preloaded */}
-                    {item.videoUrl &&
-                      !preloadedVideos.has(item.videoUrl) &&
-                      index === extendedIndex && (
-                        <div className="absolute inset-0 flex items-center justify-center z-10 bg-black bg-opacity-20">
-                          <div className="text-white text-sm flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            Loading...
-                          </div>
-                        </div>
-                      )}
 
                     {/* Simple Play/Pause Overlay for Testing */}
                     {index === extendedIndex && (
@@ -1587,6 +1501,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                             width={20}
                             height={20}
                             className="w-full h-full object-cover"
+                            loading="lazy"
+                            placeholder="blur"
+                            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                           />
                         ) : thumb.item.videoUrl ? (
                           <video
@@ -1594,7 +1511,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                             className="w-full h-full object-cover"
                             muted
                             playsInline
-                            preload="metadata"
+                            preload="none"
                             onLoadedMetadata={(e) => {
                               // Safari fix: Force seek to show first frame
                               const video = e.target as HTMLVideoElement;
@@ -1684,6 +1601,9 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                       width={20}
                                       height={20}
                                       className="w-full h-full object-cover"
+                                      loading="lazy"
+                                      placeholder="blur"
+                                      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                                     />
                                   ) : item.videoUrl ? (
                                     <video
@@ -1691,7 +1611,7 @@ export default function RetroCarousel({ items }: RetroCarouselProps) {
                                       className="w-full h-full object-cover"
                                       muted
                                       playsInline
-                                      preload="metadata"
+                                      preload="none"
                                       onLoadedMetadata={(e) => {
                                         // Safari fix: Force seek to show first frame
                                         const video =

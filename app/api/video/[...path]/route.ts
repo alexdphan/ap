@@ -14,6 +14,7 @@ export async function GET(
     const fetchHeaders: Record<string, string> = {
       'Accept-Encoding': 'gzip, deflate, br',
       'User-Agent': request.headers.get('user-agent') || '',
+      'Accept': 'video/webm,video/mp4,video/*;q=0.9,*/*;q=0.8',
     };
     
     // Forward range requests for video seeking
@@ -31,7 +32,7 @@ export async function GET(
 
     const response = await fetch(r2Url, {
       headers: fetchHeaders,
-      signal: AbortSignal.timeout(10000), // 10 second timeout
+      signal: AbortSignal.timeout(30000), // 30 second timeout for large videos
     });
 
     console.log(`[Video API] R2 Response status: ${response.status}`);
@@ -42,15 +43,18 @@ export async function GET(
     }
 
     const responseHeaders: Record<string, string> = {
-      'Content-Type': 'video/mp4',
+      'Content-Type': response.headers.get('content-type') || 'video/mp4',
       'Accept-Ranges': 'bytes',
-      'Cache-Control': 'public, max-age=31536000, immutable',
+      'Cache-Control': 'public, max-age=31536000, immutable, stale-while-revalidate=86400',
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
-      'Access-Control-Allow-Headers': 'Range',
+      'Access-Control-Allow-Headers': 'Range, Cache-Control',
       'Access-Control-Expose-Headers': 'Accept-Ranges, Content-Length, Content-Range, Content-Type',
       'X-Content-Type-Options': 'nosniff',
       'Connection': 'keep-alive',
+      'Vary': 'Accept-Encoding',
+      'X-Frame-Options': 'SAMEORIGIN',
+      'X-Accel-Buffering': 'no', // Disable proxy buffering for faster streaming
     };
 
     // Forward important headers from R2
