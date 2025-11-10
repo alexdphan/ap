@@ -14,8 +14,11 @@ interface MusicPlayerContextType {
   currentVideo: Video;
   videos: Video[];
   iframeRef: React.RefObject<HTMLIFrameElement | null>;
+  ignoreYouTubeEventsRef: React.RefObject<boolean>;
+  shouldOpenDropdown: boolean;
   setCurrentVideoIndex: (index: number) => void;
   setIsPlaying: (playing: boolean) => void;
+  setShouldOpenDropdown: (open: boolean) => void;
   handlePrevious: () => void;
   handleNext: () => void;
   togglePlay: () => void;
@@ -29,7 +32,9 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [shouldOpenDropdown, setShouldOpenDropdown] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const ignoreYouTubeEventsRef = useRef(false);
 
   const videos = [
     {
@@ -115,21 +120,43 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const handlePrevious = () => {
     setCurrentVideoIndex((prev) => (prev - 1 + videos.length) % videos.length);
     setIsPlaying(true); // Always autoplay when switching
+
+    // Ignore YouTube events during video loading to prevent animation flicker
+    ignoreYouTubeEventsRef.current = true;
+    setTimeout(() => {
+      ignoreYouTubeEventsRef.current = false;
+    }, 1000); // Longer timeout for video loading
   };
 
   const handleNext = () => {
     setCurrentVideoIndex((prev) => (prev + 1) % videos.length);
     setIsPlaying(true); // Always autoplay when switching
+
+    // Ignore YouTube events during video loading to prevent animation flicker
+    ignoreYouTubeEventsRef.current = true;
+    setTimeout(() => {
+      ignoreYouTubeEventsRef.current = false;
+    }, 1000); // Longer timeout for video loading
   };
 
   const togglePlay = () => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
+      // Optimistically update state immediately for responsive UI
+      const newState = !isPlaying;
+      setIsPlaying(newState);
+
+      // Temporarily ignore YouTube events to prevent conflicts
+      ignoreYouTubeEventsRef.current = true;
+      setTimeout(() => {
+        ignoreYouTubeEventsRef.current = false;
+      }, 300);
+
+      // Send command to YouTube player
       const command = isPlaying
         ? '{"event":"command","func":"pauseVideo","args":""}'
         : '{"event":"command","func":"playVideo","args":""}';
       iframeRef.current.contentWindow.postMessage(command, "*");
     }
-    setIsPlaying(!isPlaying);
   };
 
   return (
@@ -140,8 +167,11 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
         currentVideo,
         videos,
         iframeRef,
+        ignoreYouTubeEventsRef,
+        shouldOpenDropdown,
         setCurrentVideoIndex,
         setIsPlaying,
+        setShouldOpenDropdown,
         handlePrevious,
         handleNext,
         togglePlay,

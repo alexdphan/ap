@@ -18,6 +18,7 @@ export default function FloatingMusicPlayer() {
     handlePrevious,
     handleNext,
     togglePlay,
+    setShouldOpenDropdown,
   } = useMusicPlayer();
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -45,9 +46,8 @@ export default function FloatingMusicPlayer() {
     setIsHovered(true);
   };
 
-  const handleToggleGif = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleToggleGif = () => {
+    // console.log("Toggling GIF, current state:", showGif);
     setShowGif((prev) => !prev);
     // Reset tilt on click for easier interaction
     setMousePosition({ x: 0, y: 0 });
@@ -65,6 +65,8 @@ export default function FloatingMusicPlayer() {
           onMouseMove={handleMouseMove}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
+          onClick={handleToggleGif}
+          className="cursor-pointer"
         >
           <Float speed={0.6} amplitude={[3, 8, 8]} rotationRange={[3, 3, 2]}>
             <div
@@ -80,11 +82,7 @@ export default function FloatingMusicPlayer() {
                   : "transform 0.5s ease-out",
               }}
             >
-              <div
-                className="w-48 h-48 shadow-2xl relative overflow-hidden cursor-pointer bg-gray-100 select-none"
-                onClick={handleToggleGif}
-                onTouchEnd={handleToggleGif}
-              >
+              <div className="w-48 h-48 shadow-2xl relative overflow-hidden bg-gray-100">
                 {/* Toggle between YouTube thumbnail and simpson.gif */}
                 {showGif ? (
                   <img
@@ -117,10 +115,16 @@ export default function FloatingMusicPlayer() {
       >
         {/* Song Title */}
         <div className="text-center">
-          <p className="editorial-headline text-[11px] text-gray-900">
+          <p
+            className="editorial-headline text-[11px] text-gray-900 cursor-pointer hover:text-gray-600 transition-colors"
+            onClick={() => setShouldOpenDropdown(true)}
+          >
             {currentVideo.title}
           </p>
-          <p className="editorial-caption text-gray-600">
+          <p
+            className="editorial-caption text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
+            onClick={() => setShouldOpenDropdown(true)}
+          >
             {currentVideo.artist}
           </p>
         </div>

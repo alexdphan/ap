@@ -20,6 +20,9 @@ export default function MiniMusicPlayer() {
     togglePlay,
     setIsPlaying,
     setCurrentVideoIndex,
+    shouldOpenDropdown,
+    setShouldOpenDropdown,
+    ignoreYouTubeEventsRef,
   } = useMusicPlayer();
 
   const [showDropdown, setShowDropdown] = useState(false);
@@ -47,26 +50,24 @@ export default function MiniMusicPlayer() {
   // Update video when currentVideo changes, but don't reload iframe
   useEffect(() => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
-      // Load new video and autoplay if isPlaying is true
+      // Load new video
       const loadMessage = `{"event":"command","func":"loadVideoById","args":["${currentVideo.id}"]}`;
       iframeRef.current.contentWindow.postMessage(loadMessage, "*");
 
-      // If we should be playing, send play command after loading
-      if (isPlaying) {
-        setTimeout(() => {
-          if (iframeRef.current && iframeRef.current.contentWindow) {
-            const playMessage =
-              '{"event":"command","func":"playVideo","args":""}';
-            iframeRef.current.contentWindow.postMessage(playMessage, "*");
-          }
-        }, 500);
-      }
+      // Always send play command after loading new video
+      setTimeout(() => {
+        if (iframeRef.current && iframeRef.current.contentWindow) {
+          const playMessage =
+            '{"event":"command","func":"playVideo","args":""}';
+          iframeRef.current.contentWindow.postMessage(playMessage, "*");
+        }
+      }, 500);
 
       // Request player state updates
       const listenMessage = '{"event":"listening","id":1,"channel":"widget"}';
       iframeRef.current.contentWindow.postMessage(listenMessage, "*");
     }
-  }, [currentVideo.id, isPlaying]);
+  }, [currentVideo.id]);
 
   // Listen for YouTube player events to sync state
   useEffect(() => {
@@ -77,6 +78,11 @@ export default function MiniMusicPlayer() {
           if (data.info && typeof data.info.playerState !== "undefined") {
             const playerState = data.info.playerState;
             // YouTube player states: -1 = unstarted, 0 = ended, 1 = playing, 2 = paused, 3 = buffering, 5 = cued
+
+            // Skip updates if we're temporarily ignoring YouTube events (during manual toggle)
+            if (ignoreYouTubeEventsRef.current) {
+              return;
+            }
 
             if (playerState === 0) {
               // Video ended - auto-advance and autoplay
@@ -98,7 +104,7 @@ export default function MiniMusicPlayer() {
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [handleNext, setIsPlaying]);
+  }, [handleNext, setIsPlaying, ignoreYouTubeEventsRef]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -118,7 +124,15 @@ export default function MiniMusicPlayer() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showDropdown]);
+  }, [showDropdown, pathname]);
+
+  // Open dropdown when requested from FloatingMusicPlayer
+  useEffect(() => {
+    if (shouldOpenDropdown) {
+      setShowDropdown(true);
+      setShouldOpenDropdown(false); // Reset the trigger
+    }
+  }, [shouldOpenDropdown, setShouldOpenDropdown]);
 
   return (
     <>
@@ -136,9 +150,9 @@ export default function MiniMusicPlayer() {
         />
       </div>
 
-      {/* Show mini player on non-home pages */}
+      {/* Show mini player on non-home pages, or on home page when dropdown is open */}
       <AnimatePresence mode="wait">
-        {pathname !== "/" && (
+        {(pathname !== "/" || showDropdown) && (
           <motion.div
             key="mini-player"
             className="fixed top-0 left-0 right-0 md:left-auto md:right-8 md:top-8 z-50"
@@ -253,6 +267,12 @@ export default function MiniMusicPlayer() {
                           setCurrentVideoIndex(index);
                           setIsPlaying(true);
                           setShowDropdown(false);
+
+                          // Ignore YouTube events during video loading
+                          ignoreYouTubeEventsRef.current = true;
+                          setTimeout(() => {
+                            ignoreYouTubeEventsRef.current = false;
+                          }, 1000);
                         }}
                         className={`
                         flex items-center gap-3 p-3 md:p-4 cursor-pointer hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0

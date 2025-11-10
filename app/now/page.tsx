@@ -68,7 +68,7 @@ export default function NowPage() {
               className="cursor-pointer"
               onClick={(e) => handleVideoClick("nyc", e)}
             >
-              <div className="w-full h-[180px] md:h-[160px] relative overflow-hidden">
+              <div className="w-full h-[220px] md:h-[180px] relative overflow-hidden">
                 {/* Loading cover */}
                 <AnimatePresence>
                   {!isLoaded && (
@@ -257,7 +257,7 @@ export default function NowPage() {
                 </svg>
               </motion.div>
 
-              <div className="w-full h-[180px] md:h-[160px] relative overflow-hidden">
+              <div className="w-full h-[220px] md:h-[180px] relative overflow-hidden">
                 {/* Loading cover */}
                 <AnimatePresence>
                   {!isLoaded && (
