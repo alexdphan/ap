@@ -16,9 +16,11 @@ interface MusicPlayerContextType {
   iframeRef: React.RefObject<HTMLIFrameElement | null>;
   ignoreYouTubeEventsRef: React.RefObject<boolean>;
   shouldOpenDropdown: boolean;
+  hasInteracted: boolean;
   setCurrentVideoIndex: (index: number) => void;
   setIsPlaying: (playing: boolean) => void;
   setShouldOpenDropdown: (open: boolean) => void;
+  setHasInteracted: (interacted: boolean) => void;
   handlePrevious: () => void;
   handleNext: () => void;
   togglePlay: () => void;
@@ -33,6 +35,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [shouldOpenDropdown, setShouldOpenDropdown] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false); // Track if user has ever played music
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const ignoreYouTubeEventsRef = useRef(false);
 
@@ -118,6 +121,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const currentVideo = videos[currentVideoIndex];
 
   const handlePrevious = () => {
+    setHasInteracted(true); // Mark that user has interacted
     setCurrentVideoIndex((prev) => (prev - 1 + videos.length) % videos.length);
     setIsPlaying(true); // Always autoplay when switching
 
@@ -129,6 +133,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   };
 
   const handleNext = () => {
+    setHasInteracted(true); // Mark that user has interacted
     setCurrentVideoIndex((prev) => (prev + 1) % videos.length);
     setIsPlaying(true); // Always autoplay when switching
 
@@ -140,6 +145,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   };
 
   const togglePlay = () => {
+    setHasInteracted(true); // Mark that user has interacted
     if (iframeRef.current && iframeRef.current.contentWindow) {
       // Optimistically update state immediately for responsive UI
       const newState = !isPlaying;
@@ -169,9 +175,11 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
         iframeRef,
         ignoreYouTubeEventsRef,
         shouldOpenDropdown,
+        hasInteracted,
         setCurrentVideoIndex,
         setIsPlaying,
         setShouldOpenDropdown,
+        setHasInteracted,
         handlePrevious,
         handleNext,
         togglePlay,

@@ -51,7 +51,7 @@ export default function WorkPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="flex flex-col w-full pt-20 pb-20"
+        className="flex flex-col w-full pt-12 pb-20"
       >
         {/* Magazine Header */}
         <div className="mb-8">
@@ -111,7 +111,7 @@ export default function WorkPage() {
                           }}
                           className="text-gray-400 text-xs font-light tracking-wide"
                         >
-                         Waking up the bankers
+                          Waking up the bankers
                         </motion.div>
                       </motion.div>
                     )}

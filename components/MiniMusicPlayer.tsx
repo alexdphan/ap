@@ -23,6 +23,8 @@ export default function MiniMusicPlayer() {
     shouldOpenDropdown,
     setShouldOpenDropdown,
     ignoreYouTubeEventsRef,
+    hasInteracted,
+    setHasInteracted,
   } = useMusicPlayer();
 
   const [showDropdown, setShowDropdown] = useState(false);
@@ -54,20 +56,22 @@ export default function MiniMusicPlayer() {
       const loadMessage = `{"event":"command","func":"loadVideoById","args":["${currentVideo.id}"]}`;
       iframeRef.current.contentWindow.postMessage(loadMessage, "*");
 
-      // Always send play command after loading new video
-      setTimeout(() => {
-        if (iframeRef.current && iframeRef.current.contentWindow) {
-          const playMessage =
-            '{"event":"command","func":"playVideo","args":""}';
-          iframeRef.current.contentWindow.postMessage(playMessage, "*");
-        }
-      }, 500);
+      // Only autoplay if user has interacted and should be playing
+      if (hasInteracted && isPlaying) {
+        setTimeout(() => {
+          if (iframeRef.current && iframeRef.current.contentWindow) {
+            const playMessage =
+              '{"event":"command","func":"playVideo","args":""}';
+            iframeRef.current.contentWindow.postMessage(playMessage, "*");
+          }
+        }, 500);
+      }
 
       // Request player state updates
       const listenMessage = '{"event":"listening","id":1,"channel":"widget"}';
       iframeRef.current.contentWindow.postMessage(listenMessage, "*");
     }
-  }, [currentVideo.id]);
+  }, [currentVideo.id, hasInteracted, isPlaying]);
 
   // Listen for YouTube player events to sync state
   useEffect(() => {
@@ -150,9 +154,9 @@ export default function MiniMusicPlayer() {
         />
       </div>
 
-      {/* Show mini player on non-home pages, or on home page when dropdown is open */}
+      {/* Show mini player on non-home pages (only if user has interacted), or on home page when dropdown is open */}
       <AnimatePresence mode="wait">
-        {(pathname !== "/" || showDropdown) && (
+        {((pathname !== "/" && hasInteracted) || showDropdown) && (
           <motion.div
             key="mini-player"
             className="fixed top-0 left-0 right-0 md:left-auto md:right-8 md:top-8 z-50"
@@ -264,6 +268,7 @@ export default function MiniMusicPlayer() {
                       <div
                         key={video.id}
                         onClick={() => {
+                          setHasInteracted(true); // Mark that user has interacted
                           setCurrentVideoIndex(index);
                           setIsPlaying(true);
                           setShowDropdown(false);
