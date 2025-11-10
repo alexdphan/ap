@@ -30,8 +30,8 @@ export default function FloatingMusicPlayer() {
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    const rotateX = ((y - centerY) / centerY) * -10;
-    const rotateY = ((x - centerX) / centerX) * 10;
+    const rotateX = ((y - centerY) / centerY) * -5;
+    const rotateY = ((x - centerX) / centerX) * 5;
 
     setMousePosition({ x: rotateY, y: rotateX });
   };
@@ -43,6 +43,14 @@ export default function FloatingMusicPlayer() {
 
   const handleMouseEnter = () => {
     setIsHovered(true);
+  };
+
+  const handleToggleGif = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowGif((prev) => !prev);
+    // Reset tilt on click for easier interaction
+    setMousePosition({ x: 0, y: 0 });
   };
 
   return (
@@ -65,25 +73,17 @@ export default function FloatingMusicPlayer() {
                 transform: `perspective(1000px) rotateX(${
                   mousePosition.y
                 }deg) rotateY(${mousePosition.x}deg) scale(${
-                  isHovered ? 1.02 : 1
+                  isHovered ? 1.01 : 1
                 })`,
                 transition: isHovered
-                  ? "transform 0.1s ease-out"
+                  ? "transform 0.15s ease-out"
                   : "transform 0.5s ease-out",
               }}
             >
               <div
-                className="w-48 h-48 shadow-2xl relative overflow-hidden cursor-pointer bg-black"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowGif((prev) => !prev);
-                }}
-                onTouchEnd={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowGif((prev) => !prev);
-                }}
+                className="w-48 h-48 shadow-2xl relative overflow-hidden cursor-pointer bg-gray-100 select-none"
+                onClick={handleToggleGif}
+                onTouchEnd={handleToggleGif}
               >
                 {/* Toggle between YouTube thumbnail and simpson.gif */}
                 {showGif ? (
@@ -93,11 +93,16 @@ export default function FloatingMusicPlayer() {
                     className="w-full h-full object-cover pointer-events-none"
                   />
                 ) : (
-                  <img
-                    src={`https://img.youtube.com/vi/${currentVideo.id}/maxresdefault.jpg`}
-                    alt={currentVideo.title}
-                    className="w-full h-full object-cover pointer-events-none"
-                  />
+                  <div className="w-full h-full relative">
+                    <img
+                      src={`https://img.youtube.com/vi/${currentVideo.id}/hqdefault.jpg`}
+                      alt={currentVideo.title}
+                      className="w-full h-full object-cover pointer-events-none scale-110"
+                      onError={(e) => {
+                        e.currentTarget.src = `https://img.youtube.com/vi/${currentVideo.id}/mqdefault.jpg`;
+                      }}
+                    />
+                  </div>
                 )}
               </div>
             </div>
@@ -112,10 +117,12 @@ export default function FloatingMusicPlayer() {
       >
         {/* Song Title */}
         <div className="text-center">
-          <p className="text-[11px] font-semibold text-gray-900 tracking-wide">
+          <p className="editorial-headline text-[11px] text-gray-900">
             {currentVideo.title}
           </p>
-          <p className="text-[9px] text-gray-600">{currentVideo.artist}</p>
+          <p className="editorial-caption text-gray-600">
+            {currentVideo.artist}
+          </p>
         </div>
 
         {/* Music Controls */}

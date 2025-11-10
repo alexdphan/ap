@@ -15,8 +15,8 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="flex-shrink-0 text-[11px] tracking-[0.08em] text-gray-400 uppercase font-medium">
-      <nav className="space-y-6">
+    <aside className="flex-shrink-0 editorial-label text-sm md:text-base text-gray-400">
+      <nav className="space-y-7 md:space-y-9">
         {links.map((link) => {
           const isActive = pathname === link.href;
           return (
@@ -24,7 +24,7 @@ export default function Sidebar() {
               key={link.href}
               href={link.href}
               className={`block hover:text-gray-700 transition-all duration-300 ease-out relative ${
-                isActive ? "pl-3 text-gray-900 font-semibold" : ""
+                isActive ? "pl-4 md:pl-5 text-gray-900 editorial-headline" : ""
               }`}
             >
               <span

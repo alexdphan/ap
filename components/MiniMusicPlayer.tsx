@@ -1,23 +1,28 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useMusicPlayer } from "@/contexts/MusicPlayerContext";
 import { usePathname } from "next/navigation";
 
 export default function MiniMusicPlayer() {
   const pathname = usePathname();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const {
     currentVideo,
+    currentVideoIndex,
     isPlaying,
     iframeRef,
+    videos,
     handlePrevious,
     handleNext,
     togglePlay,
     setIsPlaying,
+    setCurrentVideoIndex,
   } = useMusicPlayer();
 
+  const [showDropdown, setShowDropdown] = useState(false);
   const bars = 5;
 
   const getRandomHeights = () => {
@@ -95,6 +100,26 @@ export default function MiniMusicPlayer() {
     return () => window.removeEventListener("message", handleMessage);
   }, [handleNext, setIsPlaying]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+
+    if (showDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showDropdown]);
+
   return (
     <>
       {/* Global iframe - always mounted in fixed position */}
@@ -106,17 +131,17 @@ export default function MiniMusicPlayer() {
           src={`https://www.youtube.com/embed/${currentVideo.id}?enablejsapi=1&autoplay=0&controls=0&modestbranding=1&rel=0&showinfo=0&mute=0&disablekb=1&widgetid=1`}
           title="Music Player"
           frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
           allowFullScreen
         />
       </div>
 
-      {/* Show mini player on non-bio pages when music is playing */}
+      {/* Show mini player on non-bio pages */}
       <AnimatePresence mode="wait">
-        {pathname !== "/bio" && isPlaying && (
+        {pathname !== "/bio" && (
           <motion.div
             key="mini-player"
-            className="fixed top-8 left-1/2 -translate-x-1/2 md:left-auto md:right-8 md:translate-x-0 z-50"
+            className="fixed top-0 left-0 right-0 md:left-auto md:right-8 md:top-8 z-50"
             initial={{ opacity: 0, x: 400 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 400 }}
@@ -126,81 +151,181 @@ export default function MiniMusicPlayer() {
               duration: 0.4,
             }}
           >
-            <div className="flex items-center gap-3 w-[340px] h-[68px] border border-gray-100 p-4 ">
-              {/* Video Thumbnail - Left */}
-              <div className="w-12 h-12 bg-black  overflow-hidden flex-shrink-0">
-                <img
-                  src={`https://img.youtube.com/vi/${currentVideo.id}/mqdefault.jpg`}
-                  alt={currentVideo.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              {/* Song Title - Middle */}
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-gray-900 truncate leading-tight">
-                  {currentVideo.title}
-                </p>
-              </div>
-
-              {/* Playback Controls - Right */}
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <button
-                  onClick={handlePrevious}
-                  className="text-gray-800 hover:text-gray-900 transition-colors"
+            <div ref={dropdownRef} className="relative">
+              <div className="flex items-center gap-3 w-full md:w-[400px] h-[68px] md:h-[72px] border-b border-gray-100 p-4 bg-white">
+                {/* Video Thumbnail - Left */}
+                <div
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="w-12 h-12 md:w-14 md:h-14 bg-black overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                 >
-                  <svg
-                    className="w-5 h-5"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
+                  <img
+                    src={`https://img.youtube.com/vi/${currentVideo.id}/mqdefault.jpg`}
+                    alt={currentVideo.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Song Title - Middle */}
+                <div className="flex-1 min-w-0">
+                  <p className="editorial-headline text-xs text-gray-900 truncate leading-tight">
+                    {currentVideo.title}
+                  </p>
+                </div>
+
+                {/* Playback Controls - Right */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    onClick={handlePrevious}
+                    className="text-gray-800 hover:text-gray-900 transition-colors"
                   >
-                    <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
-                  </svg>
-                </button>
+                    <svg
+                      className="w-5 h-5"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
+                    </svg>
+                  </button>
 
-                <motion.div
-                  onClick={togglePlay}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="cursor-pointer px-3 py-1.5 flex items-center justify-center rounded-lg "
-                >
                   <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex h-[14px] items-center gap-[2px]"
+                    onClick={togglePlay}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="cursor-pointer px-3 py-1.5 flex items-center justify-center"
                   >
-                    {/* Waveform visualization */}
-                    {heights.map((height, index) => (
-                      <motion.div
-                        key={index}
-                        className="bg-gray-900 w-[2px] rounded-full"
-                        initial={{ height: 2 }}
-                        animate={{
-                          height: Math.max(4, height * 14),
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="flex h-[14px] md:h-[16px] items-center gap-[2px]"
+                    >
+                      {/* Waveform visualization */}
+                      {heights.map((height, index) => (
+                        <motion.div
+                          key={index}
+                          className="bg-gray-900 w-[2px]"
+                          initial={{ height: 2 }}
+                          animate={{
+                            height: Math.max(4, height * 16),
+                          }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 10,
+                          }}
+                        />
+                      ))}
+                    </motion.div>
+                  </motion.div>
+
+                  <button
+                    onClick={handleNext}
+                    className="text-gray-800 hover:text-gray-900 transition-colors"
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Dropdown Song List */}
+              <AnimatePresence>
+                {showDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full w-full bg-white border-b border-gray-100 max-h-[340px] md:max-h-[360px] overflow-y-auto scrollbar-hide"
+                    style={{
+                      scrollbarWidth: "none",
+                      msOverflowStyle: "none",
+                    }}
+                  >
+                    {videos.map((video, index) => (
+                      <div
+                        key={video.id}
+                        onClick={() => {
+                          setCurrentVideoIndex(index);
+                          setIsPlaying(true);
+                          setShowDropdown(false);
                         }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 300,
-                          damping: 10,
-                        }}
-                      />
+                        className={`
+                        flex items-center gap-3 p-3 md:p-4 cursor-pointer hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0
+                        ${index === currentVideoIndex ? "bg-gray-50" : ""}
+                      `}
+                      >
+                        {/* Thumbnail */}
+                        <div className="w-10 h-10 md:w-11 md:h-11 bg-black overflow-hidden flex-shrink-0">
+                          <img
+                            src={`https://img.youtube.com/vi/${video.id}/mqdefault.jpg`}
+                            alt={video.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+
+                        {/* Song Info */}
+                        <div className="flex-1 min-w-0">
+                          <p className="editorial-headline text-xs text-gray-900 truncate">
+                            {video.title}
+                          </p>
+                          <p className="editorial-caption text-[10px] text-gray-500 truncate">
+                            {video.artist}
+                          </p>
+                        </div>
+
+                        {/* Playing indicator */}
+                        {index === currentVideoIndex && (
+                          <div className="flex items-center gap-[2px]">
+                            <motion.div
+                              className="w-[2px] h-2 bg-gray-900 rounded-full"
+                              animate={{
+                                height: isPlaying ? [8, 4, 8] : 4,
+                              }}
+                              transition={{
+                                duration: 0.8,
+                                repeat: Infinity,
+                                ease: "linear",
+                                repeatType: "reverse",
+                              }}
+                            />
+                            <motion.div
+                              className="w-[2px] h-2 bg-gray-900 rounded-full"
+                              animate={{
+                                height: isPlaying ? [4, 8, 4] : 4,
+                              }}
+                              transition={{
+                                duration: 0.8,
+                                repeat: Infinity,
+                                ease: "linear",
+                                repeatType: "reverse",
+                                delay: 0.27,
+                              }}
+                            />
+                            <motion.div
+                              className="w-[2px] h-2 bg-gray-900 rounded-full"
+                              animate={{
+                                height: isPlaying ? [8, 4, 8] : 4,
+                              }}
+                              transition={{
+                                duration: 0.8,
+                                repeat: Infinity,
+                                ease: "linear",
+                                repeatType: "reverse",
+                                delay: 0.53,
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </motion.div>
-                </motion.div>
-
-                <button
-                  onClick={handleNext}
-                  className="text-gray-800 hover:text-gray-900 transition-colors"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
-                  </svg>
-                </button>
-              </div>
+                )}
+              </AnimatePresence>
             </div>
           </motion.div>
         )}

@@ -1,13 +1,12 @@
 "use client";
 
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Playfair_Display, Lora } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import { MusicPlayerProvider } from "@/contexts/MusicPlayerContext";
 import MiniMusicPlayer from "@/components/MiniMusicPlayer";
 import MobileNav from "@/components/MobileNav";
-import { useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,54 +18,76 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const lora = Lora({
+  variable: "--font-lora",
+  subsets: ["latin"],
+  display: "swap",
+});
+
 function LayoutContent({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
   const pathname = usePathname();
-  const [startY, setStartY] = useState(0);
-
-  const pages = ["/bio", "/now", "/work", "/inspiration", "/investments"];
-
-  const currentIndex = pages.indexOf(pathname);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setStartY(e.touches[0].clientY);
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const endY = e.changedTouches[0].clientY;
-    const diffY = startY - endY;
-
-    // Lower swipe threshold for easier navigation
-    if (Math.abs(diffY) > 30) {
-      if (diffY > 0 && currentIndex < pages.length - 1) {
-        // Swipe up - next page
-        router.push(pages[currentIndex + 1]);
-      } else if (diffY < 0 && currentIndex > 0) {
-        // Swipe down - previous page
-        router.push(pages[currentIndex - 1]);
-      }
-    }
-  };
 
   return (
     <>
       {/* Desktop Layout */}
-      <div className="museum-grid-bg min-h-screen hidden md:flex items-center justify-center py-20 px-16">
-        <div className="flex items-center gap-16 w-[650px]">
-          <Sidebar />
-          {children}
+      <div
+        className={`museum-grid-bg hidden md:flex py-16 px-16 ${
+          pathname === "/bio" ||
+          pathname === "/inspiration" ||
+          pathname === "/investments"
+            ? "h-screen items-center justify-center overflow-hidden"
+            : "min-h-screen justify-center overflow-y-auto"
+        }`}
+      >
+        <div
+          className={`flex gap-16 w-full max-w-5xl ${
+            pathname === "/bio" ||
+            pathname === "/inspiration" ||
+            pathname === "/investments"
+              ? "items-center justify-center h-full"
+              : "justify-center items-start"
+          }`}
+        >
+          <div
+            className={
+              pathname === "/now" || pathname === "/work"
+                ? "sticky top-1/2 -translate-y-1/2 self-start"
+                : ""
+            }
+          >
+            <Sidebar />
+          </div>
+          <div
+            className={`w-full flex ${
+              pathname === "/bio" ||
+              pathname === "/inspiration" ||
+              pathname === "/investments"
+                ? "h-full items-center"
+                : "items-start"
+            }`}
+          >
+            {children}
+          </div>
         </div>
       </div>
 
-      {/* Mobile Layout - Full page swipeable */}
+      {/* Mobile Layout */}
       <div
-        className="museum-grid-bg min-h-screen md:hidden flex items-center justify-center py-20 px-8 touch-pan-y"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        className={`museum-grid-bg md:hidden flex justify-center px-8 ${
+          pathname === "/bio" ||
+          pathname === "/inspiration" ||
+          pathname === "/investments"
+            ? "h-screen items-center overflow-hidden"
+            : "min-h-screen overflow-y-auto"
+        }`}
       >
-        <div className="flex flex-col items-center gap-8 max-w-md w-full">
-          {children}
-        </div>
+        <div className="flex flex-col gap-8 max-w-md w-full">{children}</div>
       </div>
 
       <MobileNav />
@@ -83,7 +104,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${lora.variable} antialiased`}
       >
         <MusicPlayerProvider>
           <LayoutContent>{children}</LayoutContent>
