@@ -111,7 +111,7 @@ export default function WorkPage() {
                           }}
                           className="text-gray-400 text-xs font-light tracking-wide"
                         >
-                          Loading...
+                         Waking up the bankers
                         </motion.div>
                       </motion.div>
                     )}
@@ -222,7 +222,7 @@ export default function WorkPage() {
                           }}
                           className="text-gray-400 text-xs font-light tracking-wide"
                         >
-                          Loading...
+                          Chasing the headless browsers
                         </motion.div>
                       </motion.div>
                     )}

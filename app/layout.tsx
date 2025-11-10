@@ -37,50 +37,37 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     <>
       {/* Desktop Layout */}
       <div
-        className={`museum-grid-bg hidden md:flex py-16 px-16 ${
-          pathname === "/bio" ||
+        className={`museum-grid-bg hidden md:block py-16 px-16 ${
+          pathname === "/" ||
           pathname === "/inspiration" ||
           pathname === "/investments"
-            ? "h-screen items-center justify-center overflow-hidden"
-            : "min-h-screen justify-center overflow-y-auto"
+            ? "h-screen overflow-hidden"
+            : "min-h-screen overflow-y-auto"
         }`}
       >
+        {/* Fixed Sidebar */}
+        <div className="fixed left-16 top-1/2 -translate-y-1/2 z-40">
+          <Sidebar />
+        </div>
+
+        {/* Content Area - Centered */}
         <div
-          className={`flex gap-16 w-full max-w-5xl ${
-            pathname === "/bio" ||
+          className={`absolute left-1/2 -translate-x-1/2 w-full max-w-3xl ${
+            pathname === "/" ||
             pathname === "/inspiration" ||
             pathname === "/investments"
-              ? "items-center justify-center h-full"
-              : "justify-center items-start"
+              ? "top-1/2 -translate-y-1/2"
+              : "top-0"
           }`}
         >
-          <div
-            className={
-              pathname === "/now" || pathname === "/work"
-                ? "sticky top-1/2 -translate-y-1/2 self-start"
-                : ""
-            }
-          >
-            <Sidebar />
-          </div>
-          <div
-            className={`w-full flex ${
-              pathname === "/bio" ||
-              pathname === "/inspiration" ||
-              pathname === "/investments"
-                ? "h-full items-center"
-                : "items-start"
-            }`}
-          >
-            {children}
-          </div>
+          <div className="flex items-center justify-center">{children}</div>
         </div>
       </div>
 
       {/* Mobile Layout */}
       <div
         className={`museum-grid-bg md:hidden flex justify-center px-8 ${
-          pathname === "/bio" ||
+          pathname === "/" ||
           pathname === "/inspiration" ||
           pathname === "/investments"
             ? "h-screen items-center overflow-hidden"

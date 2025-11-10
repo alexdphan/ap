@@ -136,9 +136,9 @@ export default function MiniMusicPlayer() {
         />
       </div>
 
-      {/* Show mini player on non-bio pages */}
+      {/* Show mini player on non-home pages */}
       <AnimatePresence mode="wait">
-        {pathname !== "/bio" && (
+        {pathname !== "/" && (
           <motion.div
             key="mini-player"
             className="fixed top-0 left-0 right-0 md:left-auto md:right-8 md:top-8 z-50"

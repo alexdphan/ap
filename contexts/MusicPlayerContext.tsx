@@ -33,6 +33,11 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
 
   const videos = [
     {
+      id: "MxEjnYdfLXU",
+      title: "I Wonder",
+      artist: "Kanye West",
+    },
+    {
       id: "O0Cw1SLdxxE",
       title: "Flashing Lights",
       artist: "Kanye West",
