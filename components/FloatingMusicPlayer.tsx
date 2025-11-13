@@ -20,6 +20,22 @@ export default function FloatingMusicPlayer() {
     setShouldOpenDropdown,
   } = useMusicPlayer();
 
+  // Add visual feedback when controls are pressed
+  const handlePlayToggle = () => {
+    console.log('Play/Pause clicked');
+    togglePlay();
+  };
+
+  const handlePrev = () => {
+    console.log('Previous clicked');
+    handlePrevious();
+  };
+
+  const handleNxt = () => {
+    console.log('Next clicked');
+    handleNext();
+  };
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
 
@@ -127,9 +143,9 @@ export default function FloatingMusicPlayer() {
 
         {/* Music Controls */}
         <MusicControls
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-          onTogglePlay={togglePlay}
+          onPrevious={handlePrev}
+          onNext={handleNxt}
+          onTogglePlay={handlePlayToggle}
           isPlaying={isPlaying}
         />
       </motion.div>

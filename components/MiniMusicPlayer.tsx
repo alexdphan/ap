@@ -81,8 +81,8 @@ export default function MiniMusicPlayer() {
       <div className="fixed top-0 left-0 w-0 h-0 overflow-hidden pointer-events-none">
         <iframe
           ref={iframeRef}
-          key={currentTrack.spotifyTrackId}
-          src={`https://open.spotify.com/embed/track/${currentTrack.spotifyTrackId}?utm_source=generator&autoplay=${isPlaying ? 1 : 0}`}
+          key={`${currentTrack.spotifyTrackId}-${isPlaying}`}
+          src={`https://open.spotify.com/embed/track/${currentTrack.spotifyTrackId}?utm_source=generator&autoplay=${isPlaying ? '1' : '0'}`}
           width="100%"
           height="152"
           frameBorder="0"
@@ -133,7 +133,10 @@ export default function MiniMusicPlayer() {
                 {/* Playback Controls - Right */}
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
-                    onClick={handlePrevious}
+                    onClick={() => {
+                      console.log('Previous button clicked');
+                      handlePrevious();
+                    }}
                     className="text-gray-800 hover:text-gray-900 transition-colors"
                   >
                     <svg
@@ -146,7 +149,10 @@ export default function MiniMusicPlayer() {
                   </button>
 
                   <motion.div
-                    onClick={() => setIsPlaying(!isPlaying)}
+                    onClick={() => {
+                      console.log('Play/Pause clicked, current state:', isPlaying);
+                      setIsPlaying(!isPlaying);
+                    }}
                     whileTap={{ scale: 0.95 }}
                     transition={{ duration: 0.2 }}
                     className="cursor-pointer px-3 py-1.5 flex items-center justify-center"
@@ -176,7 +182,10 @@ export default function MiniMusicPlayer() {
                   </motion.div>
 
                   <button
-                    onClick={handleNext}
+                    onClick={() => {
+                      console.log('Next button clicked');
+                      handleNext();
+                    }}
                     className="text-gray-800 hover:text-gray-900 transition-colors"
                   >
                     <svg
