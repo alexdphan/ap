@@ -92,6 +92,7 @@ export default function MiniMusicPlayer() {
     const script = document.createElement("script");
     script.src = "https://open.spotify.com/embed/iframe-api/v1";
     script.async = true;
+    script.id = "spotify-iframe-api"; // Add ID for easier cleanup
     
     script.onload = () => {
       console.log("✅ Spotify iFrame API script loaded");
@@ -146,7 +147,16 @@ export default function MiniMusicPlayer() {
 
     return () => {
       if (embedControllerRef.current) {
-        embedControllerRef.current.destroy();
+        try {
+          embedControllerRef.current.destroy();
+        } catch (err) {
+          console.warn("Cleanup error:", err);
+        }
+      }
+      // Only remove script if it exists and is actually in the DOM
+      const existingScript = document.getElementById("spotify-iframe-api");
+      if (existingScript && existingScript.parentNode) {
+        existingScript.parentNode.removeChild(existingScript);
       }
     };
   }, [currentTrack.spotifyTrackId, tracks.length]); // Re-run when tracks are loaded
@@ -165,9 +175,17 @@ export default function MiniMusicPlayer() {
 
     if (isPlaying) {
       console.log("▶️ Playing");
-      embedControllerRef.current.play().catch((err: any) => {
-        console.warn("⚠️ Play failed (might need user interaction):", err);
-      });
+      try {
+        const result = embedControllerRef.current.play();
+        // Some versions of the API return a promise, others don't
+        if (result && typeof result.catch === 'function') {
+          result.catch((err: any) => {
+            console.warn("⚠️ Play failed (might need user interaction):", err);
+          });
+        }
+      } catch (err) {
+        console.warn("⚠️ Play error:", err);
+      }
     } else {
       console.log("⏸️ Pausing");
       embedControllerRef.current.pause();
