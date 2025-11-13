@@ -106,12 +106,28 @@ export default function MiniMusicPlayer() {
   useEffect(() => {
     if (!isSDKReady || typeof window === "undefined") return;
 
-    const token = process.env.NEXT_PUBLIC_SPOTIFY_ACCESS_TOKEN;
+    // For now, we'll need users to authenticate via OAuth
+    // This is a placeholder - you'll need to implement proper OAuth flow
+    const getToken = () => {
+      // Check if token is in environment (for testing)
+      if (process.env.NEXT_PUBLIC_SPOTIFY_ACCESS_TOKEN) {
+        return process.env.NEXT_PUBLIC_SPOTIFY_ACCESS_TOKEN;
+      }
+      
+      // Check localStorage (after OAuth flow)
+      return localStorage.getItem('spotify_access_token');
+    };
+
+    const token = getToken();
     
     if (!token) {
-      console.error("❌ Missing NEXT_PUBLIC_SPOTIFY_ACCESS_TOKEN");
+      console.error("❌ Missing Spotify access token. Please add NEXT_PUBLIC_SPOTIFY_ACCESS_TOKEN to .env.local or implement OAuth flow.");
+      console.log("📝 Get a token from: https://developer.spotify.com/console/get-users-profile/");
+      console.log("📝 Required scopes: streaming, user-read-email, user-read-private, user-modify-playback-state, user-read-playback-state");
       return;
     }
+
+    console.log("✅ Spotify token found, initializing player...");
 
     const player = new (window as any).Spotify.Player({
       name: 'Alex Phan Web Player',
@@ -173,9 +189,16 @@ export default function MiniMusicPlayer() {
 
     console.log(`🎵 Playing track: ${currentTrack.title}`);
     
-    // Use Spotify Web API to play track on this device
-    const token = process.env.NEXT_PUBLIC_SPOTIFY_ACCESS_TOKEN;
+    // Get token
+    const token = process.env.NEXT_PUBLIC_SPOTIFY_ACCESS_TOKEN || 
+                  (typeof window !== 'undefined' ? localStorage.getItem('spotify_access_token') : null);
     
+    if (!token) {
+      console.error("❌ No token available for playback");
+      return;
+    }
+    
+    // Use Spotify Web API to play track on this device
     fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
       method: 'PUT',
       body: JSON.stringify({
