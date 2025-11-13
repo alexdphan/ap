@@ -53,12 +53,17 @@ export async function getAuthUrl(): Promise<string> {
 export async function getTokenFromCode(code: string): Promise<string | null> {
   const codeVerifier = localStorage.getItem('code_verifier');
   
+  console.log("Getting token from code...");
+  console.log("Code verifier exists:", !!codeVerifier);
+  
   if (!codeVerifier) {
-    console.error('No code verifier found');
+    console.error('No code verifier found in localStorage');
     return null;
   }
 
   try {
+    console.log("Making request to Spotify token endpoint...");
+    
     const response = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
       headers: {
@@ -73,12 +78,18 @@ export async function getTokenFromCode(code: string): Promise<string | null> {
       }),
     });
 
+    console.log("Response status:", response.status);
+    
     const data = await response.json();
+    console.log("Response data:", data);
     
     if (data.access_token) {
+      console.log("✅ Access token received! Storing...");
       localStorage.setItem('spotify_token', data.access_token);
       localStorage.removeItem('code_verifier');
       return data.access_token;
+    } else {
+      console.error("❌ No access token in response:", data);
     }
     
     return null;
