@@ -174,6 +174,12 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       spotifyPlayer.addListener('ready', ({ device_id }: { device_id: string }) => {
         console.log('Ready with Device ID', device_id);
         setDeviceId(device_id);
+        
+        // Auto-load the first track when ready
+        setTimeout(() => {
+          console.log('Auto-loading first track...');
+          playTrackOnDevice(tracks[0].spotifyUri, device_id);
+        }, 1000);
       });
 
       // Not Ready
@@ -224,11 +230,13 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     setPlayer(null);
   };
 
-  const playTrack = async (uri: string) => {
-    if (!player || !deviceId || !token) return;
+  const playTrackOnDevice = async (uri: string, device: string) => {
+    if (!token) return;
 
     try {
-      await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+      console.log('Playing track:', uri, 'on device:', device);
+      
+      const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device}`, {
         method: 'PUT',
         body: JSON.stringify({ uris: [uri] }),
         headers: {
@@ -236,25 +244,40 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Error playing track:', response.status, error);
+      } else {
+        console.log('✅ Track playing successfully');
+      }
     } catch (error) {
       console.error('Error playing track:', error);
     }
+  };
+
+  const playTrack = async (uri: string) => {
+    if (!deviceId) {
+      console.error('No device ID available');
+      return;
+    }
+    await playTrackOnDevice(uri, deviceId);
   };
 
   const handlePrevious = () => {
     setHasInteracted(true);
     const newIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
     setCurrentTrackIndex(newIndex);
-    playTrack(tracks[newIndex].spotifyUri);
     setIsPlaying(true);
+    playTrack(tracks[newIndex].spotifyUri);
   };
 
   const handleNext = () => {
     setHasInteracted(true);
     const newIndex = (currentTrackIndex + 1) % tracks.length;
     setCurrentTrackIndex(newIndex);
-    playTrack(tracks[newIndex].spotifyUri);
     setIsPlaying(true);
+    playTrack(tracks[newIndex].spotifyUri);
   };
 
   const togglePlay = () => {
