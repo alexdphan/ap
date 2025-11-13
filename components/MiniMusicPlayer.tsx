@@ -81,6 +81,12 @@ export default function MiniMusicPlayer() {
 
   useEffect(() => {
     if (typeof window === "undefined" || hasLoadedAPIRef.current) return;
+    
+    // Don't initialize if tracks aren't loaded yet
+    if (!currentTrack.spotifyTrackId || tracks.length === 0) {
+      console.log("⏳ Waiting for tracks to load before initializing Spotify API...");
+      return;
+    }
 
     // Load the iFrame API script
     const script = document.createElement("script");
@@ -109,6 +115,8 @@ export default function MiniMusicPlayer() {
         width: "100%",
         height: "152",
       };
+
+      console.log("🎵 Creating controller with URI:", options.uri);
 
       IFrameAPI.createController(element, options, (EmbedController: any) => {
         embedControllerRef.current = EmbedController;
@@ -141,7 +149,7 @@ export default function MiniMusicPlayer() {
         embedControllerRef.current.destroy();
       }
     };
-  }, []); // Only run once on mount
+  }, [currentTrack.spotifyTrackId, tracks.length]); // Re-run when tracks are loaded
 
   // Handle track changes
   useEffect(() => {
