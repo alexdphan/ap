@@ -2,7 +2,7 @@
 
 import Float from "@/components/fancy/blocks/float";
 import { motion } from "framer-motion";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMusicPlayer } from "@/contexts/MusicPlayerContext";
 
 export default function FloatingMusicPlayer() {

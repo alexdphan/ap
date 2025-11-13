@@ -16,7 +16,7 @@ interface MusicPlayerContextType {
   isPlaying: boolean;
   currentTrack: Track;
   tracks: Track[];
-  player: Spotify.Player | null;
+  player: any | null;
   isAuthenticated: boolean;
   deviceId: string | null;
   hasInteracted: boolean;
@@ -41,7 +41,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [shouldOpenDropdown, setShouldOpenDropdown] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [player, setPlayer] = useState<Spotify.Player | null>(null);
+  const [player, setPlayer] = useState<any | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -143,7 +143,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     document.body.appendChild(script);
 
     window.onSpotifyWebPlaybackSDKReady = () => {
-      const spotifyPlayer = new window.Spotify.Player({
+      const spotifyPlayer = new (window as any).Spotify.Player({
         name: 'Alex Phan Music Player',
         getOAuthToken: (cb: (token: string) => void) => {
           cb(token);
@@ -182,7 +182,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       });
 
       // Player state changed
-      spotifyPlayer.addListener('player_state_changed', (state: Spotify.PlaybackState | null) => {
+      spotifyPlayer.addListener('player_state_changed', (state: any) => {
         if (!state) return;
 
         console.log('Player State Changed:', state);
