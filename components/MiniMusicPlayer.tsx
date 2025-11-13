@@ -75,12 +75,19 @@ export default function MiniMusicPlayer() {
     }
   }, [shouldOpenDropdown, setShouldOpenDropdown]);
 
-  // Audio player ref for HTML5 audio control
+  // Audio player ref for HTML5 audio control OR Spotify embed fallback
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const spotifyEmbedRef = useRef<HTMLIFrameElement | null>(null);
+  const [useSpotifyEmbed, setUseSpotifyEmbed] = useState(false);
 
-  // Initialize audio element
+  // Check if current track has preview URL
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    setUseSpotifyEmbed(!currentTrack.previewUrl && !!currentTrack.spotifyTrackId);
+  }, [currentTrack.previewUrl, currentTrack.spotifyTrackId]);
+
+  // Initialize audio element for tracks with preview URLs
+  useEffect(() => {
+    if (typeof window === "undefined" || useSpotifyEmbed) return;
 
     const audio = new Audio();
     audio.preload = "auto";
@@ -104,12 +111,12 @@ export default function MiniMusicPlayer() {
       audio.src = "";
       audio.remove();
     };
-  }, []);
+  }, [useSpotifyEmbed]);
 
-  // Handle track changes
+  // Handle track changes for audio preview
   useEffect(() => {
-    if (!audioRef.current || !currentTrack.previewUrl) {
-      if (!currentTrack.previewUrl) {
+    if (useSpotifyEmbed || !audioRef.current || !currentTrack.previewUrl) {
+      if (!useSpotifyEmbed && !currentTrack.previewUrl) {
         console.warn("⚠️ No preview URL available for:", currentTrack.title);
       }
       return;
@@ -126,11 +133,11 @@ export default function MiniMusicPlayer() {
         console.warn("⚠️ Auto-play failed:", err);
       });
     }
-  }, [currentTrack.previewUrl, currentTrack.title]);
+  }, [currentTrack.previewUrl, currentTrack.title, useSpotifyEmbed]);
 
-  // Handle play/pause changes
+  // Handle play/pause changes for audio preview
   useEffect(() => {
-    if (!audioRef.current) return;
+    if (useSpotifyEmbed || !audioRef.current) return;
 
     if (isPlaying) {
       console.log("▶️ Playing");
@@ -141,10 +148,26 @@ export default function MiniMusicPlayer() {
       console.log("⏸️ Pausing");
       audioRef.current.pause();
     }
-  }, [isPlaying]);
+  }, [isPlaying, useSpotifyEmbed]);
 
   return (
     <>
+      {/* Spotify Embed Player (fallback when no preview URL) */}
+      {useSpotifyEmbed && currentTrack.spotifyTrackId && (
+        <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-[380px] z-40">
+          <iframe
+            ref={spotifyEmbedRef}
+            src={`https://open.spotify.com/embed/track/${currentTrack.spotifyTrackId}?utm_source=generator`}
+            width="100%"
+            height="152"
+            frameBorder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+            className="rounded-xl shadow-2xl"
+          />
+        </div>
+      )}
+
       {/* Show mini player on non-home pages (only if user has interacted), or on home page when dropdown is open */}
       <AnimatePresence mode="wait">
         {((pathname !== "/" && hasInteracted) || showDropdown) && (
