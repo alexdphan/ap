@@ -18,20 +18,24 @@ export default function FloatingMusicPlayer() {
     handleNext,
     togglePlay,
     setShouldOpenDropdown,
+    setHasInteracted,
   } = useMusicPlayer();
 
   // Add visual feedback when controls are pressed
   const handlePlayToggle = () => {
+    setHasInteracted(true);
     console.log('Play/Pause clicked');
     togglePlay();
   };
 
   const handlePrev = () => {
+    setHasInteracted(true);
     console.log('Previous clicked');
     handlePrevious();
   };
 
   const handleNxt = () => {
+    setHasInteracted(true);
     console.log('Next clicked');
     handleNext();
   };

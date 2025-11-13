@@ -75,21 +75,104 @@ export default function MiniMusicPlayer() {
     }
   }, [shouldOpenDropdown, setShouldOpenDropdown]);
 
+  // Load Spotify iFrame API and set up controller
+  const embedControllerRef = useRef<any>(null);
+  const hasLoadedAPIRef = useRef(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || hasLoadedAPIRef.current) return;
+
+    // Load the iFrame API script
+    const script = document.createElement("script");
+    script.src = "https://open.spotify.com/embed/iframe-api/v1";
+    script.async = true;
+    
+    script.onload = () => {
+      console.log("✅ Spotify iFrame API script loaded");
+    };
+
+    document.body.appendChild(script);
+    hasLoadedAPIRef.current = true;
+
+    // Set up the callback for when the API is ready
+    (window as any).onSpotifyIframeApiReady = (IFrameAPI: any) => {
+      console.log("✅ Spotify iFrame API Ready");
+      
+      const element = iframeRef.current;
+      if (!element) {
+        console.error("❌ iframeRef element not found");
+        return;
+      }
+
+      const options = {
+        uri: `spotify:track:${currentTrack.spotifyTrackId}`,
+        width: "100%",
+        height: "152",
+      };
+
+      IFrameAPI.createController(element, options, (EmbedController: any) => {
+        embedControllerRef.current = EmbedController;
+        console.log("✅ Embed Controller Created");
+
+        // Listen to playback updates to sync state
+        EmbedController.addListener("playback_update", (e: any) => {
+          console.log("📊 Playback update:", e.data);
+          
+          // Sync play/pause state
+          if (e.data.isPaused !== undefined) {
+            setIsPlaying(!e.data.isPaused);
+          }
+
+          // Auto-advance to next track when current one ends
+          if (e.data.position >= e.data.duration - 1 && e.data.duration > 0) {
+            console.log("⏭️ Track ended, advancing to next");
+            handleNext();
+          }
+        });
+
+        EmbedController.addListener("ready", () => {
+          console.log("✅ Embed player ready");
+        });
+      });
+    };
+
+    return () => {
+      if (embedControllerRef.current) {
+        embedControllerRef.current.destroy();
+      }
+    };
+  }, []); // Only run once on mount
+
+  // Handle track changes
+  useEffect(() => {
+    if (embedControllerRef.current && currentTrack.spotifyTrackId) {
+      console.log(`🎵 Loading track: ${currentTrack.title}`);
+      embedControllerRef.current.loadUri(`spotify:track:${currentTrack.spotifyTrackId}`);
+    }
+  }, [currentTrack.spotifyTrackId, currentTrack.title]);
+
+  // Handle play/pause changes
+  useEffect(() => {
+    if (!embedControllerRef.current) return;
+
+    if (isPlaying) {
+      console.log("▶️ Playing");
+      embedControllerRef.current.play().catch((err: any) => {
+        console.warn("⚠️ Play failed (might need user interaction):", err);
+      });
+    } else {
+      console.log("⏸️ Pausing");
+      embedControllerRef.current.pause();
+    }
+  }, [isPlaying]);
+
   return (
     <>
-      {/* Hidden Spotify Embed Player */}
-      <div className="fixed top-0 left-0 w-0 h-0 overflow-hidden pointer-events-none">
-        <iframe
-          ref={iframeRef}
-          key={`${currentTrack.spotifyTrackId}-${isPlaying}`}
-          src={`https://open.spotify.com/embed/track/${currentTrack.spotifyTrackId}?utm_source=generator&autoplay=${isPlaying ? '1' : '0'}`}
-          width="100%"
-          height="152"
-          frameBorder="0"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-        />
-      </div>
+      {/* Hidden Spotify Embed Player - controlled by iFrame API */}
+      <div 
+        ref={iframeRef} 
+        className="fixed top-0 left-0 w-0 h-0 overflow-hidden pointer-events-none"
+      />
 
       {/* Show mini player on non-home pages (only if user has interacted), or on home page when dropdown is open */}
       <AnimatePresence mode="wait">
@@ -134,6 +217,7 @@ export default function MiniMusicPlayer() {
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
                     onClick={() => {
+                      setHasInteracted(true);
                       console.log('Previous button clicked');
                       handlePrevious();
                     }}
@@ -150,6 +234,7 @@ export default function MiniMusicPlayer() {
 
                   <motion.div
                     onClick={() => {
+                      setHasInteracted(true);
                       console.log('Play/Pause clicked, current state:', isPlaying);
                       setIsPlaying(!isPlaying);
                     }}
@@ -183,6 +268,7 @@ export default function MiniMusicPlayer() {
 
                   <button
                     onClick={() => {
+                      setHasInteracted(true);
                       console.log('Next button clicked');
                       handleNext();
                     }}
