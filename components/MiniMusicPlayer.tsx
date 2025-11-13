@@ -14,18 +14,15 @@ export default function MiniMusicPlayer() {
     currentTrackIndex,
     isPlaying,
     tracks,
-    player,
+    iframeRef,
     handlePrevious,
     handleNext,
-    togglePlay,
-    setIsPlaying,
     setCurrentTrackIndex,
     shouldOpenDropdown,
     setShouldOpenDropdown,
     hasInteracted,
     setHasInteracted,
-    isAuthenticated,
-    deviceId,
+    setIsPlaying,
   } = useMusicPlayer();
 
   const [showDropdown, setShowDropdown] = useState(false);
@@ -74,17 +71,26 @@ export default function MiniMusicPlayer() {
   useEffect(() => {
     if (shouldOpenDropdown) {
       setShowDropdown(true);
-      setShouldOpenDropdown(false); // Reset the trigger
+      setShouldOpenDropdown(false);
     }
   }, [shouldOpenDropdown, setShouldOpenDropdown]);
 
-  // Only show if not on homepage or if dropdown is open
-  if (!isAuthenticated || !deviceId) {
-    return null;
-  }
-
   return (
     <>
+      {/* Hidden Spotify Embed Player */}
+      <div className="fixed top-0 left-0 w-0 h-0 overflow-hidden pointer-events-none">
+        <iframe
+          ref={iframeRef}
+          key={currentTrack.spotifyTrackId}
+          src={`https://open.spotify.com/embed/track/${currentTrack.spotifyTrackId}?utm_source=generator&autoplay=${isPlaying ? 1 : 0}`}
+          width="100%"
+          height="152"
+          frameBorder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+        />
+      </div>
+
       {/* Show mini player on non-home pages (only if user has interacted), or on home page when dropdown is open */}
       <AnimatePresence mode="wait">
         {((pathname !== "/" && hasInteracted) || showDropdown) && (
@@ -140,7 +146,7 @@ export default function MiniMusicPlayer() {
                   </button>
 
                   <motion.div
-                    onClick={togglePlay}
+                    onClick={() => setIsPlaying(!isPlaying)}
                     whileTap={{ scale: 0.95 }}
                     transition={{ duration: 0.2 }}
                     className="cursor-pointer px-3 py-1.5 flex items-center justify-center"
@@ -201,28 +207,11 @@ export default function MiniMusicPlayer() {
                     {tracks.map((track, index) => (
                       <div
                         key={track.id}
-                        onClick={async () => {
+                        onClick={() => {
                           setHasInteracted(true);
                           setCurrentTrackIndex(index);
                           setIsPlaying(true);
                           setShowDropdown(false);
-
-                          // Play the track via Spotify API
-                          if (player && deviceId) {
-                            try {
-                              const token = localStorage.getItem('spotify_token');
-                              await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-                                method: 'PUT',
-                                body: JSON.stringify({ uris: [track.spotifyUri] }),
-                                headers: {
-                                  'Content-Type': 'application/json',
-                                  Authorization: `Bearer ${token}`,
-                                },
-                              });
-                            } catch (error) {
-                              console.error('Error playing track:', error);
-                            }
-                          }
                         }}
                         className={`
                         flex items-center gap-3 p-3 md:p-4 cursor-pointer hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0

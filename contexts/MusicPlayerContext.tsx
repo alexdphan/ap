@@ -1,13 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useRef, ReactNode, useEffect } from "react";
-import { getAuthUrl, getStoredToken, clearToken } from "@/lib/spotify";
+import { createContext, useContext, useState, useRef, ReactNode } from "react";
 
 interface Track {
   id: string;
   title: string;
   artist: string;
-  spotifyUri: string;
+  spotifyTrackId: string;
   imageUrl: string;
 }
 
@@ -16,13 +15,9 @@ interface MusicPlayerContextType {
   isPlaying: boolean;
   currentTrack: Track;
   tracks: Track[];
-  player: any | null;
-  isAuthenticated: boolean;
-  deviceId: string | null;
+  iframeRef: React.RefObject<HTMLIFrameElement | null>;
   hasInteracted: boolean;
   shouldOpenDropdown: boolean;
-  login: () => Promise<string>;
-  logout: () => void;
   setCurrentTrackIndex: (index: number) => void;
   setIsPlaying: (playing: boolean) => void;
   setShouldOpenDropdown: (open: boolean) => void;
@@ -41,262 +36,99 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [shouldOpenDropdown, setShouldOpenDropdown] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [player, setPlayer] = useState<any | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [deviceId, setDeviceId] = useState<string | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Updated track list with Spotify URIs
+  // Track list with Spotify track IDs for embeds
   const tracks: Track[] = [
     {
       id: "1",
       title: "I Wonder",
       artist: "Kanye West",
-      spotifyUri: "spotify:track:3YRCqOhFifThpSRFJ1VWFM",
+      spotifyTrackId: "3YRCqOhFifThpSRFJ1VWFM",
       imageUrl: "https://i.scdn.co/image/ab67616d0000b2738b82ad699e06fce5d8fa06ef",
     },
     {
       id: "2",
       title: "Flashing Lights",
       artist: "Kanye West",
-      spotifyUri: "spotify:track:6tDqIE0hK8WpjZAIK5Jjsb",
+      spotifyTrackId: "6tDqIE0hK8WpjZAIK5Jjsb",
       imageUrl: "https://i.scdn.co/image/ab67616d0000b2738b82ad699e06fce5d8fa06ef",
     },
     {
       id: "3",
       title: "I Like It",
       artist: "DeBarge",
-      spotifyUri: "spotify:track:6FcYWXWTmMFB9BTr9vE7Rz",
+      spotifyTrackId: "6FcYWXWTmMFB9BTr9vE7Rz",
       imageUrl: "https://i.scdn.co/image/ab67616d0000b273f3ed8f5b22d0f8d8e1c3e0e5",
     },
     {
       id: "4",
       title: "Out of Time",
       artist: "The Weeknd",
-      spotifyUri: "spotify:track:2LBqCSwhJGcFQeTHMVGwy3",
+      spotifyTrackId: "2LBqCSwhJGcFQeTHMVGwy3",
       imageUrl: "https://i.scdn.co/image/ab67616d0000b2734ab2520c2c77a1d66b9ee21d",
     },
     {
       id: "5",
       title: "Leave the Door Open",
       artist: "Bruno Mars, Anderson .Paak, Silk Sonic",
-      spotifyUri: "spotify:track:7MAibcTli4IisCtbHKrGMh",
+      spotifyTrackId: "7MAibcTli4IisCtbHKrGMh",
       imageUrl: "https://i.scdn.co/image/ab67616d0000b273e9a375a0e5f2a5b3d0c4e7e3",
     },
     {
       id: "6",
       title: "Passionfruit",
       artist: "Drake",
-      spotifyUri: "spotify:track:5mCPDVBb16L4XQwDdbRUpz",
+      spotifyTrackId: "5mCPDVBb16L4XQwDdbRUpz",
       imageUrl: "https://i.scdn.co/image/ab67616d0000b273f907de96b9a4fbc04accc0d5",
     },
     {
       id: "7",
       title: "Pink + White",
       artist: "Frank Ocean",
-      spotifyUri: "spotify:track:4bRFHhanVfXKIF4GKLmqRt",
+      spotifyTrackId: "4bRFHhanVfXKIF4GKLmqRt",
       imageUrl: "https://i.scdn.co/image/ab67616d0000b2737e7e8bc0e3d76c6e5e2f0e3e",
     },
     {
       id: "8",
       title: "Sure Thing",
       artist: "Miguel",
-      spotifyUri: "spotify:track:5lB5LAVjqByZJELJKdR7LE",
+      spotifyTrackId: "5lB5LAVjqByZJELJKdR7LE",
       imageUrl: "https://i.scdn.co/image/ab67616d0000b2736e8e8bc0e3d76c6e5e2f0e3e",
     },
     {
       id: "9",
       title: "Latch",
       artist: "Disclosure",
-      spotifyUri: "spotify:track:3XVozq1aeqsJwpXrEZrDJ9",
+      spotifyTrackId: "3XVozq1aeqsJwpXrEZrDJ9",
       imageUrl: "https://i.scdn.co/image/ab67616d0000b2736e8e8bc0e3d76c6e5e2f0e3e",
     },
     {
       id: "10",
       title: "Versace on the Floor",
       artist: "Bruno Mars",
-      spotifyUri: "spotify:track:5p7ujcrUXASCNwRaWNHR1C",
+      spotifyTrackId: "5p7ujcrUXASCNwRaWNHR1C",
       imageUrl: "https://i.scdn.co/image/ab67616d0000b2734c6d69c3cec9eb6c7f5e5e3e",
     },
   ];
 
   const currentTrack = tracks[currentTrackIndex];
 
-  // Check for token on mount
-  useEffect(() => {
-    const storedToken = getStoredToken();
-
-    if (storedToken) {
-      setToken(storedToken);
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  // Initialize Spotify Web Playback SDK
-  useEffect(() => {
-    if (!token) return;
-
-    // Load Spotify SDK
-    const script = document.createElement('script');
-    script.src = 'https://sdk.scdn.co/spotify-player.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      const spotifyPlayer = new (window as any).Spotify.Player({
-        name: 'Alex Phan Music Player',
-        getOAuthToken: (cb: (token: string) => void) => {
-          cb(token);
-        },
-        volume: 0.8,
-      });
-
-      // Error handling
-      spotifyPlayer.addListener('initialization_error', ({ message }: { message: string }) => {
-        console.error('Initialization Error:', message);
-      });
-
-      spotifyPlayer.addListener('authentication_error', ({ message }: { message: string }) => {
-        console.error('Authentication Error:', message);
-        clearToken();
-        setIsAuthenticated(false);
-      });
-
-      spotifyPlayer.addListener('account_error', ({ message }: { message: string }) => {
-        console.error('Account Error:', message);
-      });
-
-      spotifyPlayer.addListener('playback_error', ({ message }: { message: string }) => {
-        console.error('Playback Error:', message);
-      });
-
-      // Ready
-      spotifyPlayer.addListener('ready', ({ device_id }: { device_id: string }) => {
-        console.log('Ready with Device ID', device_id);
-        setDeviceId(device_id);
-        
-        // Auto-load the first track when ready
-        setTimeout(() => {
-          console.log('Auto-loading first track...');
-          playTrackOnDevice(tracks[0].spotifyUri, device_id);
-        }, 1000);
-      });
-
-      // Not Ready
-      spotifyPlayer.addListener('not_ready', ({ device_id }: { device_id: string }) => {
-        console.log('Device ID has gone offline', device_id);
-      });
-
-      // Player state changed
-      spotifyPlayer.addListener('player_state_changed', (state: any) => {
-        if (!state) return;
-
-        console.log('Player State Changed:', state);
-        
-        setIsPlaying(!state.paused);
-
-        // Check if track ended (position is at the end and paused)
-        if (state.paused && state.position === 0 && state.duration > 0) {
-          console.log('Track ended, playing next!');
-          handleNext();
-        }
-      });
-
-      // Connect to the player
-      spotifyPlayer.connect();
-
-      setPlayer(spotifyPlayer);
-    };
-
-    return () => {
-      if (player) {
-        player.disconnect();
-      }
-    };
-  }, [token]);
-
-  const login = async () => {
-    const url = await getAuthUrl();
-    return url;
-  };
-
-  const logout = () => {
-    if (player) {
-      player.disconnect();
-    }
-    clearToken();
-    setIsAuthenticated(false);
-    setToken(null);
-    setPlayer(null);
-  };
-
-  const playTrackOnDevice = async (uri: string, device: string) => {
-    if (!token) return;
-
-    try {
-      console.log('Playing track:', uri, 'on device:', device);
-      
-      const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device}`, {
-        method: 'PUT',
-        body: JSON.stringify({ uris: [uri] }),
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        console.error('Error playing track:', response.status, error);
-      } else {
-        console.log('✅ Track playing successfully');
-      }
-    } catch (error) {
-      console.error('Error playing track:', error);
-    }
-  };
-
-  const playTrack = async (uri: string) => {
-    if (!deviceId) {
-      console.error('No device ID available');
-      return;
-    }
-    await playTrackOnDevice(uri, deviceId);
-  };
-
   const handlePrevious = () => {
-    console.log('handlePrevious called');
     setHasInteracted(true);
-    const newIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
-    console.log('Previous track index:', newIndex, tracks[newIndex].title);
-    setCurrentTrackIndex(newIndex);
-    setIsPlaying(true);
-    playTrack(tracks[newIndex].spotifyUri);
+    setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length);
+    setIsPlaying(true); // Auto-play next track
   };
 
   const handleNext = () => {
-    console.log('handleNext called');
     setHasInteracted(true);
-    const newIndex = (currentTrackIndex + 1) % tracks.length;
-    console.log('Next track index:', newIndex, tracks[newIndex].title);
-    setCurrentTrackIndex(newIndex);
-    setIsPlaying(true);
-    playTrack(tracks[newIndex].spotifyUri);
+    setCurrentTrackIndex((prev) => (prev + 1) % tracks.length);
+    setIsPlaying(true); // Auto-play next track
   };
 
   const togglePlay = () => {
-    console.log('togglePlay called, player exists:', !!player);
     setHasInteracted(true);
-    if (!player) {
-      console.error('No player available');
-      return;
-    }
-
-    player.togglePlay().then(() => {
-      console.log('Toggled playback');
-    }).catch((err: any) => {
-      console.error('Error toggling playback:', err);
-    });
+    setIsPlaying((prev) => !prev);
   };
 
   return (
@@ -306,13 +138,9 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
         isPlaying,
         currentTrack,
         tracks,
-        player,
-        isAuthenticated,
-        deviceId,
+        iframeRef,
         hasInteracted,
         shouldOpenDropdown,
-        login,
-        logout,
         setCurrentTrackIndex,
         setIsPlaying,
         setShouldOpenDropdown,

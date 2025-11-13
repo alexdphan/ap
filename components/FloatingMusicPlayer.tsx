@@ -14,12 +14,10 @@ export default function FloatingMusicPlayer() {
   const {
     currentTrack,
     isPlaying,
-    isAuthenticated,
     handlePrevious,
     handleNext,
     togglePlay,
     setShouldOpenDropdown,
-    login,
   } = useMusicPlayer();
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -51,31 +49,6 @@ export default function FloatingMusicPlayer() {
     setShowGif((prev) => !prev);
     setMousePosition({ x: 0, y: 0 });
   };
-
-  // Show login button if not authenticated
-  if (!isAuthenticated) {
-    return (
-      <div className="flex flex-col items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, delay: 0.5, ease: "easeOut" }}
-        >
-          <button
-            onClick={async () => {
-              const url = await login();
-              if (url) {
-                window.location.href = url;
-              }
-            }}
-            className="px-6 py-3 bg-[#1DB954] text-white rounded-full editorial-headline text-sm hover:bg-[#1ed760] transition-colors"
-          >
-            Connect to Spotify
-          </button>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col items-center justify-center">
