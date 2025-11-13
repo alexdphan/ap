@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useRef, ReactNode } from "react";
+import { createContext, useContext, useState, useRef, ReactNode, useEffect } from "react";
 
 interface Track {
   id: string;
@@ -36,83 +36,58 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [shouldOpenDropdown, setShouldOpenDropdown] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [tracks, setTracks] = useState<Track[]>([]);
+  const [loading, setLoading] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Track list with Spotify track IDs for embeds
-  const tracks: Track[] = [
-    {
-      id: "1",
-      title: "I Wonder",
-      artist: "Kanye West",
-      spotifyTrackId: "3YRCqOhFifThpSRFJ1VWFM",
-      imageUrl: "https://i.scdn.co/image/ab67616d00001e028b82ad699e06fce5d8fa06ef",
-    },
-    {
-      id: "2",
-      title: "Flashing Lights",
-      artist: "Kanye West",
-      spotifyTrackId: "6tDqIE0hK8WpjZAIK5Jjsb",
-      imageUrl: "https://i.scdn.co/image/ab67616d00001e028b82ad699e06fce5d8fa06ef",
-    },
-    {
-      id: "3",
-      title: "I Like It",
-      artist: "DeBarge",
-      spotifyTrackId: "6FcYWXWTmMFB9BTr9vE7Rz",
-      imageUrl: "https://i.scdn.co/image/ab67616d00001e02bec1327823da5e77baa25478",
-    },
-    {
-      id: "4",
-      title: "Out of Time",
-      artist: "The Weeknd",
-      spotifyTrackId: "2LBqCSwhJGcFQeTHMVGwy3",
-      imageUrl: "https://i.scdn.co/image/ab67616d00001e024ab2520c2c77a1d66b9ee21d",
-    },
-    {
-      id: "5",
-      title: "Leave the Door Open",
-      artist: "Bruno Mars, Anderson .Paak, Silk Sonic",
-      spotifyTrackId: "7MAibcTli4IisCtbHKrGMh",
-      imageUrl: "https://i.scdn.co/image/ab67616d00001e02a9c079c6e8e82a3c10cd2fb4",
-    },
-    {
-      id: "6",
-      title: "Passionfruit",
-      artist: "Drake",
-      spotifyTrackId: "5mCPDVBb16L4XQwDdbRUpz",
-      imageUrl: "https://i.scdn.co/image/ab67616d00001e02f907de96b9a4fbc04accc0d5",
-    },
-    {
-      id: "7",
-      title: "Pink + White",
-      artist: "Frank Ocean",
-      spotifyTrackId: "4bRFHhanVfXKIF4GKLmqRt",
-      imageUrl: "https://i.scdn.co/image/ab67616d00001e02c5649add07ed3720be9d5526",
-    },
-    {
-      id: "8",
-      title: "Sure Thing",
-      artist: "Miguel",
-      spotifyTrackId: "5lB5LAVjqByZJELJKdR7LE",
-      imageUrl: "https://i.scdn.co/image/ab67616d00001e02ddb77c7951c47e29b1fc91cb",
-    },
-    {
-      id: "9",
-      title: "Latch",
-      artist: "Disclosure",
-      spotifyTrackId: "3XVozq1aeqsJwpXrEZrDJ9",
-      imageUrl: "https://i.scdn.co/image/ab67616d00001e028bb617a112478f0b04c5e8de",
-    },
-    {
-      id: "10",
-      title: "Versace on the Floor",
-      artist: "Bruno Mars",
-      spotifyTrackId: "5p7ujcrUXASCNwRaWNHR1C",
-      imageUrl: "https://i.scdn.co/image/ab67616d00001e024ca68d59a4a29c856a4a39c2",
-    },
-  ];
+  // Fetch tracks from API on mount
+  useEffect(() => {
+    async function fetchTracks() {
+      try {
+        const response = await fetch('/api/playlist');
+        const data = await response.json();
+        setTracks(data.tracks);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching tracks:', error);
+        setLoading(false);
+      }
+    }
+    fetchTracks();
+  }, []);
 
-  const currentTrack = tracks[currentTrackIndex];
+  const currentTrack = tracks[currentTrackIndex] || {
+    id: "1",
+    title: "Loading...",
+    artist: "Loading...",
+    spotifyTrackId: "",
+    imageUrl: "/disk.png"
+  };
+
+  if (loading || tracks.length === 0) {
+    return (
+      <MusicPlayerContext.Provider
+        value={{
+          currentTrackIndex: 0,
+          isPlaying: false,
+          currentTrack,
+          tracks: [],
+          iframeRef,
+          hasInteracted: false,
+          shouldOpenDropdown: false,
+          setCurrentTrackIndex: () => {},
+          setIsPlaying: () => {},
+          setShouldOpenDropdown: () => {},
+          setHasInteracted: () => {},
+          handlePrevious: () => {},
+          handleNext: () => {},
+          togglePlay: () => {},
+        }}
+      >
+        {children}
+      </MusicPlayerContext.Provider>
+    );
+  }
 
   const handlePrevious = () => {
     setHasInteracted(true);

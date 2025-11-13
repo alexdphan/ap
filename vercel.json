@@ -1,0 +1,7 @@
+{
+  "crons": [{
+    "path": "/api/playlist",
+    "schedule": "0 3 * * *"
+  }]
+}
+
