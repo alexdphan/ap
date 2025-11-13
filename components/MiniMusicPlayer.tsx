@@ -75,99 +75,136 @@ export default function MiniMusicPlayer() {
     }
   }, [shouldOpenDropdown, setShouldOpenDropdown]);
 
-  // Audio player ref for HTML5 audio control OR Spotify embed fallback
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const spotifyEmbedRef = useRef<HTMLIFrameElement | null>(null);
-  const [useSpotifyEmbed, setUseSpotifyEmbed] = useState(false);
+  // Spotify Web Playback SDK player
+  const playerRef = useRef<any>(null);
+  const [deviceId, setDeviceId] = useState<string | null>(null);
+  const [isSDKReady, setIsSDKReady] = useState(false);
 
-  // Check if current track has preview URL
+  // Load Spotify Web Playback SDK
   useEffect(() => {
-    setUseSpotifyEmbed(!currentTrack.previewUrl && !!currentTrack.spotifyTrackId);
-  }, [currentTrack.previewUrl, currentTrack.spotifyTrackId]);
+    if (typeof window === "undefined") return;
 
-  // Initialize audio element for tracks with preview URLs
-  useEffect(() => {
-    if (typeof window === "undefined" || useSpotifyEmbed) return;
+    // Load the SDK script
+    const script = document.createElement("script");
+    script.src = "https://sdk.scdn.co/spotify-player.js";
+    script.async = true;
+    document.body.appendChild(script);
 
-    const audio = new Audio();
-    audio.preload = "auto";
-    audioRef.current = audio;
-
-    // Listen for track end to auto-advance
-    audio.addEventListener("ended", () => {
-      console.log("⏭️ Track ended, advancing to next");
-      handleNext();
-    });
-
-    // Listen for errors
-    audio.addEventListener("error", (e) => {
-      console.error("❌ Audio error:", e);
-    });
-
-    console.log("✅ Audio player initialized");
+    (window as any).onSpotifyWebPlaybackSDKReady = () => {
+      console.log("✅ Spotify Web Playback SDK loaded");
+      setIsSDKReady(true);
+    };
 
     return () => {
-      audio.pause();
-      audio.src = "";
-      audio.remove();
-    };
-  }, [useSpotifyEmbed]);
-
-  // Handle track changes for audio preview
-  useEffect(() => {
-    if (useSpotifyEmbed || !audioRef.current || !currentTrack.previewUrl) {
-      if (!useSpotifyEmbed && !currentTrack.previewUrl) {
-        console.warn("⚠️ No preview URL available for:", currentTrack.title);
+      if (playerRef.current) {
+        playerRef.current.disconnect();
       }
+    };
+  }, []);
+
+  // Initialize player when SDK is ready
+  useEffect(() => {
+    if (!isSDKReady || typeof window === "undefined") return;
+
+    const token = process.env.NEXT_PUBLIC_SPOTIFY_ACCESS_TOKEN;
+    
+    if (!token) {
+      console.error("❌ Missing NEXT_PUBLIC_SPOTIFY_ACCESS_TOKEN");
       return;
     }
 
-    console.log(`🎵 Loading track: ${currentTrack.title}`);
-    audioRef.current.src = currentTrack.previewUrl;
-    audioRef.current.load();
+    const player = new (window as any).Spotify.Player({
+      name: 'Alex Phan Web Player',
+      getOAuthToken: (cb: any) => { cb(token); },
+      volume: 0.5
+    });
 
-    // If we should be playing, start playback
-    if (isPlaying) {
-      console.log("▶️ Auto-playing after track change");
-      audioRef.current.play().catch((err) => {
-        console.warn("⚠️ Auto-play failed:", err);
-      });
-    }
-  }, [currentTrack.previewUrl, currentTrack.title, useSpotifyEmbed]);
+    // Ready
+    player.addListener('ready', ({ device_id }: any) => {
+      console.log('✅ Ready with Device ID', device_id);
+      setDeviceId(device_id);
+    });
 
-  // Handle play/pause changes for audio preview
+    // Not Ready
+    player.addListener('not_ready', ({ device_id }: any) => {
+      console.log('❌ Device ID has gone offline', device_id);
+    });
+
+    // Player state changed
+    player.addListener('player_state_changed', (state: any) => {
+      if (!state) return;
+      
+      console.log('📊 Player state:', state);
+      setIsPlaying(!state.paused);
+
+      // Auto-advance when track ends
+      if (state.position === 0 && state.paused && state.track_window.current_track) {
+        console.log("⏭️ Track ended, advancing to next");
+        handleNext();
+      }
+    });
+
+    // Errors
+    player.addListener('initialization_error', ({ message }: any) => {
+      console.error('❌ Initialization error:', message);
+    });
+
+    player.addListener('authentication_error', ({ message }: any) => {
+      console.error('❌ Authentication error:', message);
+    });
+
+    player.addListener('account_error', ({ message }: any) => {
+      console.error('❌ Account error:', message);
+    });
+
+    player.addListener('playback_error', ({ message }: any) => {
+      console.error('❌ Playback error:', message);
+    });
+
+    // Connect
+    player.connect();
+    playerRef.current = player;
+
+  }, [isSDKReady]);
+
+  // Handle track changes
   useEffect(() => {
-    if (useSpotifyEmbed || !audioRef.current) return;
+    if (!deviceId || !currentTrack.spotifyTrackId) return;
+
+    console.log(`🎵 Playing track: ${currentTrack.title}`);
+    
+    // Use Spotify Web API to play track on this device
+    const token = process.env.NEXT_PUBLIC_SPOTIFY_ACCESS_TOKEN;
+    
+    fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        uris: [`spotify:track:${currentTrack.spotifyTrackId}`]
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+    }).catch(err => {
+      console.error('❌ Failed to play track:', err);
+    });
+  }, [currentTrack.spotifyTrackId, deviceId]);
+
+  // Handle play/pause
+  useEffect(() => {
+    if (!playerRef.current) return;
 
     if (isPlaying) {
-      console.log("▶️ Playing");
-      audioRef.current.play().catch((err) => {
-        console.warn("⚠️ Play failed:", err);
-      });
+      console.log("▶️ Resuming");
+      playerRef.current.resume();
     } else {
       console.log("⏸️ Pausing");
-      audioRef.current.pause();
+      playerRef.current.pause();
     }
-  }, [isPlaying, useSpotifyEmbed]);
+  }, [isPlaying]);
 
   return (
     <>
-      {/* Spotify Embed Player (fallback when no preview URL) */}
-      {useSpotifyEmbed && currentTrack.spotifyTrackId && (
-        <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-[380px] z-40">
-          <iframe
-            ref={spotifyEmbedRef}
-            src={`https://open.spotify.com/embed/track/${currentTrack.spotifyTrackId}?utm_source=generator`}
-            width="100%"
-            height="152"
-            frameBorder="0"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy"
-            className="rounded-xl shadow-2xl"
-          />
-        </div>
-      )}
-
       {/* Show mini player on non-home pages (only if user has interacted), or on home page when dropdown is open */}
       <AnimatePresence mode="wait">
         {((pathname !== "/" && hasInteracted) || showDropdown) && (
@@ -214,7 +251,7 @@ export default function MiniMusicPlayer() {
                       setHasInteracted(true);
                       console.log('⏮️ Previous button clicked');
                       console.log('Current track index:', currentTrackIndex);
-                      console.log('Audio player exists:', !!audioRef.current);
+                      console.log('Player exists:', !!playerRef.current);
                       handlePrevious();
                     }}
                     className="text-gray-800 hover:text-gray-900 transition-colors"
@@ -232,7 +269,7 @@ export default function MiniMusicPlayer() {
                     onClick={() => {
                       setHasInteracted(true);
                       console.log('⏯️ Play/Pause clicked, current state:', isPlaying);
-                      console.log('Audio player exists:', !!audioRef.current);
+                      console.log('Player exists:', !!playerRef.current);
                       setIsPlaying(!isPlaying);
                     }}
                     whileTap={{ scale: 0.95 }}
@@ -268,7 +305,7 @@ export default function MiniMusicPlayer() {
                       setHasInteracted(true);
                       console.log('⏭️ Next button clicked');
                       console.log('Current track index:', currentTrackIndex);
-                      console.log('Audio player exists:', !!audioRef.current);
+                      console.log('Player exists:', !!playerRef.current);
                       handleNext();
                     }}
                     className="text-gray-800 hover:text-gray-900 transition-colors"

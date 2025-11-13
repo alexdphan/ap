@@ -48,21 +48,34 @@ export async function GET() {
       });
     }
     
-    const tracks = playlistData.items.map((item: any, index: number) => {
-      const track = item.track;
-      const albumImage = track.album.images[1]?.url || track.album.images[0]?.url;
-      
-      return {
-        id: String(index + 1),
-        title: track.name,
-        artist: track.artists.map((a: any) => a.name).join(', '),
-        spotifyTrackId: track.id,
-        imageUrl: albumImage,
-        previewUrl: track.preview_url || null
-      };
-    });
+    // Filter tracks to only include those with preview URLs
+    const tracks = playlistData.items
+      .filter((item: any) => item.track?.preview_url) // Only tracks with previews
+      .map((item: any, index: number) => {
+        const track = item.track;
+        const albumImage = track.album.images[1]?.url || track.album.images[0]?.url;
+        
+        return {
+          id: String(index + 1),
+          title: track.name,
+          artist: track.artists.map((a: any) => a.name).join(', '),
+          spotifyTrackId: track.id,
+          imageUrl: albumImage,
+          previewUrl: track.preview_url
+        };
+      });
 
-    console.log(`✅ Returning ${tracks.length} tracks`);
+    console.log(`✅ Returning ${tracks.length} tracks (filtered from ${playlistData.items.length} total)`);
+    
+    if (tracks.length === 0) {
+      console.warn('⚠️ No tracks in playlist have preview URLs available');
+      return NextResponse.json({ 
+        tracks: [], 
+        lastUpdated: new Date().toISOString(),
+        error: 'No tracks with preview URLs available',
+        hint: 'Add older tracks to your playlist - newer releases often lack preview URLs'
+      });
+    }
 
     // Return tracks data with caching headers
     return NextResponse.json(
