@@ -265,27 +265,37 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   };
 
   const handlePrevious = () => {
+    console.log('handlePrevious called');
     setHasInteracted(true);
     const newIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+    console.log('Previous track index:', newIndex, tracks[newIndex].title);
     setCurrentTrackIndex(newIndex);
     setIsPlaying(true);
     playTrack(tracks[newIndex].spotifyUri);
   };
 
   const handleNext = () => {
+    console.log('handleNext called');
     setHasInteracted(true);
     const newIndex = (currentTrackIndex + 1) % tracks.length;
+    console.log('Next track index:', newIndex, tracks[newIndex].title);
     setCurrentTrackIndex(newIndex);
     setIsPlaying(true);
     playTrack(tracks[newIndex].spotifyUri);
   };
 
   const togglePlay = () => {
+    console.log('togglePlay called, player exists:', !!player);
     setHasInteracted(true);
-    if (!player) return;
+    if (!player) {
+      console.error('No player available');
+      return;
+    }
 
     player.togglePlay().then(() => {
       console.log('Toggled playback');
+    }).catch((err: any) => {
+      console.error('Error toggling playback:', err);
     });
   };
 
