@@ -174,11 +174,12 @@ export default function MiniMusicPlayer() {
           ref={iframeRef}
           width="192"
           height="192"
-          src={`https://www.youtube.com/embed/${currentVideo.id}?enablejsapi=1&autoplay=0&controls=0&modestbranding=1&rel=0&showinfo=0&mute=0&disablekb=1&widgetid=1&disablePictureInPicture=1`}
+          src={`https://www.youtube.com/embed/${currentVideo.id}?enablejsapi=1&autoplay=0&controls=0&modestbranding=1&rel=0&showinfo=0&mute=0&disablekb=1&widgetid=1`}
           title="Music Player"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
           allowFullScreen
+          disablePictureInPicture
         />
       </div>
 
