@@ -37,6 +37,17 @@ export async function GET() {
 
     const playlistData = await playlistResponse.json();
     
+    console.log(`📀 Fetched ${playlistData.items?.length || 0} tracks from playlist`);
+    
+    if (!playlistData.items || playlistData.items.length === 0) {
+      console.warn('⚠️ Playlist is empty or has no tracks');
+      return NextResponse.json({ 
+        tracks: [], 
+        lastUpdated: new Date().toISOString(),
+        error: 'Playlist has no tracks'
+      });
+    }
+    
     const tracks = playlistData.items.map((item: any, index: number) => {
       const track = item.track;
       const albumImage = track.album.images[1]?.url || track.album.images[0]?.url;
@@ -49,6 +60,8 @@ export async function GET() {
         imageUrl: albumImage
       };
     });
+
+    console.log(`✅ Returning ${tracks.length} tracks`);
 
     // Return tracks data with caching headers
     return NextResponse.json(
