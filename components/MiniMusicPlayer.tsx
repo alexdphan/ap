@@ -166,6 +166,26 @@ export default function MiniMusicPlayer() {
     if (embedControllerRef.current && currentTrack.spotifyTrackId) {
       console.log(`🎵 Loading track: ${currentTrack.title}`);
       embedControllerRef.current.loadUri(`spotify:track:${currentTrack.spotifyTrackId}`);
+      
+      // If we're supposed to be playing, resume playback after loading new track
+      if (isPlaying) {
+        // Small delay to let the track load before playing
+        setTimeout(() => {
+          if (embedControllerRef.current) {
+            console.log("▶️ Auto-playing after track change");
+            try {
+              const result = embedControllerRef.current.play();
+              if (result && typeof result.catch === 'function') {
+                result.catch((err: any) => {
+                  console.warn("⚠️ Auto-play failed:", err);
+                });
+              }
+            } catch (err) {
+              console.warn("⚠️ Auto-play error:", err);
+            }
+          }
+        }, 500);
+      }
     }
   }, [currentTrack.spotifyTrackId, currentTrack.title]);
 
@@ -244,7 +264,9 @@ export default function MiniMusicPlayer() {
                   <button
                     onClick={() => {
                       setHasInteracted(true);
-                      console.log('Previous button clicked');
+                      console.log('⏮️ Previous button clicked');
+                      console.log('Current track index:', currentTrackIndex);
+                      console.log('Embed controller exists:', !!embedControllerRef.current);
                       handlePrevious();
                     }}
                     className="text-gray-800 hover:text-gray-900 transition-colors"
@@ -261,7 +283,8 @@ export default function MiniMusicPlayer() {
                   <motion.div
                     onClick={() => {
                       setHasInteracted(true);
-                      console.log('Play/Pause clicked, current state:', isPlaying);
+                      console.log('⏯️ Play/Pause clicked, current state:', isPlaying);
+                      console.log('Embed controller exists:', !!embedControllerRef.current);
                       setIsPlaying(!isPlaying);
                     }}
                     whileTap={{ scale: 0.95 }}
@@ -295,7 +318,9 @@ export default function MiniMusicPlayer() {
                   <button
                     onClick={() => {
                       setHasInteracted(true);
-                      console.log('Next button clicked');
+                      console.log('⏭️ Next button clicked');
+                      console.log('Current track index:', currentTrackIndex);
+                      console.log('Embed controller exists:', !!embedControllerRef.current);
                       handleNext();
                     }}
                     className="text-gray-800 hover:text-gray-900 transition-colors"
