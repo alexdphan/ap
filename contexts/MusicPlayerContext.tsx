@@ -8,6 +8,7 @@ interface Track {
   artist: string;
   spotifyTrackId: string;
   imageUrl: string;
+  previewUrl: string | null;
 }
 
 interface MusicPlayerContextType {
@@ -61,7 +62,8 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     title: "Loading...",
     artist: "Loading...",
     spotifyTrackId: "",
-    imageUrl: "/disk.png"
+    imageUrl: "/disk.png",
+    previewUrl: null
   };
 
   if (loading || tracks.length === 0) {

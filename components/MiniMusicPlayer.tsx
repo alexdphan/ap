@@ -75,151 +75,76 @@ export default function MiniMusicPlayer() {
     }
   }, [shouldOpenDropdown, setShouldOpenDropdown]);
 
-  // Load Spotify iFrame API and set up controller
-  const embedControllerRef = useRef<any>(null);
-  const hasLoadedAPIRef = useRef(false);
+  // Audio player ref for HTML5 audio control
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Initialize audio element
   useEffect(() => {
-    if (typeof window === "undefined" || hasLoadedAPIRef.current) return;
-    
-    // Don't initialize if tracks aren't loaded yet
-    if (!currentTrack.spotifyTrackId || tracks.length === 0) {
-      console.log("⏳ Waiting for tracks to load before initializing Spotify API...");
-      return;
-    }
+    if (typeof window === "undefined") return;
 
-    // Load the iFrame API script
-    const script = document.createElement("script");
-    script.src = "https://open.spotify.com/embed/iframe-api/v1";
-    script.async = true;
-    script.id = "spotify-iframe-api"; // Add ID for easier cleanup
-    
-    script.onload = () => {
-      console.log("✅ Spotify iFrame API script loaded");
-    };
+    const audio = new Audio();
+    audio.preload = "auto";
+    audioRef.current = audio;
 
-    document.body.appendChild(script);
-    hasLoadedAPIRef.current = true;
+    // Listen for track end to auto-advance
+    audio.addEventListener("ended", () => {
+      console.log("⏭️ Track ended, advancing to next");
+      handleNext();
+    });
 
-    // Set up the callback for when the API is ready
-    (window as any).onSpotifyIframeApiReady = (IFrameAPI: any) => {
-      console.log("✅ Spotify iFrame API Ready");
-      
-      const element = iframeRef.current;
-      if (!element) {
-        console.error("❌ iframeRef element not found");
-        return;
-      }
+    // Listen for errors
+    audio.addEventListener("error", (e) => {
+      console.error("❌ Audio error:", e);
+    });
 
-      const options = {
-        uri: `spotify:track:${currentTrack.spotifyTrackId}`,
-        width: "100%",
-        height: "152",
-      };
-
-      console.log("🎵 Creating controller with URI:", options.uri);
-
-      IFrameAPI.createController(element, options, (EmbedController: any) => {
-        embedControllerRef.current = EmbedController;
-        console.log("✅ Embed Controller Created");
-
-        // Listen to playback updates to sync state
-        EmbedController.addListener("playback_update", (e: any) => {
-          console.log("📊 Playback update:", e.data);
-          
-          // Sync play/pause state
-          if (e.data.isPaused !== undefined) {
-            setIsPlaying(!e.data.isPaused);
-          }
-
-          // Auto-advance to next track when current one ends
-          if (e.data.position >= e.data.duration - 1 && e.data.duration > 0) {
-            console.log("⏭️ Track ended, advancing to next");
-            handleNext();
-          }
-        });
-
-        EmbedController.addListener("ready", () => {
-          console.log("✅ Embed player ready");
-        });
-      });
-    };
+    console.log("✅ Audio player initialized");
 
     return () => {
-      if (embedControllerRef.current) {
-        try {
-          embedControllerRef.current.destroy();
-        } catch (err) {
-          console.warn("Cleanup error:", err);
-        }
-      }
-      // Only remove script if it exists and is actually in the DOM
-      const existingScript = document.getElementById("spotify-iframe-api");
-      if (existingScript && existingScript.parentNode) {
-        existingScript.parentNode.removeChild(existingScript);
-      }
+      audio.pause();
+      audio.src = "";
+      audio.remove();
     };
-  }, [currentTrack.spotifyTrackId, tracks.length]); // Re-run when tracks are loaded
+  }, []);
 
   // Handle track changes
   useEffect(() => {
-    if (embedControllerRef.current && currentTrack.spotifyTrackId) {
-      console.log(`🎵 Loading track: ${currentTrack.title}`);
-      embedControllerRef.current.loadUri(`spotify:track:${currentTrack.spotifyTrackId}`);
-      
-      // If we're supposed to be playing, resume playback after loading new track
-      if (isPlaying) {
-        // Small delay to let the track load before playing
-        setTimeout(() => {
-          if (embedControllerRef.current) {
-            console.log("▶️ Auto-playing after track change");
-            try {
-              const result = embedControllerRef.current.play();
-              if (result && typeof result.catch === 'function') {
-                result.catch((err: any) => {
-                  console.warn("⚠️ Auto-play failed:", err);
-                });
-              }
-            } catch (err) {
-              console.warn("⚠️ Auto-play error:", err);
-            }
-          }
-        }, 500);
+    if (!audioRef.current || !currentTrack.previewUrl) {
+      if (!currentTrack.previewUrl) {
+        console.warn("⚠️ No preview URL available for:", currentTrack.title);
       }
+      return;
     }
-  }, [currentTrack.spotifyTrackId, currentTrack.title]);
+
+    console.log(`🎵 Loading track: ${currentTrack.title}`);
+    audioRef.current.src = currentTrack.previewUrl;
+    audioRef.current.load();
+
+    // If we should be playing, start playback
+    if (isPlaying) {
+      console.log("▶️ Auto-playing after track change");
+      audioRef.current.play().catch((err) => {
+        console.warn("⚠️ Auto-play failed:", err);
+      });
+    }
+  }, [currentTrack.previewUrl, currentTrack.title]);
 
   // Handle play/pause changes
   useEffect(() => {
-    if (!embedControllerRef.current) return;
+    if (!audioRef.current) return;
 
     if (isPlaying) {
       console.log("▶️ Playing");
-      try {
-        const result = embedControllerRef.current.play();
-        // Some versions of the API return a promise, others don't
-        if (result && typeof result.catch === 'function') {
-          result.catch((err: any) => {
-            console.warn("⚠️ Play failed (might need user interaction):", err);
-          });
-        }
-      } catch (err) {
-        console.warn("⚠️ Play error:", err);
-      }
+      audioRef.current.play().catch((err) => {
+        console.warn("⚠️ Play failed:", err);
+      });
     } else {
       console.log("⏸️ Pausing");
-      embedControllerRef.current.pause();
+      audioRef.current.pause();
     }
   }, [isPlaying]);
 
   return (
     <>
-      {/* Hidden Spotify Embed Player - controlled by iFrame API */}
-      <div 
-        ref={iframeRef} 
-        className="fixed top-0 left-0 w-0 h-0 overflow-hidden pointer-events-none"
-      />
-
       {/* Show mini player on non-home pages (only if user has interacted), or on home page when dropdown is open */}
       <AnimatePresence mode="wait">
         {((pathname !== "/" && hasInteracted) || showDropdown) && (
@@ -266,7 +191,7 @@ export default function MiniMusicPlayer() {
                       setHasInteracted(true);
                       console.log('⏮️ Previous button clicked');
                       console.log('Current track index:', currentTrackIndex);
-                      console.log('Embed controller exists:', !!embedControllerRef.current);
+                      console.log('Audio player exists:', !!audioRef.current);
                       handlePrevious();
                     }}
                     className="text-gray-800 hover:text-gray-900 transition-colors"
@@ -284,7 +209,7 @@ export default function MiniMusicPlayer() {
                     onClick={() => {
                       setHasInteracted(true);
                       console.log('⏯️ Play/Pause clicked, current state:', isPlaying);
-                      console.log('Embed controller exists:', !!embedControllerRef.current);
+                      console.log('Audio player exists:', !!audioRef.current);
                       setIsPlaying(!isPlaying);
                     }}
                     whileTap={{ scale: 0.95 }}
@@ -320,7 +245,7 @@ export default function MiniMusicPlayer() {
                       setHasInteracted(true);
                       console.log('⏭️ Next button clicked');
                       console.log('Current track index:', currentTrackIndex);
-                      console.log('Embed controller exists:', !!embedControllerRef.current);
+                      console.log('Audio player exists:', !!audioRef.current);
                       handleNext();
                     }}
                     className="text-gray-800 hover:text-gray-900 transition-colors"

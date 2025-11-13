@@ -57,7 +57,8 @@ export async function GET() {
         title: track.name,
         artist: track.artists.map((a: any) => a.name).join(', '),
         spotifyTrackId: track.id,
-        imageUrl: albumImage
+        imageUrl: albumImage,
+        previewUrl: track.preview_url || null
       };
     });
 
