@@ -10,21 +10,22 @@ export default function MiniMusicPlayer() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const {
-    currentVideo,
-    currentVideoIndex,
+    currentTrack,
+    currentTrackIndex,
     isPlaying,
-    iframeRef,
-    videos,
+    tracks,
+    player,
     handlePrevious,
     handleNext,
     togglePlay,
     setIsPlaying,
-    setCurrentVideoIndex,
+    setCurrentTrackIndex,
     shouldOpenDropdown,
     setShouldOpenDropdown,
-    ignoreYouTubeEventsRef,
     hasInteracted,
     setHasInteracted,
+    isAuthenticated,
+    deviceId,
   } = useMusicPlayer();
 
   const [showDropdown, setShowDropdown] = useState(false);
@@ -48,95 +49,6 @@ export default function MiniMusicPlayer() {
     }
     setHeights(Array(bars).fill(0.1));
   }, [isPlaying]);
-
-  // Update video when currentVideo changes, but don't reload iframe
-  useEffect(() => {
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      // Load new video
-      const loadMessage = `{"event":"command","func":"loadVideoById","args":["${currentVideo.id}"]}`;
-      iframeRef.current.contentWindow.postMessage(loadMessage, "*");
-
-      // Only autoplay if user has interacted and should be playing
-      if (hasInteracted && isPlaying) {
-        setTimeout(() => {
-          if (iframeRef.current && iframeRef.current.contentWindow) {
-            const playMessage =
-              '{"event":"command","func":"playVideo","args":""}';
-            iframeRef.current.contentWindow.postMessage(playMessage, "*");
-          }
-        }, 500);
-      }
-
-      // Request player state updates
-      const listenMessage = '{"event":"listening","id":1,"channel":"widget"}';
-      iframeRef.current.contentWindow.postMessage(listenMessage, "*");
-    }
-  }, [currentVideo.id, hasInteracted, isPlaying]);
-
-  // Listen for YouTube player events to sync state
-  useEffect(() => {
-    let lastHandledState = -2; // Track last handled state to prevent duplicates
-    let stateChangeTimeout: NodeJS.Timeout | null = null;
-
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin === "https://www.youtube.com") {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.info && typeof data.info.playerState !== "undefined") {
-            const playerState = data.info.playerState;
-            // YouTube player states: -1 = unstarted, 0 = ended, 1 = playing, 2 = paused, 3 = buffering, 5 = cued
-
-            // Skip updates if we're temporarily ignoring YouTube events (during manual toggle)
-            if (ignoreYouTubeEventsRef.current) {
-              return;
-            }
-
-            // Skip if we already handled this state recently (prevent duplicate events)
-            if (playerState === lastHandledState && playerState !== 0) {
-              return;
-            }
-
-            // Clear any pending state changes
-            if (stateChangeTimeout) {
-              clearTimeout(stateChangeTimeout);
-            }
-
-            // Debounce state changes slightly to avoid rapid flickering
-            stateChangeTimeout = setTimeout(() => {
-              lastHandledState = playerState;
-
-              if (playerState === 0) {
-                // Video ended - auto-advance and autoplay
-                ignoreYouTubeEventsRef.current = true;
-                setIsPlaying(true);
-                handleNext();
-                // Reset after longer timeout for video loading
-                setTimeout(() => {
-                  ignoreYouTubeEventsRef.current = false;
-                }, 1500);
-              } else if (playerState === 1) {
-                // Video is playing - sync UI only if different
-                setIsPlaying(true);
-              } else if (playerState === 2) {
-                // Video is paused - sync UI only if different
-                setIsPlaying(false);
-              }
-            }, 100);
-          }
-        } catch (e) {
-          // Ignore parsing errors
-        }
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => {
-      window.removeEventListener("message", handleMessage);
-      if (stateChangeTimeout) {
-        clearTimeout(stateChangeTimeout);
-      }
-    };
-  }, [handleNext, setIsPlaying, ignoreYouTubeEventsRef]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -166,23 +78,13 @@ export default function MiniMusicPlayer() {
     }
   }, [shouldOpenDropdown, setShouldOpenDropdown]);
 
+  // Only show if not on homepage or if dropdown is open
+  if (!isAuthenticated || !deviceId) {
+    return null;
+  }
+
   return (
     <>
-      {/* Global iframe - always mounted in fixed position */}
-      <div className="fixed top-0 left-0 w-0 h-0 overflow-hidden pointer-events-none">
-        <iframe
-          ref={iframeRef}
-          width="192"
-          height="192"
-          src={`https://www.youtube.com/embed/${currentVideo.id}?enablejsapi=1&autoplay=0&controls=0&modestbranding=1&rel=0&showinfo=0&mute=0&disablekb=1&widgetid=1`}
-          title="Music Player"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-          allowFullScreen
-          disablePictureInPicture
-        />
-      </div>
-
       {/* Show mini player on non-home pages (only if user has interacted), or on home page when dropdown is open */}
       <AnimatePresence mode="wait">
         {((pathname !== "/" && hasInteracted) || showDropdown) && (
@@ -200,22 +102,25 @@ export default function MiniMusicPlayer() {
           >
             <div ref={dropdownRef} className="relative">
               <div className="flex items-center gap-3 w-full md:w-[400px] h-[68px] md:h-[72px] border-b border-gray-100 p-4 bg-white">
-                {/* Video Thumbnail - Left */}
+                {/* Album Art - Left */}
                 <div
                   onClick={() => setShowDropdown(!showDropdown)}
                   className="w-12 h-12 md:w-14 md:h-14 bg-black overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                 >
                   <img
-                    src={`https://img.youtube.com/vi/${currentVideo.id}/mqdefault.jpg`}
-                    alt={currentVideo.title}
+                    src={currentTrack.imageUrl}
+                    alt={currentTrack.title}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = "/disk.png";
+                    }}
                   />
                 </div>
 
                 {/* Song Title - Middle */}
                 <div className="flex-1 min-w-0">
                   <p className="editorial-headline text-xs text-gray-900 truncate leading-tight">
-                    {currentVideo.title}
+                    {currentTrack.title}
                   </p>
                 </div>
 
@@ -293,47 +198,61 @@ export default function MiniMusicPlayer() {
                       msOverflowStyle: "none",
                     }}
                   >
-                    {videos.map((video, index) => (
+                    {tracks.map((track, index) => (
                       <div
-                        key={video.id}
-                        onClick={() => {
-                          setHasInteracted(true); // Mark that user has interacted
-                          setCurrentVideoIndex(index);
+                        key={track.id}
+                        onClick={async () => {
+                          setHasInteracted(true);
+                          setCurrentTrackIndex(index);
                           setIsPlaying(true);
                           setShowDropdown(false);
 
-                          // Ignore YouTube events during video loading
-                          ignoreYouTubeEventsRef.current = true;
-                          setTimeout(() => {
-                            ignoreYouTubeEventsRef.current = false;
-                          }, 1000);
+                          // Play the track via Spotify API
+                          if (player && deviceId) {
+                            try {
+                              const token = localStorage.getItem('spotify_token');
+                              await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+                                method: 'PUT',
+                                body: JSON.stringify({ uris: [track.spotifyUri] }),
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                  Authorization: `Bearer ${token}`,
+                                },
+                              });
+                            } catch (error) {
+                              console.error('Error playing track:', error);
+                            }
+                          }
                         }}
                         className={`
                         flex items-center gap-3 p-3 md:p-4 cursor-pointer hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0
-                        ${index === currentVideoIndex ? "bg-gray-50" : ""}
+                        ${index === currentTrackIndex ? "bg-gray-50" : ""}
                       `}
                       >
                         {/* Thumbnail */}
                         <div className="w-10 h-10 md:w-11 md:h-11 bg-black overflow-hidden flex-shrink-0">
                           <img
-                            src={`https://img.youtube.com/vi/${video.id}/mqdefault.jpg`}
-                            alt={video.title}
+                            src={track.imageUrl}
+                            alt={track.title}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = "/disk.png";
+                            }}
                           />
                         </div>
 
                         {/* Song Info */}
                         <div className="flex-1 min-w-0">
                           <p className="editorial-headline text-xs text-gray-900 truncate">
-                            {video.title}
+                            {track.title}
                           </p>
                           <p className="editorial-caption text-[10px] text-gray-500 truncate">
-                            {video.artist}
+                            {track.artist}
                           </p>
                         </div>
 
                         {/* Playing indicator */}
-                        {index === currentVideoIndex && (
+                        {index === currentTrackIndex && (
                           <div className="flex items-center gap-[2px]">
                             <motion.div
                               className="w-[2px] h-2 bg-gray-900 rounded-full"

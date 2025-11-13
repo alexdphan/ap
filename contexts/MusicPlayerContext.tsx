@@ -1,23 +1,29 @@
 "use client";
 
-import { createContext, useContext, useState, useRef, ReactNode } from "react";
+import { createContext, useContext, useState, useRef, ReactNode, useEffect } from "react";
+import { getAuthUrl, getStoredToken, clearToken } from "@/lib/spotify";
 
-interface Video {
+interface Track {
   id: string;
   title: string;
   artist: string;
+  spotifyUri: string;
+  imageUrl: string;
 }
 
 interface MusicPlayerContextType {
-  currentVideoIndex: number;
+  currentTrackIndex: number;
   isPlaying: boolean;
-  currentVideo: Video;
-  videos: Video[];
-  iframeRef: React.RefObject<HTMLIFrameElement | null>;
-  ignoreYouTubeEventsRef: React.RefObject<boolean>;
-  shouldOpenDropdown: boolean;
+  currentTrack: Track;
+  tracks: Track[];
+  player: Spotify.Player | null;
+  isAuthenticated: boolean;
+  deviceId: string | null;
   hasInteracted: boolean;
-  setCurrentVideoIndex: (index: number) => void;
+  shouldOpenDropdown: boolean;
+  login: () => Promise<string>;
+  logout: () => void;
+  setCurrentTrackIndex: (index: number) => void;
   setIsPlaying: (playing: boolean) => void;
   setShouldOpenDropdown: (open: boolean) => void;
   setHasInteracted: (interacted: boolean) => void;
@@ -31,152 +37,250 @@ const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(
 );
 
 export function MusicPlayerProvider({ children }: { children: ReactNode }) {
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
   const [shouldOpenDropdown, setShouldOpenDropdown] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false); // Track if user has ever played music
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const ignoreYouTubeEventsRef = useRef(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [player, setPlayer] = useState<Spotify.Player | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [deviceId, setDeviceId] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
-  const videos = [
+  // Updated track list with Spotify URIs
+  const tracks: Track[] = [
     {
-      id: "MxEjnYdfLXU",
+      id: "1",
       title: "I Wonder",
       artist: "Kanye West",
+      spotifyUri: "spotify:track:3YRCqOhFifThpSRFJ1VWFM",
+      imageUrl: "https://i.scdn.co/image/ab67616d0000b2738b82ad699e06fce5d8fa06ef",
     },
     {
-      id: "O0Cw1SLdxxE",
+      id: "2",
       title: "Flashing Lights",
       artist: "Kanye West",
+      spotifyUri: "spotify:track:6tDqIE0hK8WpjZAIK5Jjsb",
+      imageUrl: "https://i.scdn.co/image/ab67616d0000b2738b82ad699e06fce5d8fa06ef",
     },
     {
-      id: "b5CngY0mGpk",
-      title: "Recorddeals",
-      artist: "1 9 0 5 - Topic",
+      id: "3",
+      title: "I Like It",
+      artist: "DeBarge",
+      spotifyUri: "spotify:track:6FcYWXWTmMFB9BTr9vE7Rz",
+      imageUrl: "https://i.scdn.co/image/ab67616d0000b273f3ed8f5b22d0f8d8e1c3e0e5",
     },
-    { id: "2yaCAVDJF4w", title: "go", artist: "Karri · Kehlani" },
-    // { id: "c2dJFshz3Bs", title: "JieJie", artist: "Karencici" },
-    { id: "VqaKisKIyUo", title: "I Like It", artist: "DeBarge" },
     {
-      id: "e5AyGmtIYJ8",
-      title: "Can't Leave Alone",
-      artist: "Pino, Avenoir, Maz B",
+      id: "4",
+      title: "Out of Time",
+      artist: "The Weeknd",
+      spotifyUri: "spotify:track:2LBqCSwhJGcFQeTHMVGwy3",
+      imageUrl: "https://i.scdn.co/image/ab67616d0000b2734ab2520c2c77a1d66b9ee21d",
     },
-    { id: "ax_fOTzsc1g", title: "Addicted", artist: "Naarly feat. TIMID." },
-    { id: "kxgj5af8zg4", title: "Out of Time", artist: "The Weeknd" },
     {
-      id: "wIyNAsmGrl0",
+      id: "5",
       title: "Leave the Door Open",
       artist: "Bruno Mars, Anderson .Paak, Silk Sonic",
+      spotifyUri: "spotify:track:7MAibcTli4IisCtbHKrGMh",
+      imageUrl: "https://i.scdn.co/image/ab67616d0000b273e9a375a0e5f2a5b3d0c4e7e3",
     },
     {
-      id: "PaSON7HvFao",
-      title: "West Coast Love",
-      artist: "Emotional Oranges",
-    },
-    { id: "O1Qh7j1yD8Y", title: "Baby Powder", artist: "Jenevieve" },
-    {
-      id: "le1QF3uoQNg",
-      title: "Theme From New York, New York",
-      artist: "Frank Sinatra",
-    },
-    { id: "KnkDL9lkbX8", title: "Hold On, We're Going Home", artist: "Drake" },
-    { id: "COz9lDCFHjw", title: "Passionfruit", artist: "Drake" },
-    { id: "nZSeA1-eZM8", title: "Because Of You", artist: "Ne-Yo" },
-    { id: "3JbmE3jjCSk", title: "Versace on the Floor", artist: "Bruno Mars" },
-    {
-      id: "8PTDv_szmL0",
-      title: "Nothin' On You",
-      artist: "B.o.B feat. Bruno Mars",
+      id: "6",
+      title: "Passionfruit",
+      artist: "Drake",
+      spotifyUri: "spotify:track:5mCPDVBb16L4XQwDdbRUpz",
+      imageUrl: "https://i.scdn.co/image/ab67616d0000b273f907de96b9a4fbc04accc0d5",
     },
     {
-      id: "Skbzy3BBTcM",
-      title: "Rocketeer",
-      artist: "Far East Movement feat. Ryan Tedder",
+      id: "7",
+      title: "Pink + White",
+      artist: "Frank Ocean",
+      spotifyUri: "spotify:track:4bRFHhanVfXKIF4GKLmqRt",
+      imageUrl: "https://i.scdn.co/image/ab67616d0000b2737e7e8bc0e3d76c6e5e2f0e3e",
     },
-    { id: "VNg3MxYKSi0", title: "Latch", artist: "Disclosure" },
-    { id: "uzS3WG6__G4", title: "Pink + White", artist: "Frank Ocean" },
-    { id: "6cucosmPj-A", title: "Every Breath You Take", artist: "The Police" },
-    { id: "Tzu0302_Gzk", title: "Sure Thing", artist: "Miguel" },
-    { id: "nVPK316k-Go", title: "Hello Miss Johnson", artist: "Jack Harlow" },
-    { id: "HfWLgELllZs", title: "luther", artist: "Kendrick Lamar" },
-    { id: "ejEzHE5ZMT8", title: "MUTT", artist: "Leon Thomas" },
-    { id: "PymTCmXKcAk", title: "All Night Long", artist: "Mary J. Blige" },
-    { id: "AkM-BgOpEhM", title: "Dee Green", artist: "Christian Kuria" },
-    { id: "nq_ci6nqgXU", title: "Yacht Club Girl", artist: "Eliot Rhodes" },
-    { id: "5BAh7bndQs0", title: "Painkiller", artist: "Ruel" },
-    { id: "Uu7Uvwbl_Vs", title: "Face To Face", artist: "Ruel" },
-    { id: "AiQiEiAPvUw", title: "Younger", artist: "Ruel" },
-    { id: "4Jx6siXBe6Y", title: "Warm", artist: "SG Lewis" },
     {
-      id: "Yeohq-Fapks",
-      title: "Experience",
-      artist: "Victoria Monét feat. Khalid & SG Lewis",
+      id: "8",
+      title: "Sure Thing",
+      artist: "Miguel",
+      spotifyUri: "spotify:track:5lB5LAVjqByZJELJKdR7LE",
+      imageUrl: "https://i.scdn.co/image/ab67616d0000b2736e8e8bc0e3d76c6e5e2f0e3e",
     },
-    { id: "IqEt3o5HLfY", title: "Dreaming", artist: "SG Lewis" },
-    { id: "K1B4rf-jB50", title: "One More", artist: "SG Lewis, Nile Rodgers" },
+    {
+      id: "9",
+      title: "Latch",
+      artist: "Disclosure",
+      spotifyUri: "spotify:track:3XVozq1aeqsJwpXrEZrDJ9",
+      imageUrl: "https://i.scdn.co/image/ab67616d0000b2736e8e8bc0e3d76c6e5e2f0e3e",
+    },
+    {
+      id: "10",
+      title: "Versace on the Floor",
+      artist: "Bruno Mars",
+      spotifyUri: "spotify:track:5p7ujcrUXASCNwRaWNHR1C",
+      imageUrl: "https://i.scdn.co/image/ab67616d0000b2734c6d69c3cec9eb6c7f5e5e3e",
+    },
   ];
 
-  const currentVideo = videos[currentVideoIndex];
+  const currentTrack = tracks[currentTrackIndex];
+
+  // Check for token on mount
+  useEffect(() => {
+    const storedToken = getStoredToken();
+
+    if (storedToken) {
+      setToken(storedToken);
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  // Initialize Spotify Web Playback SDK
+  useEffect(() => {
+    if (!token) return;
+
+    // Load Spotify SDK
+    const script = document.createElement('script');
+    script.src = 'https://sdk.scdn.co/spotify-player.js';
+    script.async = true;
+    document.body.appendChild(script);
+
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      const spotifyPlayer = new window.Spotify.Player({
+        name: 'Alex Phan Music Player',
+        getOAuthToken: (cb: (token: string) => void) => {
+          cb(token);
+        },
+        volume: 0.8,
+      });
+
+      // Error handling
+      spotifyPlayer.addListener('initialization_error', ({ message }: { message: string }) => {
+        console.error('Initialization Error:', message);
+      });
+
+      spotifyPlayer.addListener('authentication_error', ({ message }: { message: string }) => {
+        console.error('Authentication Error:', message);
+        clearToken();
+        setIsAuthenticated(false);
+      });
+
+      spotifyPlayer.addListener('account_error', ({ message }: { message: string }) => {
+        console.error('Account Error:', message);
+      });
+
+      spotifyPlayer.addListener('playback_error', ({ message }: { message: string }) => {
+        console.error('Playback Error:', message);
+      });
+
+      // Ready
+      spotifyPlayer.addListener('ready', ({ device_id }: { device_id: string }) => {
+        console.log('Ready with Device ID', device_id);
+        setDeviceId(device_id);
+      });
+
+      // Not Ready
+      spotifyPlayer.addListener('not_ready', ({ device_id }: { device_id: string }) => {
+        console.log('Device ID has gone offline', device_id);
+      });
+
+      // Player state changed
+      spotifyPlayer.addListener('player_state_changed', (state: Spotify.PlaybackState | null) => {
+        if (!state) return;
+
+        console.log('Player State Changed:', state);
+        
+        setIsPlaying(!state.paused);
+
+        // Check if track ended (position is at the end and paused)
+        if (state.paused && state.position === 0 && state.duration > 0) {
+          console.log('Track ended, playing next!');
+          handleNext();
+        }
+      });
+
+      // Connect to the player
+      spotifyPlayer.connect();
+
+      setPlayer(spotifyPlayer);
+    };
+
+    return () => {
+      if (player) {
+        player.disconnect();
+      }
+    };
+  }, [token]);
+
+  const login = async () => {
+    const url = await getAuthUrl();
+    return url;
+  };
+
+  const logout = () => {
+    if (player) {
+      player.disconnect();
+    }
+    clearToken();
+    setIsAuthenticated(false);
+    setToken(null);
+    setPlayer(null);
+  };
+
+  const playTrack = async (uri: string) => {
+    if (!player || !deviceId || !token) return;
+
+    try {
+      await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ uris: [uri] }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      console.error('Error playing track:', error);
+    }
+  };
 
   const handlePrevious = () => {
-    setHasInteracted(true); // Mark that user has interacted
-    setCurrentVideoIndex((prev) => (prev - 1 + videos.length) % videos.length);
-    setIsPlaying(true); // Always autoplay when switching
-
-    // Ignore YouTube events during video loading to prevent animation flicker
-    ignoreYouTubeEventsRef.current = true;
-    setTimeout(() => {
-      ignoreYouTubeEventsRef.current = false;
-    }, 1000); // Longer timeout for video loading
+    setHasInteracted(true);
+    const newIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+    setCurrentTrackIndex(newIndex);
+    playTrack(tracks[newIndex].spotifyUri);
+    setIsPlaying(true);
   };
 
   const handleNext = () => {
-    setHasInteracted(true); // Mark that user has interacted
-    setCurrentVideoIndex((prev) => (prev + 1) % videos.length);
-    setIsPlaying(true); // Always autoplay when switching
-
-    // Ignore YouTube events during video loading to prevent animation flicker
-    ignoreYouTubeEventsRef.current = true;
-    setTimeout(() => {
-      ignoreYouTubeEventsRef.current = false;
-    }, 1000); // Longer timeout for video loading
+    setHasInteracted(true);
+    const newIndex = (currentTrackIndex + 1) % tracks.length;
+    setCurrentTrackIndex(newIndex);
+    playTrack(tracks[newIndex].spotifyUri);
+    setIsPlaying(true);
   };
 
   const togglePlay = () => {
-    setHasInteracted(true); // Mark that user has interacted
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      // Optimistically update state immediately for responsive UI
-      const newState = !isPlaying;
-      setIsPlaying(newState);
+    setHasInteracted(true);
+    if (!player) return;
 
-      // Temporarily ignore YouTube events to prevent conflicts
-      ignoreYouTubeEventsRef.current = true;
-      setTimeout(() => {
-        ignoreYouTubeEventsRef.current = false;
-      }, 500); // Increased timeout to prevent feedback loop
-
-      // Send command to YouTube player
-      const command = isPlaying
-        ? '{"event":"command","func":"pauseVideo","args":""}'
-        : '{"event":"command","func":"playVideo","args":""}';
-      iframeRef.current.contentWindow.postMessage(command, "*");
-    }
+    player.togglePlay().then(() => {
+      console.log('Toggled playback');
+    });
   };
 
   return (
     <MusicPlayerContext.Provider
       value={{
-        currentVideoIndex,
+        currentTrackIndex,
         isPlaying,
-        currentVideo,
-        videos,
-        iframeRef,
-        ignoreYouTubeEventsRef,
-        shouldOpenDropdown,
+        currentTrack,
+        tracks,
+        player,
+        isAuthenticated,
+        deviceId,
         hasInteracted,
-        setCurrentVideoIndex,
+        shouldOpenDropdown,
+        login,
+        logout,
+        setCurrentTrackIndex,
         setIsPlaying,
         setShouldOpenDropdown,
         setHasInteracted,

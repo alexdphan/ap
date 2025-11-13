@@ -2,7 +2,7 @@
 
 import Float from "@/components/fancy/blocks/float";
 import { motion } from "framer-motion";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useMusicPlayer } from "@/contexts/MusicPlayerContext";
 
 export default function FloatingMusicPlayer() {
@@ -12,13 +12,14 @@ export default function FloatingMusicPlayer() {
   const cardRef = useRef<HTMLDivElement>(null);
 
   const {
-    currentVideo,
+    currentTrack,
     isPlaying,
-    iframeRef,
+    isAuthenticated,
     handlePrevious,
     handleNext,
     togglePlay,
     setShouldOpenDropdown,
+    login,
   } = useMusicPlayer();
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -47,11 +48,34 @@ export default function FloatingMusicPlayer() {
   };
 
   const handleToggleGif = () => {
-    // console.log("Toggling GIF, current state:", showGif);
     setShowGif((prev) => !prev);
-    // Reset tilt on click for easier interaction
     setMousePosition({ x: 0, y: 0 });
   };
+
+  // Show login button if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, delay: 0.5, ease: "easeOut" }}
+        >
+          <button
+            onClick={async () => {
+              const url = await login();
+              if (url) {
+                window.location.href = url;
+              }
+            }}
+            className="px-6 py-3 bg-[#1DB954] text-white rounded-full editorial-headline text-sm hover:bg-[#1ed760] transition-colors"
+          >
+            Connect to Spotify
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center">
@@ -83,7 +107,6 @@ export default function FloatingMusicPlayer() {
               }}
             >
               <div className="w-48 h-48 shadow-2xl relative overflow-hidden bg-gray-100">
-                {/* Toggle between YouTube thumbnail and simpson.gif */}
                 {showGif ? (
                   <img
                     src="/simpson.gif"
@@ -93,11 +116,11 @@ export default function FloatingMusicPlayer() {
                 ) : (
                   <div className="w-full h-full relative">
                     <img
-                      src={`https://img.youtube.com/vi/${currentVideo.id}/hqdefault.jpg`}
-                      alt={currentVideo.title}
-                      className="w-full h-full object-cover pointer-events-none scale-110"
+                      src={currentTrack.imageUrl}
+                      alt={currentTrack.title}
+                      className="w-full h-full object-cover pointer-events-none"
                       onError={(e) => {
-                        e.currentTarget.src = `https://img.youtube.com/vi/${currentVideo.id}/mqdefault.jpg`;
+                        e.currentTarget.src = "/disk.png";
                       }}
                     />
                   </div>
@@ -119,13 +142,13 @@ export default function FloatingMusicPlayer() {
             className="editorial-headline text-[11px] text-gray-900 cursor-pointer hover:text-gray-600 transition-colors"
             onClick={() => setShouldOpenDropdown(true)}
           >
-            {currentVideo.title}
+            {currentTrack.title}
           </p>
           <p
             className="editorial-caption text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
             onClick={() => setShouldOpenDropdown(true)}
           >
-            {currentVideo.artist}
+            {currentTrack.artist}
           </p>
         </div>
 
