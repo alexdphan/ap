@@ -155,7 +155,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       ignoreYouTubeEventsRef.current = true;
       setTimeout(() => {
         ignoreYouTubeEventsRef.current = false;
-      }, 300);
+      }, 500); // Increased timeout to prevent feedback loop
 
       // Send command to YouTube player
       const command = isPlaying

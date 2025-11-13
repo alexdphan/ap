@@ -75,6 +75,9 @@ export default function MiniMusicPlayer() {
 
   // Listen for YouTube player events to sync state
   useEffect(() => {
+    let lastHandledState = -2; // Track last handled state to prevent duplicates
+    let stateChangeTimeout: NodeJS.Timeout | null = null;
+
     const handleMessage = (event: MessageEvent) => {
       if (event.origin === "https://www.youtube.com") {
         try {
@@ -88,17 +91,37 @@ export default function MiniMusicPlayer() {
               return;
             }
 
-            if (playerState === 0) {
-              // Video ended - auto-advance and autoplay
-              setIsPlaying(true);
-              handleNext();
-            } else if (playerState === 1) {
-              // Video is playing - sync UI
-              setIsPlaying(true);
-            } else if (playerState === 2) {
-              // Video is paused - sync UI
-              setIsPlaying(false);
+            // Skip if we already handled this state recently (prevent duplicate events)
+            if (playerState === lastHandledState && playerState !== 0) {
+              return;
             }
+
+            // Clear any pending state changes
+            if (stateChangeTimeout) {
+              clearTimeout(stateChangeTimeout);
+            }
+
+            // Debounce state changes slightly to avoid rapid flickering
+            stateChangeTimeout = setTimeout(() => {
+              lastHandledState = playerState;
+
+              if (playerState === 0) {
+                // Video ended - auto-advance and autoplay
+                ignoreYouTubeEventsRef.current = true;
+                setIsPlaying(true);
+                handleNext();
+                // Reset after longer timeout for video loading
+                setTimeout(() => {
+                  ignoreYouTubeEventsRef.current = false;
+                }, 1500);
+              } else if (playerState === 1) {
+                // Video is playing - sync UI only if different
+                setIsPlaying(true);
+              } else if (playerState === 2) {
+                // Video is paused - sync UI only if different
+                setIsPlaying(false);
+              }
+            }, 100);
           }
         } catch (e) {
           // Ignore parsing errors
@@ -107,7 +130,12 @@ export default function MiniMusicPlayer() {
     };
 
     window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      if (stateChangeTimeout) {
+        clearTimeout(stateChangeTimeout);
+      }
+    };
   }, [handleNext, setIsPlaying, ignoreYouTubeEventsRef]);
 
   // Close dropdown when clicking outside
@@ -146,7 +174,7 @@ export default function MiniMusicPlayer() {
           ref={iframeRef}
           width="192"
           height="192"
-          src={`https://www.youtube.com/embed/${currentVideo.id}?enablejsapi=1&autoplay=0&controls=0&modestbranding=1&rel=0&showinfo=0&mute=0&disablekb=1&widgetid=1`}
+          src={`https://www.youtube.com/embed/${currentVideo.id}?enablejsapi=1&autoplay=0&controls=0&modestbranding=1&rel=0&showinfo=0&mute=0&disablekb=1&widgetid=1&disablePictureInPicture=1`}
           title="Music Player"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
