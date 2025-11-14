@@ -1,25 +1,24 @@
 "use client";
 
-import { createContext, useContext, useState, useRef, ReactNode, useEffect } from "react";
+import { createContext, useContext, useState, useRef, ReactNode } from "react";
 
-interface Track {
+interface Video {
   id: string;
   title: string;
   artist: string;
-  spotifyTrackId: string;
-  imageUrl: string;
-  previewUrl: string | null;
 }
 
 interface MusicPlayerContextType {
-  currentTrackIndex: number;
+  currentVideoIndex: number;
   isPlaying: boolean;
-  currentTrack: Track;
-  tracks: Track[];
+  currentVideo: Video;
+  videos: Video[];
   iframeRef: React.RefObject<HTMLIFrameElement | null>;
-  hasInteracted: boolean;
+  ignoreYouTubeEventsRef: React.RefObject<boolean>;
+  shouldAutoplayRef: React.MutableRefObject<boolean>;
   shouldOpenDropdown: boolean;
-  setCurrentTrackIndex: (index: number) => void;
+  hasInteracted: boolean;
+  setCurrentVideoIndex: (index: number) => void;
   setIsPlaying: (playing: boolean) => void;
   setShouldOpenDropdown: (open: boolean) => void;
   setHasInteracted: (interacted: boolean) => void;
@@ -33,92 +32,158 @@ const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(
 );
 
 export function MusicPlayerProvider({ children }: { children: ReactNode }) {
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const [shouldOpenDropdown, setShouldOpenDropdown] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const [tracks, setTracks] = useState<Track[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [hasInteracted, setHasInteracted] = useState(false); // Track if user has ever played music
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const ignoreYouTubeEventsRef = useRef(false);
+  const shouldAutoplayRef = useRef(false); // Track if next video should autoplay
 
-  // Fetch tracks from API on mount
-  useEffect(() => {
-    async function fetchTracks() {
-      try {
-        const response = await fetch('/api/playlist');
-        const data = await response.json();
-        setTracks(data.tracks);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching tracks:', error);
-        setLoading(false);
-      }
-    }
-    fetchTracks();
-  }, []);
+  const videos = [
+    {
+      id: "MxEjnYdfLXU",
+      title: "I Wonder",
+      artist: "Kanye West",
+    },
+    {
+      id: "O0Cw1SLdxxE",
+      title: "Flashing Lights",
+      artist: "Kanye West",
+    },
+    {
+      id: "b5CngY0mGpk",
+      title: "Recorddeals",
+      artist: "1 9 0 5 - Topic",
+    },
+    { id: "2yaCAVDJF4w", title: "go", artist: "Karri · Kehlani" },
+    // { id: "c2dJFshz3Bs", title: "JieJie", artist: "Karencici" },
+    { id: "VqaKisKIyUo", title: "I Like It", artist: "DeBarge" },
+    {
+      id: "e5AyGmtIYJ8",
+      title: "Can't Leave Alone",
+      artist: "Pino, Avenoir, Maz B",
+    },
+    { id: "ax_fOTzsc1g", title: "Addicted", artist: "Naarly feat. TIMID." },
+    { id: "kxgj5af8zg4", title: "Out of Time", artist: "The Weeknd" },
+    {
+      id: "wIyNAsmGrl0",
+      title: "Leave the Door Open",
+      artist: "Bruno Mars, Anderson .Paak, Silk Sonic",
+    },
+    {
+      id: "PaSON7HvFao",
+      title: "West Coast Love",
+      artist: "Emotional Oranges",
+    },
+    { id: "O1Qh7j1yD8Y", title: "Baby Powder", artist: "Jenevieve" },
+    {
+      id: "le1QF3uoQNg",
+      title: "Theme From New York, New York",
+      artist: "Frank Sinatra",
+    },
+    { id: "KnkDL9lkbX8", title: "Hold On, We're Going Home", artist: "Drake" },
+    { id: "COz9lDCFHjw", title: "Passionfruit", artist: "Drake" },
+    { id: "nZSeA1-eZM8", title: "Because Of You", artist: "Ne-Yo" },
+    { id: "3JbmE3jjCSk", title: "Versace on the Floor", artist: "Bruno Mars" },
+    {
+      id: "8PTDv_szmL0",
+      title: "Nothin' On You",
+      artist: "B.o.B feat. Bruno Mars",
+    },
+    {
+      id: "Skbzy3BBTcM",
+      title: "Rocketeer",
+      artist: "Far East Movement feat. Ryan Tedder",
+    },
+    { id: "VNg3MxYKSi0", title: "Latch", artist: "Disclosure" },
+    { id: "uzS3WG6__G4", title: "Pink + White", artist: "Frank Ocean" },
+    { id: "6cucosmPj-A", title: "Every Breath You Take", artist: "The Police" },
+    { id: "Tzu0302_Gzk", title: "Sure Thing", artist: "Miguel" },
+    { id: "nVPK316k-Go", title: "Hello Miss Johnson", artist: "Jack Harlow" },
+    { id: "HfWLgELllZs", title: "luther", artist: "Kendrick Lamar" },
+    { id: "ejEzHE5ZMT8", title: "MUTT", artist: "Leon Thomas" },
+    { id: "PymTCmXKcAk", title: "All Night Long", artist: "Mary J. Blige" },
+    { id: "AkM-BgOpEhM", title: "Dee Green", artist: "Christian Kuria" },
+    { id: "nq_ci6nqgXU", title: "Yacht Club Girl", artist: "Eliot Rhodes" },
+    { id: "5BAh7bndQs0", title: "Painkiller", artist: "Ruel" },
+    { id: "Uu7Uvwbl_Vs", title: "Face To Face", artist: "Ruel" },
+    { id: "AiQiEiAPvUw", title: "Younger", artist: "Ruel" },
+    { id: "4Jx6siXBe6Y", title: "Warm", artist: "SG Lewis" },
+    {
+      id: "Yeohq-Fapks",
+      title: "Experience",
+      artist: "Victoria Monét feat. Khalid & SG Lewis",
+    },
+    { id: "IqEt3o5HLfY", title: "Dreaming", artist: "SG Lewis" },
+    { id: "K1B4rf-jB50", title: "One More", artist: "SG Lewis, Nile Rodgers" },
+  ];
 
-  const currentTrack = tracks[currentTrackIndex] || {
-    id: "1",
-    title: "Loading...",
-    artist: "Loading...",
-    spotifyTrackId: "",
-    imageUrl: "/disk.png",
-    previewUrl: null
-  };
-
-  if (loading || tracks.length === 0) {
-    return (
-      <MusicPlayerContext.Provider
-        value={{
-          currentTrackIndex: 0,
-          isPlaying: false,
-          currentTrack,
-          tracks: [],
-          iframeRef,
-          hasInteracted: false,
-          shouldOpenDropdown: false,
-          setCurrentTrackIndex: () => {},
-          setIsPlaying: () => {},
-          setShouldOpenDropdown: () => {},
-          setHasInteracted: () => {},
-          handlePrevious: () => {},
-          handleNext: () => {},
-          togglePlay: () => {},
-        }}
-      >
-        {children}
-      </MusicPlayerContext.Provider>
-    );
-  }
+  const currentVideo = videos[currentVideoIndex];
 
   const handlePrevious = () => {
-    setHasInteracted(true);
-    setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length);
-    setIsPlaying(true); // Auto-play next track
+    setHasInteracted(true); // Mark that user has interacted
+    setCurrentVideoIndex((prev) => (prev - 1 + videos.length) % videos.length);
+    setIsPlaying(true); // Update UI to playing state
+    shouldAutoplayRef.current = true; // Flag that we should autoplay
+
+    // Ignore YouTube events during video loading to prevent animation flicker
+    ignoreYouTubeEventsRef.current = true;
+    setTimeout(() => {
+      ignoreYouTubeEventsRef.current = false;
+    }, 1500); // Extended timeout for video loading and autoplay
   };
 
   const handleNext = () => {
-    setHasInteracted(true);
-    setCurrentTrackIndex((prev) => (prev + 1) % tracks.length);
-    setIsPlaying(true); // Auto-play next track
+    console.log('handleNext called!');
+    setHasInteracted(true); // Mark that user has interacted
+    shouldAutoplayRef.current = true; // Flag that we should autoplay FIRST
+    console.log('Set shouldAutoplayRef.current to true');
+    setCurrentVideoIndex((prev) => (prev + 1) % videos.length);
+    setIsPlaying(true); // Update UI to playing state
+
+    // Ignore YouTube events during video loading to prevent animation flicker
+    ignoreYouTubeEventsRef.current = true;
+    setTimeout(() => {
+      ignoreYouTubeEventsRef.current = false;
+    }, 1500); // Extended timeout for video loading and autoplay
   };
 
   const togglePlay = () => {
-    setHasInteracted(true);
-    setIsPlaying((prev) => !prev);
+    setHasInteracted(true); // Mark that user has interacted
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      // Optimistically update state immediately for responsive UI
+      const newState = !isPlaying;
+      setIsPlaying(newState);
+
+      // Temporarily ignore YouTube events to prevent conflicts
+      ignoreYouTubeEventsRef.current = true;
+      setTimeout(() => {
+        ignoreYouTubeEventsRef.current = false;
+      }, 500); // Increased timeout to prevent feedback loop
+
+      // Send command to YouTube player
+      const command = isPlaying
+        ? '{"event":"command","func":"pauseVideo","args":""}'
+        : '{"event":"command","func":"playVideo","args":""}';
+      iframeRef.current.contentWindow.postMessage(command, "*");
+    }
   };
 
   return (
     <MusicPlayerContext.Provider
       value={{
-        currentTrackIndex,
+        currentVideoIndex,
         isPlaying,
-        currentTrack,
-        tracks,
+        currentVideo,
+        videos,
         iframeRef,
-        hasInteracted,
+        ignoreYouTubeEventsRef,
+        shouldAutoplayRef,
         shouldOpenDropdown,
-        setCurrentTrackIndex,
+        hasInteracted,
+        setCurrentVideoIndex,
         setIsPlaying,
         setShouldOpenDropdown,
         setHasInteracted,

@@ -55,37 +55,38 @@ export default function WorkPage() {
       >
         {/* Magazine Header */}
         <div className="mb-8">
-          <h1 className="editorial-display text-4xl md:text-5xl text-gray-900 mb-3">
+          <h1 className="text-heading-lg" style={{ color: 'var(--gray-900)' }}>
             Work
           </h1>
-          <div className="h-px bg-gray-300 w-full" />
+          <div className="h-px w-full" style={{ backgroundColor: 'var(--gray-100)' }} />
         </div>
 
         {/* Project Sections */}
         <div className="space-y-8">
           {/* Rho Section */}
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-4 md:gap-8 items-start pb-8 border-b border-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-4 md:gap-8 items-start pb-8" style={{ borderBottom: '1px solid var(--gray-100)' }}>
             <div className="space-y-3 md:pt-4 order-2 md:order-1">
               <div>
                 <a
                   href="https://rho.co"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="editorial-label text-[10px] text-gray-400 mb-1 hover:text-gray-600 transition-colors cursor-pointer inline-block md:pointer-events-none md:cursor-default"
+                  className="text-label mb-1 hover:opacity-70 transition-colors cursor-pointer inline-block md:pointer-events-none md:cursor-default"
+                  style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}
                 >
                   RHO
                 </a>
-                <h2 className="editorial-display text-2xl text-gray-900 mb-2">
+                <h2 className="text-heading-md mb-2" style={{ color: 'var(--gray-900)' }}>
                   Modern Business Banking
                 </h2>
-                <p className="editorial-body text-xs text-gray-700 leading-relaxed">
+                <p className="text-body" style={{ color: 'var(--gray-700)', fontSize: '0.85rem' }}>
                   Transforming how businesses manage their finances with
                   intelligent banking solutions that save time and reduce
                   complexity.
                 </p>
               </div>
-              <div className="h-px bg-gray-200 w-16" />
-              <p className="editorial-caption text-[9px] text-gray-500">
+              <div className="h-px w-16" style={{ backgroundColor: 'var(--gray-100)' }} />
+              <p className="text-body" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
                 Fintech • Series C
               </p>
             </div>
@@ -100,7 +101,8 @@ export default function WorkPage() {
                         initial={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.6, ease: "easeInOut" }}
-                        className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10"
+                        className="absolute inset-0 flex items-center justify-center z-10"
+                        style={{ backgroundColor: 'var(--gray-100)' }}
                       >
                         <motion.div
                           animate={{ opacity: [0.6, 1, 0.6] }}
@@ -109,7 +111,8 @@ export default function WorkPage() {
                             repeat: Infinity,
                             ease: "easeInOut",
                           }}
-                          className="text-gray-400 text-xs font-light tracking-wide"
+                          className="text-body font-light tracking-wide"
+                          style={{ color: 'var(--gray-400)', fontSize: '0.85rem' }}
                         >
                           Waking up the bankers
                         </motion.div>
@@ -211,7 +214,8 @@ export default function WorkPage() {
                         initial={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.6, ease: "easeInOut" }}
-                        className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10"
+                        className="absolute inset-0 flex items-center justify-center z-10"
+                        style={{ backgroundColor: 'var(--gray-100)' }}
                       >
                         <motion.div
                           animate={{ opacity: [0.6, 1, 0.6] }}
@@ -220,7 +224,8 @@ export default function WorkPage() {
                             repeat: Infinity,
                             ease: "easeInOut",
                           }}
-                          className="text-gray-400 text-xs font-light tracking-wide"
+                          className="text-body font-light tracking-wide"
+                          style={{ color: 'var(--gray-400)', fontSize: '0.85rem' }}
                         >
                           Chasing the headless browsers
                         </motion.div>
@@ -254,11 +259,11 @@ export default function WorkPage() {
                     scale: isLoaded ? 1 : 1.05,
                   }}
                   transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute -bottom-2 md:-bottom-8 left-2 w-[120px] md:w-[100px] h-[80px] md:h-[100px] border border-gray-300 shadow-sm pointer-events-none bg-cover bg-center"
-                  style={{ backgroundImage: "url(/paper.jpg)" }}
+                  className="absolute -bottom-2 md:-bottom-8 left-2 w-[120px] md:w-[100px] h-[80px] md:h-[100px] shadow-sm pointer-events-none bg-cover bg-center"
+                  style={{ backgroundImage: "url(/paper.jpg)", border: '1px solid var(--gray-100)' }}
                 >
                   <div className="w-full h-full flex items-center justify-center p-2">
-                    <p className="editorial-caption text-[8px] text-gray-900 leading-tight text-center">
+                    <p className="text-body leading-tight text-center" style={{ color: 'var(--gray-900)', fontSize: '0.7rem' }}>
                       Browserbase Director and Series B Launch
                     </p>
                   </div>
@@ -272,20 +277,21 @@ export default function WorkPage() {
                   href="https://browserbase.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="editorial-label text-[10px] text-gray-400 mb-1 hover:text-gray-600 transition-colors inline-block md:pointer-events-none md:cursor-default"
+                  className="text-label mb-1 hover:opacity-70 transition-colors inline-block md:pointer-events-none md:cursor-default"
+                  style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}
                 >
                   BROWSERBASE
                 </a>
-                <h2 className="editorial-display text-2xl text-gray-900 mb-2">
+                <h2 className="text-heading-md mb-2" style={{ color: 'var(--gray-900)' }}>
                   Headless Browser Infrastructure
                 </h2>
-                <p className="editorial-body text-xs text-gray-700 leading-relaxed">
+                <p className="text-body" style={{ color: 'var(--gray-700)', fontSize: '0.85rem' }}>
                   Building the serverless runtime for browser automation. Making
                   it simple for developers to run, debug, and monitor headless
                   browsers at scale.
                 </p>
               </div>
-              <p className="editorial-caption text-[9px] text-gray-500">
+              <p className="text-body" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
                 AI Grant Batch 3 • Series B
               </p>
             </div>
@@ -296,14 +302,15 @@ export default function WorkPage() {
             <div className="mb-4 md:mb-0">
               <a
                 href="https://alexdphan-github-io-git-main-alexander-phans-projects.vercel.app/projects"
-                className="editorial-label text-[10px] text-gray-400 mb-3 hover:text-gray-600 transition-colors cursor-pointer inline-block"
+                className="text-label mb-3 hover:opacity-70 transition-colors cursor-pointer inline-block"
+                style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}
               >
                 OTHER PROJECTS →
               </a>
             </div>
 
             <div className="flex gap-4 md:hidden">
-              <p className="editorial-body text-[10px] text-gray-700 leading-relaxed">
+              <p className="text-body" style={{ color: 'var(--gray-700)', fontSize: '0.75rem' }}>
                 Analytics Platform • Mobile Commerce
               </p>
             </div>
@@ -312,27 +319,27 @@ export default function WorkPage() {
 
         {/* Page Number - Magazine Style */}
         <div className="mt-12 md:mt-6 flex justify-between items-center">
-          <div className="h-px bg-gray-200 flex-1" />
+          <div className="h-px flex-1" style={{ backgroundColor: 'var(--gray-100)' }} />
           <div className="px-6 md:px-4">
-            <p className="editorial-caption text-xs md:text-[10px] text-gray-400">
+            <p className="text-body" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
               02
             </p>
           </div>
-          <div className="h-px bg-gray-200 flex-1" />
+          <div className="h-px flex-1" style={{ backgroundColor: 'var(--gray-100)' }} />
         </div>
       </motion.div>
 
       {/* Modal */}
       <AnimatePresence>
         {modalVideo && (
-          <div className="fixed left-0 top-0 z-[110] flex h-screen w-screen items-center justify-center">
+          <div className="fixed inset-0 z-[110] flex items-center justify-center">
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="absolute left-0 top-0 h-full w-full bg-black/80 backdrop-blur-lg"
+              className="fixed inset-0 bg-black/80 backdrop-blur-lg"
               onClick={() => setModalVideo(null)}
             />
 

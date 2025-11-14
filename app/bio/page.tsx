@@ -12,20 +12,20 @@ export default function BioPage() {
     >
       {/* Magazine Header */}
       <div className="mb-8">
-        <h1 className="editorial-display text-4xl md:text-5xl text-gray-900 mb-2">
+        <h1 className="text-heading-lg mb-2" style={{ color: 'var(--gray-900)' }}>
           Bio
         </h1>
-        <div className="h-px bg-gray-300 w-full mt-4" />
+        <div className="h-px w-full mt-4" style={{ backgroundColor: 'var(--gray-100)' }} />
       </div>
 
       {/* Content */}
       <div className="max-w-2xl space-y-8">
         {/* Introduction */}
         <div>
-          <h2 className="editorial-label text-[10px] md:text-xs text-gray-500 mb-3">
+          <h2 className="text-label mb-3" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
             INTRODUCTION
           </h2>
-          <p className="editorial-body text-[15px] md:text-sm text-gray-900 leading-relaxed">
+          <p className="text-body" style={{ color: 'var(--gray-700)' }}>
             I'm Alex, a builder focused on creating products that make a
             difference. Currently working in fintech, exploring the intersection
             of technology and finance.
@@ -34,10 +34,10 @@ export default function BioPage() {
 
         {/* Background */}
         <div>
-          <h2 className="editorial-label text-[10px] md:text-xs text-gray-500 mb-3">
+          <h2 className="text-label mb-3" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
             BACKGROUND
           </h2>
-          <p className="editorial-body text-[15px] md:text-sm text-gray-900 leading-relaxed">
+          <p className="text-body" style={{ color: 'var(--gray-700)' }}>
             My journey has taken me through various roles and experiences,
             always driven by curiosity and a desire to build meaningful
             products. I believe in simple solutions to complex problems.
@@ -46,10 +46,10 @@ export default function BioPage() {
 
         {/* Philosophy */}
         <div>
-          <h2 className="editorial-label text-[10px] md:text-xs text-gray-500 mb-3">
+          <h2 className="text-label mb-3" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
             PHILOSOPHY
           </h2>
-          <p className="editorial-body text-[15px] md:text-sm text-gray-900 leading-relaxed">
+          <p className="text-body" style={{ color: 'var(--gray-700)' }}>
             I look for opportunities that are simple, yet overlooked. The best
             solutions often hide in plain sight, waiting for someone to see them
             from a different angle.
@@ -58,24 +58,24 @@ export default function BioPage() {
 
         {/* Interests */}
         <div>
-          <h2 className="editorial-label text-[10px] md:text-xs text-gray-500 mb-3">
+          <h2 className="text-label mb-3" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
             INTERESTS
           </h2>
-          <p className="editorial-body text-[15px] md:text-sm text-gray-900 leading-relaxed">
+          <p className="text-body" style={{ color: 'var(--gray-700)' }}>
             Beyond work, you'll find me exploring new music, discovering hidden
             gems in NYC and SF, and always looking for the next interesting
             conversation.
           </p>
         </div>
 
-        <div className="h-px bg-gray-200 w-20" />
+        <div className="h-px w-20" style={{ backgroundColor: 'var(--gray-100)' }} />
 
         {/* Contact */}
         <div>
-          <h2 className="editorial-label text-[10px] md:text-xs text-gray-500 mb-3">
+          <h2 className="text-label mb-3" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
             GET IN TOUCH
           </h2>
-          <p className="editorial-body text-[15px] md:text-sm text-gray-900 leading-relaxed">
+          <p className="text-body" style={{ color: 'var(--gray-700)' }}>
             If you think we'd be great friends or have something interesting to
             share, don't hesitate to reach out.
           </p>
@@ -84,13 +84,13 @@ export default function BioPage() {
 
       {/* Page Number - Magazine Style */}
       <div className="mt-12 md:mt-6 flex justify-between items-center">
-        <div className="h-px bg-gray-200 flex-1" />
+        <div className="h-px flex-1" style={{ backgroundColor: 'var(--gray-100)' }} />
         <div className="px-6 md:px-4">
-          <p className="editorial-caption text-xs md:text-[10px] text-gray-400">
+          <p className="text-body" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
             03
           </p>
         </div>
-        <div className="h-px bg-gray-200 flex-1" />
+        <div className="h-px flex-1" style={{ backgroundColor: 'var(--gray-100)' }} />
       </div>
     </motion.div>
   );

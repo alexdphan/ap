@@ -16,8 +16,8 @@ export default function Home() {
       >
         {/* Magazine Header */}
         <div className="mb-12">
-          <h1 className="editorial-display text-7xl text-gray-900 mb-4">AP</h1>
-          <div className="h-px bg-gray-300 w-full" />
+          <h1 className="text-heading-lg" style={{ color: 'var(--gray-900)' }}>AP</h1>
+          <div className="h-px w-full" style={{ backgroundColor: 'var(--gray-100)' }} />
         </div>
 
         {/* Two Column Magazine Layout */}
@@ -25,14 +25,15 @@ export default function Home() {
           {/* Left Column - Text */}
           <div className="space-y-10 max-w-xl">
             <div>
-              <h2 className="editorial-label text-sm text-gray-500 mb-4">
+              <h2 className="text-label mb-4" style={{ color: 'var(--gray-400)' }}>
                 ABOUT
               </h2>
-              <p className="editorial-body text-lg text-gray-900 leading-relaxed">
+              <p className="text-body" style={{ color: 'var(--gray-700)' }}>
                 I'm currently pursuing{" "}
                 <Link
                   href="/work"
-                  className="text-orange-600 editorial-headline hover:text-orange-700 transition-colors"
+                  className="text-heading-md hover:opacity-70 transition-colors"
+                  style={{ color: '#ea580c' }}
                 >
                   work
                 </Link>{" "}
@@ -42,13 +43,13 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="h-px bg-gray-200 w-24" />
+            <div className="h-px w-24" style={{ backgroundColor: 'var(--gray-100)' }} />
 
             <div>
-              <h2 className="editorial-label text-sm text-gray-500 mb-4">
+              <h2 className="text-label mb-4" style={{ color: 'var(--gray-400)' }}>
                 CURRENTLY LISTENING
               </h2>
-              <p className="editorial-caption text-base text-gray-700 leading-relaxed">
+              <p className="text-body" style={{ color: 'var(--gray-700)' }}>
                 Music that shapes my day, curated moments of inspiration
               </p>
             </div>
@@ -70,10 +71,10 @@ export default function Home() {
       >
         {/* Magazine Header */}
         <div className="mb-4 w-full">
-          <h1 className="editorial-display text-5xl text-gray-900 mb-3 text-center">
+          <h1 className="text-heading-lg text-center" style={{ color: 'var(--gray-900)', fontSize: '2.5rem' }}>
             AP
           </h1>
-          <div className="h-px bg-gray-300 w-full" />
+          <div className="h-px w-full" style={{ backgroundColor: 'var(--gray-100)' }} />
         </div>
 
         {/* Floating Music Player */}
@@ -82,14 +83,15 @@ export default function Home() {
         {/* Bio Description */}
         <div className="max-w-sm text-center px-4 space-y-6">
           <div>
-            <h2 className="editorial-label text-[10px] text-gray-500 mb-3">
+            <h2 className="text-label mb-3" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
               ABOUT
             </h2>
-            <p className="editorial-body text-[15px] text-gray-900">
+            <p className="text-body" style={{ color: 'var(--gray-700)' }}>
               I'm currently pursuing{" "}
               <Link
                 href="/work"
-                className="text-orange-600 editorial-headline hover:text-orange-700 transition-colors"
+                className="text-heading-md hover:opacity-70 transition-colors"
+                style={{ color: '#ea580c' }}
               >
                 work
               </Link>{" "}
@@ -99,13 +101,13 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="h-px bg-gray-200 w-16 mx-auto" />
+          <div className="h-px w-16 mx-auto" style={{ backgroundColor: 'var(--gray-100)' }} />
 
           <div>
-            <h2 className="editorial-label text-[10px] text-gray-500 mb-2">
+            <h2 className="text-label mb-2" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
               CURRENTLY LISTENING
             </h2>
-            <p className="editorial-caption text-xs text-gray-700">
+            <p className="text-body" style={{ color: 'var(--gray-700)', fontSize: '0.8rem' }}>
               Music that shapes my day
             </p>
           </div>

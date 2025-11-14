@@ -50,16 +50,16 @@ export default function NowPage() {
         <div className="space-y-6 md:space-y-6">
           {/* Title Above Videos */}
           <div>
-            <h1 className="editorial-display text-4xl md:text-5xl text-gray-900 mb-2">
+            <h1 className="text-heading-lg mb-2" style={{ color: 'var(--gray-900)' }}>
               Now
             </h1>
-            <div className="h-px bg-gray-300 w-full mt-4" />
+            <div className="h-px w-full mt-4" style={{ backgroundColor: 'var(--gray-100)' }} />
           </div>
 
           {/* NYC Video */}
           <div className="relative">
             <div className="mb-2">
-              <p className="editorial-label text-[10px] md:text-xs text-gray-500">
+              <p className="text-label" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
                 NEW YORK CITY
               </p>
             </div>
@@ -76,7 +76,8 @@ export default function NowPage() {
                       initial={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.6, ease: "easeInOut" }}
-                      className="absolute inset-0 bg-gray-100 flex flex-col items-center justify-center z-10"
+                      className="absolute inset-0 flex flex-col items-center justify-center z-10"
+                      style={{ backgroundColor: 'var(--gray-100)' }}
                     >
                       <motion.div
                         animate={{
@@ -89,7 +90,7 @@ export default function NowPage() {
                         }}
                         className="flex flex-col items-center gap-2"
                       >
-                        <div className="text-gray-400 text-xs md:text-sm font-light tracking-wide">
+                        <div className="text-body font-light tracking-wide" style={{ color: 'var(--gray-400)', fontSize: '0.85rem' }}>
                           Loading the big apple
                         </div>
                       </motion.div>
@@ -123,10 +124,10 @@ export default function NowPage() {
             </div>
 
             <div className="mt-2 md:mt-3 flex justify-between items-end">
-              <p className="text-[8px] md:text-[9px] text-gray-300 italic">
+              <p className="text-body italic" style={{ color: 'var(--gray-400)', fontSize: '0.7rem' }}>
                 Live feed, 2025
               </p>
-              <p className="text-[9px] md:text-xs text-gray-400 tracking-wider font-light">
+              <p className="text-body tracking-wider font-light" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
                 EST
               </p>
             </div>
@@ -135,7 +136,7 @@ export default function NowPage() {
           {/* SF Video */}
           <div className="relative">
             <div className="mb-2">
-              <p className="editorial-label text-[10px] md:text-xs text-gray-500">
+              <p className="text-label" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
                 SAN FRANCISCO
               </p>
             </div>
@@ -260,30 +261,31 @@ export default function NowPage() {
               <div className="w-full h-[220px] md:h-[180px] relative overflow-hidden">
                 {/* Loading cover */}
                 <AnimatePresence>
-                  {!isLoaded && (
-                    <motion.div
-                      initial={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.6, ease: "easeInOut" }}
-                      className="absolute inset-0 bg-gray-100 flex flex-col items-center justify-center z-10"
-                    >
+                    {!isLoaded && (
                       <motion.div
-                        animate={{
-                          opacity: [0.6, 1, 0.6],
-                        }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }}
-                        className="flex flex-col items-center gap-2"
+                        initial={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.6, ease: "easeInOut" }}
+                        className="absolute inset-0 flex flex-col items-center justify-center z-10"
+                        style={{ backgroundColor: 'var(--gray-100)' }}
                       >
-                        <div className="text-gray-400 text-xs md:text-sm font-light tracking-wide">
-                          Talking to devs apologies
-                        </div>
+                        <motion.div
+                          animate={{
+                            opacity: [0.6, 1, 0.6],
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
+                          className="flex flex-col items-center gap-2"
+                        >
+                          <div className="text-body font-light tracking-wide" style={{ color: 'var(--gray-400)', fontSize: '0.85rem' }}>
+                            Talking to devs apologies
+                          </div>
+                        </motion.div>
                       </motion.div>
-                    </motion.div>
-                  )}
+                    )}
                 </AnimatePresence>
 
                 {/* Video iframe */}
@@ -312,10 +314,10 @@ export default function NowPage() {
             </div>
 
             <div className="mt-2 md:mt-3 flex justify-between items-end">
-              <p className="text-[8px] md:text-[9px] text-gray-300 italic">
+              <p className="text-body italic" style={{ color: 'var(--gray-400)', fontSize: '0.7rem' }}>
                 Live feed, 2025
               </p>
-              <p className="text-[9px] md:text-xs text-gray-400 tracking-wider font-light">
+              <p className="text-body tracking-wider font-light" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
                 PST
               </p>
             </div>
@@ -334,14 +336,15 @@ export default function NowPage() {
                 scale: isLoaded ? 1 : 1.05,
               }}
               transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute -top-3 -right-4 md:-top-3 md:-right-10 z-20 bg-orange-600 text-white px-2 py-1 shadow-md rotate-[20deg] transform border-2 border-dashed border-orange-400"
+              className="absolute -top-3 -right-4 md:-top-3 md:-right-10 z-20 bg-orange-600 text-white px-2 py-1 shadow-md rotate-[20deg] transform border-2 border-dashed"
+              style={{ borderColor: '#fb923c' }}
             >
-              <p className="editorial-display text-[9px] md:text-[9px] text-white uppercase tracking-wide">
+              <p className="text-heading-md text-white uppercase tracking-wide" style={{ fontSize: '0.7rem' }}>
                 City of dreams!
               </p>
             </motion.div>
 
-            <p className="editorial-body text-[15px] md:text-sm text-gray-900 leading-relaxed relative z-10">
+            <p className="text-body relative z-10" style={{ color: 'var(--gray-700)', fontSize: '0.9rem' }}>
               I live in NYC, and visit SF often. I love both cities and the
               people in them. Without these cities, I wouldn't be where I am
               today.
@@ -349,18 +352,18 @@ export default function NowPage() {
           </div>
 
           {/* Pull Quote */}
-          <div className="my-6 md:my-6 py-4 md:py-5 border-y border-gray-200">
-            <p className="editorial-display text-xl md:text-lg text-gray-800 text-center">
+          <div className="my-6 md:my-6 py-4 md:py-5" style={{ borderTop: '1px solid var(--gray-100)', borderBottom: '1px solid var(--gray-100)' }}>
+            <p className="text-heading-md text-center" style={{ color: 'var(--gray-700)' }}>
               "If you can make it there, you'll make it anywhere"
             </p>
           </div>
 
           {/* Currently Working On */}
           <div>
-            <h2 className="editorial-label text-[10px] md:text-xs text-gray-500 mb-3 md:mb-2">
+            <h2 className="text-label mb-3 md:mb-2" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
               CURRENTLY WORKING ON
             </h2>
-            <p className="editorial-body text-[14px] md:text-xs text-gray-900 leading-relaxed">
+            <p className="text-body" style={{ color: 'var(--gray-700)', fontSize: '0.9rem' }}>
               Building products that connect people and ideas. Exploring the
               intersection of design and technology.
             </p>
@@ -368,32 +371,32 @@ export default function NowPage() {
 
           {/* Recent Highlights */}
           <div>
-            <h2 className="editorial-label text-[10px] md:text-xs text-gray-500 mb-3 md:mb-2">
+            <h2 className="text-label mb-3 md:mb-2" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
               RECENT HIGHLIGHTS
             </h2>
-            <p className="editorial-body text-[14px] md:text-xs text-gray-900 leading-relaxed">
+            <p className="text-body" style={{ color: 'var(--gray-700)', fontSize: '0.9rem' }}>
               Shipped new features, met amazing people, explored new ideas.
             </p>
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-gray-200 w-20 md:w-20" />
+          <div className="h-px w-20 md:w-20" style={{ backgroundColor: 'var(--gray-100)' }} />
 
           {/* Small Meta Info */}
           <div className="space-y-4 md:space-y-3">
             <div>
-              <p className="editorial-label text-[9px] md:text-[10px] text-gray-400 mb-1">
+              <p className="text-label mb-1" style={{ color: 'var(--gray-400)', fontSize: '0.7rem' }}>
                 AVAILABILITY
               </p>
-              <p className="editorial-caption text-[11px] md:text-xs text-gray-700">
+              <p className="text-body" style={{ color: 'var(--gray-700)', fontSize: '0.85rem' }}>
                 Open to interesting conversations and collaborations
               </p>
             </div>
             <div>
-              <p className="editorial-label text-[9px] md:text-[10px] text-gray-400 mb-1">
+              <p className="text-label mb-1" style={{ color: 'var(--gray-400)', fontSize: '0.7rem' }}>
                 LAST UPDATED
               </p>
-              <p className="editorial-caption text-[11px] md:text-xs text-gray-700">
+              <p className="text-body" style={{ color: 'var(--gray-700)', fontSize: '0.85rem' }}>
                 November 2025 *
               </p>
             </div>
@@ -403,26 +406,26 @@ export default function NowPage() {
 
       {/* Page Number - Magazine Style */}
       <div className="mt-12 md:mt-6 flex justify-between items-center">
-        <div className="h-px bg-gray-200 flex-1" />
+        <div className="h-px flex-1" style={{ backgroundColor: 'var(--gray-100)' }} />
         <div className="px-6 md:px-4">
-          <p className="editorial-caption text-xs md:text-[10px] text-gray-400">
+          <p className="text-body" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
             01
           </p>
         </div>
-        <div className="h-px bg-gray-200 flex-1" />
+        <div className="h-px flex-1" style={{ backgroundColor: 'var(--gray-100)' }} />
       </div>
 
       {/* Modal */}
       <AnimatePresence>
         {modalVideo && (
-          <div className="fixed left-0 top-0 z-[110] flex h-screen w-screen items-center justify-center">
+          <div className="fixed inset-0 z-[110] flex items-center justify-center">
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="absolute left-0 top-0 h-full w-full bg-black/80 backdrop-blur-lg"
+              className="fixed inset-0 bg-black/80 backdrop-blur-lg"
               onClick={() => setModalVideo(null)}
             />
 

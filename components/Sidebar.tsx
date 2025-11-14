@@ -15,27 +15,33 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="flex-shrink-0 editorial-label text-sm md:text-base text-gray-400">
-      <nav className="space-y-7 md:space-y-9">
+    <aside className="flex-shrink-0">
+      <nav className="space-y-5">
         {links.map((link) => {
           const isActive = pathname === link.href;
           return (
             <Link
               key={link.href}
               href={link.href}
-              className={`block hover:text-gray-700 transition-all duration-300 ease-out relative ${
-                isActive ? "pl-4 md:pl-5 text-gray-900 editorial-headline" : ""
-              }`}
+              className="block hover:opacity-70 transition-opacity relative pl-5"
             >
               <span
-                className={`absolute left-0 top-0 bottom-0 w-[2px] bg-gray-900 transition-all duration-300 ease-out ${
-                  isActive ? "opacity-100 scale-y-100" : "opacity-0 scale-y-0"
+                className={`absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 transition-all duration-300 ease-out ${
+                  isActive ? "opacity-100" : "opacity-0"
                 }`}
                 style={{
-                  transformOrigin: "center",
+                  backgroundColor: 'var(--gray-900)',
                 }}
               />
-              {link.label}
+              <span
+                className="text-body"
+                style={{ 
+                  color: isActive ? 'var(--gray-900)' : 'var(--gray-400)',
+                  fontWeight: isActive ? 600 : 400,
+                }}
+              >
+                {link.label}
+              </span>
             </Link>
           );
         })}

@@ -37,30 +37,35 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     <>
       {/* Desktop Layout */}
       <div
-        className={`museum-grid-bg hidden md:block py-16 px-16 ${
+        className={`museum-grid-bg hidden md:block py-16 px-8 ${
           pathname === "/" ||
           pathname === "/inspiration" ||
           pathname === "/investments"
             ? "h-screen overflow-hidden"
-            : "min-h-screen overflow-y-auto"
+            : "min-h-screen"
         }`}
       >
-        {/* Fixed Sidebar */}
-        <div className="fixed left-16 top-1/2 -translate-y-1/2 z-40">
-          <Sidebar />
-        </div>
+        {/* Centered Container for Sidebar + Content */}
+        <div className="w-full max-w-[1200px] mx-auto grid grid-cols-[auto_1fr] gap-20">
+          {/* Sidebar Column - fixed position, always centered */}
+          <div>
+            <div className="fixed" style={{ transform: 'translateY(-50%)', top: '50%' }}>
+              <Sidebar />
+            </div>
+          </div>
 
-        {/* Content Area - Centered */}
-        <div
-          className={`absolute left-1/2 -translate-x-1/2 w-full max-w-3xl ${
-            pathname === "/" ||
-            pathname === "/inspiration" ||
-            pathname === "/investments"
-              ? "top-1/2 -translate-y-1/2"
-              : "top-0"
-          }`}
-        >
-          <div className="flex items-center justify-center">{children}</div>
+          {/* Content Column */}
+          <div
+            className={`flex ${
+              pathname === "/" ||
+              pathname === "/inspiration" ||
+              pathname === "/investments"
+                ? "min-h-screen items-center justify-center"
+                : "items-start justify-center pt-0"
+            }`}
+          >
+            <div className="w-full max-w-3xl">{children}</div>
+          </div>
         </div>
       </div>
 

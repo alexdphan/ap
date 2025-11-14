@@ -12,33 +12,14 @@ export default function FloatingMusicPlayer() {
   const cardRef = useRef<HTMLDivElement>(null);
 
   const {
-    currentTrack,
+    currentVideo,
     isPlaying,
+    iframeRef,
     handlePrevious,
     handleNext,
     togglePlay,
     setShouldOpenDropdown,
-    setHasInteracted,
   } = useMusicPlayer();
-
-  // Add visual feedback when controls are pressed
-  const handlePlayToggle = () => {
-    setHasInteracted(true);
-    console.log('Play/Pause clicked');
-    togglePlay();
-  };
-
-  const handlePrev = () => {
-    setHasInteracted(true);
-    console.log('Previous clicked');
-    handlePrevious();
-  };
-
-  const handleNxt = () => {
-    setHasInteracted(true);
-    console.log('Next clicked');
-    handleNext();
-  };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -66,7 +47,9 @@ export default function FloatingMusicPlayer() {
   };
 
   const handleToggleGif = () => {
+    // console.log("Toggling GIF, current state:", showGif);
     setShowGif((prev) => !prev);
+    // Reset tilt on click for easier interaction
     setMousePosition({ x: 0, y: 0 });
   };
 
@@ -100,6 +83,7 @@ export default function FloatingMusicPlayer() {
               }}
             >
               <div className="w-48 h-48 shadow-2xl relative overflow-hidden bg-gray-100">
+                {/* Toggle between YouTube thumbnail and simpson.gif */}
                 {showGif ? (
                   <img
                     src="/simpson.gif"
@@ -109,11 +93,11 @@ export default function FloatingMusicPlayer() {
                 ) : (
                   <div className="w-full h-full relative">
                     <img
-                      src={currentTrack.imageUrl}
-                      alt={currentTrack.title}
-                      className="w-full h-full object-cover pointer-events-none"
+                      src={`https://img.youtube.com/vi/${currentVideo.id}/hqdefault.jpg`}
+                      alt={currentVideo.title}
+                      className="w-full h-full object-cover pointer-events-none scale-110"
                       onError={(e) => {
-                        e.currentTarget.src = "/disk.png";
+                        e.currentTarget.src = `https://img.youtube.com/vi/${currentVideo.id}/mqdefault.jpg`;
                       }}
                     />
                   </div>
@@ -135,21 +119,21 @@ export default function FloatingMusicPlayer() {
             className="editorial-headline text-[11px] text-gray-900 cursor-pointer hover:text-gray-600 transition-colors"
             onClick={() => setShouldOpenDropdown(true)}
           >
-            {currentTrack.title}
+            {currentVideo.title}
           </p>
           <p
             className="editorial-caption text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
             onClick={() => setShouldOpenDropdown(true)}
           >
-            {currentTrack.artist}
+            {currentVideo.artist}
           </p>
         </div>
 
         {/* Music Controls */}
         <MusicControls
-          onPrevious={handlePrev}
-          onNext={handleNxt}
-          onTogglePlay={handlePlayToggle}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+          onTogglePlay={togglePlay}
           isPlaying={isPlaying}
         />
       </motion.div>
