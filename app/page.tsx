@@ -51,7 +51,7 @@ export default function Home() {
       </div>
 
       {/* Content Layout */}
-      <div className="flex flex-col md:grid md:grid-cols-[1fr_auto] gap-8 md:gap-16 items-center">
+      <div className="flex flex-col md:grid md:grid-cols-[1fr_auto] gap-8 md:gap-16 items-center md:items-center">
         {/* Music Player - Shows first on mobile, second on desktop */}
         <div className="flex items-center justify-center w-40 mt-8 md:mt-0 md:order-2">
           <FloatingMusicPlayer />
