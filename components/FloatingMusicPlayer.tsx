@@ -54,7 +54,7 @@ export default function FloatingMusicPlayer() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center w-40">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -82,7 +82,7 @@ export default function FloatingMusicPlayer() {
                   : "transform 0.5s ease-out",
               }}
             >
-              <div className="w-48 h-48 shadow-2xl relative overflow-hidden bg-gray-100">
+              <div className="w-28 h-28 relative overflow-hidden bg-gray-100 magazine-frame">
                 {/* Toggle between YouTube thumbnail and simpson.gif */}
                 {showGif ? (
                   <img
@@ -114,15 +114,17 @@ export default function FloatingMusicPlayer() {
         transition={{ duration: 0.25, delay: 0.7, ease: "easeOut" }}
       >
         {/* Song Title */}
-        <div className="text-center">
+        <div className="text-center w-full">
           <p
-            className="editorial-headline text-[11px] text-gray-900 cursor-pointer hover:text-gray-600 transition-colors"
+            className="text-body cursor-pointer hover:opacity-70 transition-opacity truncate px-2"
+            style={{ color: "var(--gray-900)" }}
             onClick={() => setShouldOpenDropdown(true)}
           >
             {currentVideo.title}
           </p>
           <p
-            className="editorial-caption text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
+            className="text-caption cursor-pointer hover:opacity-70 transition-opacity truncate px-2"
+            style={{ color: "var(--gray-400)" }}
             onClick={() => setShouldOpenDropdown(true)}
           >
             {currentVideo.artist}
@@ -180,10 +182,11 @@ const MusicControls = ({
       {/* Previous Button */}
       <button
         onClick={onPrevious}
-        className="w-7 h-7 flex items-center justify-center rounded-full transition-all "
+        className="w-7 h-7 flex items-center justify-center rounded-full transition-all hover:opacity-70"
       >
         <svg
-          className="w-5 h-5 text-gray-700"
+          className="w-5 h-5"
+          style={{ color: "var(--gray-900)" }}
           fill="currentColor"
           viewBox="0 0 24 24"
         >
@@ -207,7 +210,8 @@ const MusicControls = ({
           {heights.map((height, index) => (
             <motion.div
               key={index}
-              className="bg-gray-900 w-[2px] rounded-full"
+              className="w-[2px] rounded-full"
+              style={{ backgroundColor: "var(--gray-900)" }}
               initial={{ height: 2 }}
               animate={{
                 height: Math.max(4, height * 14),
@@ -225,10 +229,11 @@ const MusicControls = ({
       {/* Next Button */}
       <button
         onClick={onNext}
-        className="w-7 h-7 flex items-center justify-center rounded-full transition-all "
+        className="w-7 h-7 flex items-center justify-center rounded-full transition-all hover:opacity-70"
       >
         <svg
-          className="w-5 h-5 text-gray-700"
+          className="w-5 h-5"
+          style={{ color: "var(--gray-900)" }}
           fill="currentColor"
           viewBox="0 0 24 24"
         >

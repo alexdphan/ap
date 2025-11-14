@@ -2,6 +2,10 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import Link from "next/link";
+import StarburstSticker from "@/components/stickers/StarburstSticker";
+import PaperNoteSticker from "@/components/stickers/PaperNoteSticker";
 
 export default function WorkPage() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -14,12 +18,14 @@ export default function WorkPage() {
   });
   const [modalVideo, setModalVideo] = useState<string | null>(null);
   const [clickPosition, setClickPosition] = useState({ x: 0, y: 0 });
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Wait briefly before showing videos
     const timer = setTimeout(() => {
       setIsLoaded(true);
-    }, 2000);
+    }, 800);
 
     return () => clearTimeout(timer);
   }, []);
@@ -51,49 +57,66 @@ export default function WorkPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="flex flex-col w-full pt-20 pb-20"
+        className="flex flex-col w-full"
       >
         {/* Magazine Header */}
-        <div className="mb-8">
-          <h1 className="text-heading-lg" style={{ color: 'var(--gray-900)' }}>
-            Work
-          </h1>
-          <div className="h-px w-full" style={{ backgroundColor: 'var(--gray-100)' }} />
+        <div className="mb-6">
+          <Link
+            href="/"
+            className="inline-block hover:opacity-70 transition-opacity"
+          >
+            <h1 className="text-heading" style={{ color: "var(--gray-900)" }}>
+              Work
+            </h1>
+          </Link>
+          <div
+            className="h-px w-full mt-2"
+            style={{ backgroundColor: "var(--gray-100)" }}
+          />
         </div>
 
         {/* Project Sections */}
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Rho Section */}
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-4 md:gap-8 items-start pb-8" style={{ borderBottom: '1px solid var(--gray-100)' }}>
-            <div className="space-y-3 md:pt-4 order-2 md:order-1">
+          <div
+            className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-4 md:gap-6 items-start pb-6"
+            style={{ borderBottom: "1px solid var(--gray-100)" }}
+          >
+            <div className="space-y-2 md:pt-2 order-2 md:order-1">
               <div>
                 <a
                   href="https://rho.co"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-label mb-1 hover:opacity-70 transition-colors cursor-pointer inline-block md:pointer-events-none md:cursor-default"
-                  style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}
+                  className="text-body mb-2 hover:opacity-70 transition-colors cursor-pointer inline-block"
+                  style={{ color: "var(--gray-400)" }}
                 >
-                  RHO
+                  Rho
                 </a>
-                <h2 className="text-heading-md mb-2" style={{ color: 'var(--gray-900)' }}>
+                <h2
+                  className="text-heading mb-2"
+                  style={{ color: "var(--gray-900)" }}
+                >
                   Modern Business Banking
                 </h2>
-                <p className="text-body" style={{ color: 'var(--gray-700)', fontSize: '0.85rem' }}>
+                <p className="text-body" style={{ color: "var(--gray-700)" }}>
                   Transforming how businesses manage their finances with
                   intelligent banking solutions that save time and reduce
                   complexity.
                 </p>
               </div>
-              <div className="h-px w-16" style={{ backgroundColor: 'var(--gray-100)' }} />
-              <p className="text-body" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
+              <div
+                className="h-px w-16"
+                style={{ backgroundColor: "var(--gray-100)" }}
+              />
+              <p className="text-body" style={{ color: "var(--gray-400)" }}>
                 Fintech • Series C
               </p>
             </div>
 
             <div className="space-y-2 order-1 md:order-2">
               <div className="relative">
-                <div className="w-full h-[200px] md:h-[220px] relative overflow-hidden">
+                <div className="w-full aspect-video relative overflow-hidden">
                   {/* Loading cover */}
                   <AnimatePresence>
                     {!isLoaded && (
@@ -102,7 +125,7 @@ export default function WorkPage() {
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.6, ease: "easeInOut" }}
                         className="absolute inset-0 flex items-center justify-center z-10"
-                        style={{ backgroundColor: 'var(--gray-100)' }}
+                        style={{ backgroundColor: "var(--gray-100)" }}
                       >
                         <motion.div
                           animate={{ opacity: [0.6, 1, 0.6] }}
@@ -111,8 +134,8 @@ export default function WorkPage() {
                             repeat: Infinity,
                             ease: "easeInOut",
                           }}
-                          className="text-body font-light tracking-wide"
-                          style={{ color: 'var(--gray-400)', fontSize: '0.85rem' }}
+                          className="text-caption md:text-body font-light tracking-wide"
+                          style={{ color: "var(--gray-400)" }}
                         >
                           Waking up the bankers
                         </motion.div>
@@ -133,80 +156,30 @@ export default function WorkPage() {
                   >
                     <iframe
                       src="https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/d92f2aed546bf4a481c20b22328c0611/iframe?autoplay=true&muted=true&controls=false&loop=true"
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                      className="absolute pointer-events-none w-full h-full"
                       allow="accelerometer; autoplay; encrypted-media; gyroscope"
-                      style={{ width: "110%", height: "110%", border: 0 }}
+                      style={{
+                        border: 0,
+                        top: "0",
+                        left: "0",
+                      }}
                     />
                   </motion.div>
                 </div>
-                <motion.div
-                  initial={{ opacity: 0, scale: 1.05 }}
-                  animate={{
-                    opacity: isLoaded ? 1 : 0,
-                    scale: isLoaded ? 1 : 1.05,
-                  }}
-                  transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute -right-6 md:-right-15 -top-12 pointer-events-none"
-                >
-                  <div className="relative w-[140px] h-[140px]">
-                    {/* Starburst shape */}
-                    <svg
-                      viewBox="0 0 100 100"
-                      className="w-full h-full drop-shadow-md rotate-200"
-                    >
-                      <defs>
-                        <filter id="shadow">
-                          <feDropShadow
-                            dx="0"
-                            dy="2"
-                            stdDeviation="3"
-                            floodOpacity="0.3"
-                          />
-                        </filter>
-                      </defs>
-                      {/* Outer gold border */}
-                      <polygon
-                        points="50,5 57,30 66,23 64,35 80,28 71,40 90,38 75,49 96,52 80,59 94,70 77,70 86,85 70,77 74,95 60,82 57,99 50,84 43,99 40,82 26,95 30,77 14,85 23,70 6,70 20,59 4,52 25,49 10,38 29,40 20,28 36,35 34,23 43,30"
-                        fill="#D4AF37"
-                        filter="url(#shadow)"
-                      />
-                      {/* Black middle layer for depth */}
-                      <polygon
-                        points="50,7 56,30 65,24 63,35 79,29 70,40 89,38 76,48 95,51 79,58 92,68 78,69 85,83 71,76 73,93 61,81 58,97 50,83 42,97 39,81 27,93 29,76 15,83 22,69 8,68 21,58 5,51 24,48 11,38 30,40 21,29 37,35 35,24 44,30"
-                        fill="#1a1a1a"
-                      />
-                      {/* Inner red starburst */}
-                      <polygon
-                        points="50,10 54,31 62,26 61,36 75,33 70,43 85,42 77,50 90,52 79,58 88,66 79,67 84,80 72,74 73,90 62,79 58,95 50,82 42,95 38,79 27,90 28,74 16,80 21,67 12,66 21,58 10,52 23,50 15,42 30,43 25,33 39,36 38,26 46,31"
-                        fill="#DC2626"
-                      />
-                    </svg>
-                    {/* WOW text */}
-                    <div className="absolute inset-0 flex items-center justify-center px-4 -translate-y-3 translate-x-2">
-                      <span
-                        className="text-white font-black text-xl tracking-tight text-center leading-tight"
-                        style={{
-                          fontFamily: 'Impact, "Arial Black", sans-serif',
-                          WebkitTextStroke: "1.5px black",
-                          paintOrder: "stroke fill",
-                          transform: "rotate(-8deg)",
-                          display: "block",
-                        }}
-                      >
-                        Find Rho in action!
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
+                <StarburstSticker
+                  text="Find Rho in action!"
+                  isVisible={isLoaded}
+                  className="absolute -right-4 md:-right-12 -top-12 scale-[1] md:scale-[0.6]"
+                />
               </div>
             </div>
           </div>
 
           {/* Browserbase Section */}
-          <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-4 md:gap-8 items-start pb-8">
-            <div className="space-y-3 order-1 md:order-1">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-4 md:gap-6 items-start pb-6">
+            <div className="space-y-2 order-1 md:order-1">
               <div className="relative">
-                <div className="w-full h-[200px] md:h-[220px] relative overflow-hidden">
+                <div className="w-full aspect-video relative overflow-hidden">
                   {/* Loading cover */}
                   <AnimatePresence>
                     {!isLoaded && (
@@ -215,7 +188,7 @@ export default function WorkPage() {
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.6, ease: "easeInOut" }}
                         className="absolute inset-0 flex items-center justify-center z-10"
-                        style={{ backgroundColor: 'var(--gray-100)' }}
+                        style={{ backgroundColor: "var(--gray-100)" }}
                       >
                         <motion.div
                           animate={{ opacity: [0.6, 1, 0.6] }}
@@ -224,8 +197,8 @@ export default function WorkPage() {
                             repeat: Infinity,
                             ease: "easeInOut",
                           }}
-                          className="text-body font-light tracking-wide"
-                          style={{ color: 'var(--gray-400)', fontSize: '0.85rem' }}
+                          className="text-caption md:text-body font-light tracking-wide"
+                          style={{ color: "var(--gray-400)" }}
                         >
                           Chasing the headless browsers
                         </motion.div>
@@ -246,52 +219,48 @@ export default function WorkPage() {
                   >
                     <iframe
                       src="https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/51a62e7e813329fb699cd3cf07804c2f/iframe?autoplay=true&muted=true&controls=false&loop=true"
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                      className="absolute pointer-events-none w-full h-full"
                       allow="accelerometer; autoplay; encrypted-media; gyroscope"
-                      style={{ width: "110%", height: "110%", border: 0 }}
+                      style={{
+                        border: 0,
+                        top: "0",
+                        left: "0",
+                      }}
                     />
                   </motion.div>
                 </div>
-                <motion.div
-                  initial={{ opacity: 0, scale: 1.05 }}
-                  animate={{
-                    opacity: isLoaded ? 1 : 0,
-                    scale: isLoaded ? 1 : 1.05,
-                  }}
-                  transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute -bottom-2 md:-bottom-8 left-2 w-[120px] md:w-[100px] h-[80px] md:h-[100px] shadow-sm pointer-events-none bg-cover bg-center"
-                  style={{ backgroundImage: "url(/paper.jpg)", border: '1px solid var(--gray-100)' }}
-                >
-                  <div className="w-full h-full flex items-center justify-center p-2">
-                    <p className="text-body leading-tight text-center" style={{ color: 'var(--gray-900)', fontSize: '0.7rem' }}>
-                      Browserbase Director and Series B Launch
-                    </p>
-                  </div>
-                </motion.div>
+                <PaperNoteSticker
+                  text="Browserbase Director and Series B Launch"
+                  isVisible={isLoaded}
+                  className="absolute -bottom-2 md:-bottom-6 left-2 w-[90px] md:w-[80px] h-[60px] md:h-[80px]"
+                />
               </div>
             </div>
 
-            <div className="space-y-3 md:pt-4 order-2 md:order-2">
+            <div className="space-y-2 md:pt-2 order-2 md:order-2">
               <div>
                 <a
                   href="https://browserbase.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-label mb-1 hover:opacity-70 transition-colors inline-block md:pointer-events-none md:cursor-default"
-                  style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}
+                  className="text-body mb-2 hover:opacity-70 transition-colors cursor-pointer inline-block"
+                  style={{ color: "var(--gray-400)" }}
                 >
-                  BROWSERBASE
+                  Browserbase
                 </a>
-                <h2 className="text-heading-md mb-2" style={{ color: 'var(--gray-900)' }}>
+                <h2
+                  className="text-heading mb-2"
+                  style={{ color: "var(--gray-900)" }}
+                >
                   Headless Browser Infrastructure
                 </h2>
-                <p className="text-body" style={{ color: 'var(--gray-700)', fontSize: '0.85rem' }}>
+                <p className="text-body" style={{ color: "var(--gray-700)" }}>
                   Building the serverless runtime for browser automation. Making
                   it simple for developers to run, debug, and monitor headless
                   browsers at scale.
                 </p>
               </div>
-              <p className="text-body" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
+              <p className="text-body" style={{ color: "var(--gray-400)" }}>
                 AI Grant Batch 3 • Series B
               </p>
             </div>
@@ -302,15 +271,15 @@ export default function WorkPage() {
             <div className="mb-4 md:mb-0">
               <a
                 href="https://alexdphan-github-io-git-main-alexander-phans-projects.vercel.app/projects"
-                className="text-label mb-3 hover:opacity-70 transition-colors cursor-pointer inline-block"
-                style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}
+                className="text-body mb-3 hover:opacity-70 transition-colors cursor-pointer inline-block"
+                style={{ color: "var(--gray-400)" }}
               >
-                OTHER PROJECTS →
+                Other Projects →
               </a>
             </div>
 
             <div className="flex gap-4 md:hidden">
-              <p className="text-body" style={{ color: 'var(--gray-700)', fontSize: '0.75rem' }}>
+              <p className="text-body" style={{ color: "var(--gray-700)" }}>
                 Analytics Platform • Mobile Commerce
               </p>
             </div>
@@ -318,88 +287,103 @@ export default function WorkPage() {
         </div>
 
         {/* Page Number - Magazine Style */}
-        <div className="mt-12 md:mt-6 flex justify-between items-center">
-          <div className="h-px flex-1" style={{ backgroundColor: 'var(--gray-100)' }} />
-          <div className="px-6 md:px-4">
-            <p className="text-body" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
-              02
+        <div className="mt-6 flex justify-between items-center">
+          <div
+            className="h-px flex-1"
+            style={{ backgroundColor: "var(--gray-100)" }}
+          />
+          <div className="px-4">
+            <p className="text-body" style={{ color: "var(--gray-400)" }}>
+              01
             </p>
           </div>
-          <div className="h-px flex-1" style={{ backgroundColor: 'var(--gray-100)' }} />
+          <div
+            className="h-px flex-1"
+            style={{ backgroundColor: "var(--gray-100)" }}
+          />
         </div>
       </motion.div>
 
-      {/* Modal */}
-      <AnimatePresence>
-        {modalVideo && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/80 backdrop-blur-lg"
-              onClick={() => setModalVideo(null)}
-            />
+      {/* Modal - Rendered at body level via Portal */}
+      {mounted &&
+        modalVideo &&
+        createPortal(
+          <AnimatePresence>
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 backdrop-blur-lg"
+                onClick={() => setModalVideo(null)}
+              />
 
-            {/* Modal Content */}
-            <motion.div
-              initial={{
-                scale: 0.1,
-                x:
-                  clickPosition.x -
-                  (typeof window !== "undefined" ? window.innerWidth / 2 : 0),
-                y:
-                  clickPosition.y -
-                  (typeof window !== "undefined" ? window.innerHeight / 2 : 0),
-                opacity: 0,
-              }}
-              animate={{
-                scale: 1,
-                x: 0,
-                y: 0,
-                opacity: 1,
-              }}
-              exit={{
-                scale: 0.1,
-                x:
-                  clickPosition.x -
-                  (typeof window !== "undefined" ? window.innerWidth / 2 : 0),
-                y:
-                  clickPosition.y -
-                  (typeof window !== "undefined" ? window.innerHeight / 2 : 0),
-                opacity: 0,
-                transition: {
-                  duration: 0.4,
+              {/* Modal Content */}
+              <motion.div
+                initial={{
+                  scale: 0.1,
+                  x:
+                    clickPosition.x -
+                    (typeof window !== "undefined" ? window.innerWidth / 2 : 0),
+                  y:
+                    clickPosition.y -
+                    (typeof window !== "undefined"
+                      ? window.innerHeight / 2
+                      : 0),
+                  opacity: 0,
+                }}
+                animate={{
+                  scale: 1,
+                  x: 0,
+                  y: 0,
+                  opacity: 1,
+                }}
+                exit={{
+                  scale: 0.1,
+                  x:
+                    clickPosition.x -
+                    (typeof window !== "undefined" ? window.innerWidth / 2 : 0),
+                  y:
+                    clickPosition.y -
+                    (typeof window !== "undefined"
+                      ? window.innerHeight / 2
+                      : 0),
+                  opacity: 0,
+                  transition: {
+                    duration: 0.4,
+                    ease: [0.32, 0.72, 0, 1],
+                  },
+                }}
+                transition={{
+                  duration: 0.5,
                   ease: [0.32, 0.72, 0, 1],
-                },
-              }}
-              transition={{
-                duration: 0.5,
-                ease: [0.32, 0.72, 0, 1],
-              }}
-              className="relative aspect-video max-w-7xl w-full mx-4"
-            >
-              {/* Video */}
-              <div className="w-full h-full bg-black">
-                <iframe
-                  className="w-full h-full"
-                  src={`https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/${
-                    modalVideo === "rho"
-                      ? "d92f2aed546bf4a481c20b22328c0611"
-                      : "51a62e7e813329fb699cd3cf07804c2f"
-                  }/iframe?autoplay=true&muted=false&controls=true`}
-                  title={modalVideo === "rho" ? "Rho Demo" : "Browserbase Demo"}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-                  allowFullScreen
-                  style={{ border: 0 }}
-                />
-              </div>
-            </motion.div>
-          </div>
+                }}
+                className="relative aspect-video max-w-7xl w-full mx-4"
+              >
+                {/* Video */}
+                <div className="w-full h-full">
+                  <iframe
+                    className="w-full h-full"
+                    src={`https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/${
+                      modalVideo === "rho"
+                        ? "d92f2aed546bf4a481c20b22328c0611"
+                        : "51a62e7e813329fb699cd3cf07804c2f"
+                    }/iframe?autoplay=true&muted=false&controls=true`}
+                    title={
+                      modalVideo === "rho" ? "Rho Demo" : "Browserbase Demo"
+                    }
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                    allowFullScreen
+                    style={{ border: 0 }}
+                  />
+                </div>
+              </motion.div>
+            </div>
+          </AnimatePresence>,
+          document.body
         )}
-      </AnimatePresence>
     </>
   );
 }

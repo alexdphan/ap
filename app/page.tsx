@@ -2,117 +2,172 @@
 
 import FloatingMusicPlayer from "@/components/FloatingMusicPlayer";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 
 export default function Home() {
+  const [showFullName, setShowFullName] = useState(false);
+  const [showContactDropdown, setShowContactDropdown] = useState(false);
+
   return (
-    <>
-      {/* Desktop Layout */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="hidden md:flex flex-col w-full"
-      >
-        {/* Magazine Header */}
-        <div className="mb-12">
-          <h1 className="text-heading-lg" style={{ color: 'var(--gray-900)' }}>AP</h1>
-          <div className="h-px w-full" style={{ backgroundColor: 'var(--gray-100)' }} />
-        </div>
-
-        {/* Two Column Magazine Layout */}
-        <div className="grid grid-cols-[1fr_auto] gap-20 items-start">
-          {/* Left Column - Text */}
-          <div className="space-y-10 max-w-xl">
-            <div>
-              <h2 className="text-label mb-4" style={{ color: 'var(--gray-400)' }}>
-                ABOUT
-              </h2>
-              <p className="text-body" style={{ color: 'var(--gray-700)' }}>
-                I'm currently pursuing{" "}
-                <Link
-                  href="/work"
-                  className="text-heading-md hover:opacity-70 transition-colors"
-                  style={{ color: '#ea580c' }}
-                >
-                  work
-                </Link>{" "}
-                in the fintech space. You'll find me always look for
-                opportunities that are simple, yet overlooked. If you think we'd
-                be great friends, don't hesitate to reach out.
-              </p>
-            </div>
-
-            <div className="h-px w-24" style={{ backgroundColor: 'var(--gray-100)' }} />
-
-            <div>
-              <h2 className="text-label mb-4" style={{ color: 'var(--gray-400)' }}>
-                CURRENTLY LISTENING
-              </h2>
-              <p className="text-body" style={{ color: 'var(--gray-700)' }}>
-                Music that shapes my day, curated moments of inspiration
-              </p>
-            </div>
-          </div>
-
-          {/* Right Column - Music Player */}
-          <div className="flex items-center justify-center">
-            <FloatingMusicPlayer />
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Mobile Layout */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="md:hidden flex flex-col items-center gap-8 w-full"
-      >
-        {/* Magazine Header */}
-        <div className="mb-4 w-full">
-          <h1 className="text-heading-lg text-center" style={{ color: 'var(--gray-900)', fontSize: '2.5rem' }}>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className="flex flex-col w-full mt-8 md:mt-16"
+    >
+      {/* Magazine Header */}
+      <div className="mb-6 md:mb-8 flex flex-col items-center md:items-start">
+        <h1
+          onClick={() => setShowFullName(!showFullName)}
+          className="text-heading cursor-pointer relative overflow-hidden min-w-[160px] text-center md:text-left"
+          style={{ color: "var(--gray-900)" }}
+        >
+          <span
+            className={`inline-block transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              showFullName ? "-translate-x-full opacity-0" : ""
+            }`}
+          >
             AP
-          </h1>
-          <div className="h-px w-full" style={{ backgroundColor: 'var(--gray-100)' }} />
+          </span>
+          <span
+            className={`absolute left-0 top-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              showFullName
+                ? "translate-x-0 opacity-100"
+                : "translate-x-[-100%] opacity-0"
+            }`}
+          >
+            Alex Phan
+          </span>
+        </h1>
+        <div
+          className="h-px w-full mt-2"
+          style={{ backgroundColor: "var(--gray-100)" }}
+        />
+      </div>
+
+      {/* Content Layout */}
+      <div className="flex flex-col md:grid md:grid-cols-[1fr_auto] gap-8 md:gap-16 items-center md:items-start">
+        {/* Music Player - Shows first on mobile, second on desktop */}
+        <div className="flex items-center justify-center w-40 mt-8 md:mt-0 md:order-2">
+          <FloatingMusicPlayer />
         </div>
 
-        {/* Floating Music Player */}
-        <FloatingMusicPlayer />
-
-        {/* Bio Description */}
-        <div className="max-w-sm text-center px-4 space-y-6">
-          <div>
-            <h2 className="text-label mb-3" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
-              ABOUT
-            </h2>
-            <p className="text-body" style={{ color: 'var(--gray-700)' }}>
+        {/* Text Content - Shows second on mobile, first on desktop */}
+        <div className="space-y-6 max-w-xl text-center md:text-left px-4 md:px-0 md:order-1">
+          {/* <div>
+            <p className="text-body" style={{ color: "var(--gray-700)" }}>
               I'm currently pursuing{" "}
               <Link
                 href="/work"
-                className="text-heading-md hover:opacity-70 transition-colors"
-                style={{ color: '#ea580c' }}
+                className="text-body hover:opacity-70 transition-opacity underline"
+                style={{ color: "var(--gray-700)" }}
               >
                 work
               </Link>{" "}
-              in the fintech space. You'll find me always look for opportunities
-              that are simple, yet overlooked. If you think we'd be great
-              friends, don't hesitate to reach out.
+              in fintech.
+            </p>
+          </div> */}
+
+          {/* Philosophy */}
+          <div>
+            <p className="text-body" style={{ color: "var(--gray-700)" }}>
+              I often look for opportunities that are simple, yet overlooked.
+              {/* The best
+              solutions often hide in plain sight, waiting for someone to see
+              them from a different angle. */}
             </p>
           </div>
 
-          <div className="h-px w-16 mx-auto" style={{ backgroundColor: 'var(--gray-100)' }} />
-
+          {/* Interests */}
           <div>
-            <h2 className="text-label mb-2" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
-              CURRENTLY LISTENING
-            </h2>
-            <p className="text-body" style={{ color: 'var(--gray-700)', fontSize: '0.8rem' }}>
-              Music that shapes my day
+            <p className="text-body" style={{ color: "var(--gray-700)" }}>
+              Beyond{" "}
+              <Link
+                href="/work"
+                className="text-body hover:opacity-70 transition-opacity underline"
+                style={{ color: "var(--gray-700)" }}
+              >
+                work
+              </Link>
+              , you'll{" "}
+              <Link
+                href="/now"
+                className="text-body hover:opacity-70 transition-opacity underline"
+                style={{ color: "var(--gray-700)" }}
+              >
+                find me
+              </Link>{" "}
+              walking around NYC and SF, and always looking for the next
+              interesting conversation. I also angel invest and help startups
+              grow on the side.
             </p>
+          </div>
+
+          {/* Contact */}
+          <div className="relative inline-block">
+            <p className="text-body" style={{ color: "var(--gray-700)" }}>
+              Feel free to{" "}
+              <button
+                onClick={() => setShowContactDropdown(!showContactDropdown)}
+                className="text-body hover:opacity-70 transition-opacity underline cursor-pointer bg-transparent border-none p-0 font-inherit"
+                style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
+              >
+                reach out
+              </button>{" "}
+              if you'd like to chat about anything.
+            </p>
+
+            {/* Contact Dropdown */}
+            <AnimatePresence>
+              {showContactDropdown && (
+                <motion.div
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  transition={{
+                    duration: 0.2,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="absolute left-0 top-full mt-1 flex gap-3 py-2 px-3 z-10"
+                  style={{
+                    backgroundColor: "#FFF6E5",
+                    border: "1px solid var(--gray-100)",
+                  }}
+                >
+                  <a
+                    href="mailto:alexphan0515@gmail.com"
+                    className="text-caption hover:opacity-70 transition-opacity"
+                    style={{ color: "var(--gray-700)" }}
+                  >
+                    Email
+                  </a>
+                  <span style={{ color: "var(--gray-400)" }}>·</span>
+                  <a
+                    href="https://linkedin.com/in/alexanderdphan"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-caption hover:opacity-70 transition-opacity"
+                    style={{ color: "var(--gray-700)" }}
+                  >
+                    LinkedIn
+                  </a>
+                  <span style={{ color: "var(--gray-400)" }}>·</span>
+                  <a
+                    href="https://x.com/alexdphan"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-caption hover:opacity-70 transition-opacity"
+                    style={{ color: "var(--gray-700)" }}
+                  >
+                    X
+                  </a>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
-      </motion.div>
-    </>
+      </div>
+    </motion.div>
   );
 }

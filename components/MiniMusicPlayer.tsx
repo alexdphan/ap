@@ -227,7 +227,6 @@ export default function MiniMusicPlayer() {
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
           allowFullScreen
-          disablePictureInPicture
           onLoad={() => {
             // Subscribe to player state changes when iframe loads
             if (iframeRef.current && iframeRef.current.contentWindow) {
@@ -254,35 +253,36 @@ export default function MiniMusicPlayer() {
             }}
           >
             <div ref={dropdownRef} className="relative">
-              <div className="flex items-center gap-3 w-full md:w-[400px] h-[68px] md:h-[72px] p-4 bg-white" style={{ borderBottom: '1px solid var(--gray-100)' }}>
+              <div className="flex items-center gap-3 w-full md:w-[360px] h-[60px] md:h-[64px] px-4 py-3" style={{ backgroundColor: '#FFF6E5', border: '1px solid var(--gray-100)' }}>
                 {/* Video Thumbnail - Left */}
                 <div
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="w-12 h-12 md:w-14 md:h-14 bg-black overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                  className="w-10 h-10 md:w-11 md:h-11 bg-black overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                  style={{ border: '1px solid var(--gray-100)' }}
                 >
                   <img
                     src={`https://img.youtube.com/vi/${currentVideo.id}/mqdefault.jpg`}
                     alt={currentVideo.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover scale-110"
                   />
                 </div>
 
                 {/* Song Title - Middle */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-heading-md truncate leading-tight" style={{ color: 'var(--gray-900)' }}>
+                  <p className="text-caption truncate leading-tight" style={{ color: 'var(--gray-900)' }}>
                     {currentVideo.title}
                   </p>
                 </div>
 
                 {/* Playback Controls - Right */}
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-1 flex-shrink-0">
                   <button
                     onClick={handlePrevious}
-                    className="hover:opacity-70 transition-opacity"
-                    style={{ color: 'var(--gray-900)' }}
+                    className="hover:opacity-70 transition-opacity p-1"
+                    style={{ color: 'var(--gray-700)' }}
                   >
                     <svg
-                      className="w-5 h-5"
+                      className="w-4 h-4"
                       fill="currentColor"
                       viewBox="0 0 24 24"
                     >
@@ -323,11 +323,11 @@ export default function MiniMusicPlayer() {
 
                   <button
                     onClick={handleNext}
-                    className="hover:opacity-70 transition-opacity"
-                    style={{ color: 'var(--gray-900)' }}
+                    className="hover:opacity-70 transition-opacity p-1"
+                    style={{ color: 'var(--gray-700)' }}
                   >
                     <svg
-                      className="w-5 h-5"
+                      className="w-4 h-4"
                       fill="currentColor"
                       viewBox="0 0 24 24"
                     >
@@ -345,11 +345,13 @@ export default function MiniMusicPlayer() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute top-full w-full bg-white max-h-[340px] md:max-h-[360px] overflow-y-auto scrollbar-hide"
+                    className="absolute top-full w-full max-h-[340px] md:max-h-[360px] overflow-y-auto scrollbar-hide"
                     style={{
                       scrollbarWidth: "none",
                       msOverflowStyle: "none",
-                      borderBottom: '1px solid var(--gray-100)',
+                      backgroundColor: '#FFF6E5',
+                      border: '1px solid var(--gray-100)',
+                      borderTop: 'none',
                     }}
                   >
                     {videos.map((video, index) => (
@@ -368,31 +370,25 @@ export default function MiniMusicPlayer() {
                             ignoreYouTubeEventsRef.current = false;
                           }, 1500);
                         }}
-                        className={`
-                        flex items-center gap-3 p-3 md:p-4 cursor-pointer hover:opacity-70 transition-opacity
-                        ${index === currentVideoIndex ? "" : ""}
-                      `}
+                        className="flex items-center gap-3 p-3 cursor-pointer hover:opacity-70 transition-opacity"
                         style={{
                           borderBottom: '1px solid var(--gray-100)',
-                          backgroundColor: index === currentVideoIndex ? 'var(--gray-100)' : 'white',
+                          backgroundColor: index === currentVideoIndex ? 'var(--gray-100)' : 'transparent',
                         }}
                       >
                         {/* Thumbnail */}
-                        <div className="w-10 h-10 md:w-11 md:h-11 bg-black overflow-hidden flex-shrink-0">
+                        <div className="w-9 h-9 bg-black overflow-hidden flex-shrink-0" style={{ border: '1px solid var(--gray-100)' }}>
                           <img
                             src={`https://img.youtube.com/vi/${video.id}/mqdefault.jpg`}
                             alt={video.title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover scale-110"
                           />
                         </div>
 
                         {/* Song Info */}
                         <div className="flex-1 min-w-0">
-                          <p className="text-heading-md truncate" style={{ color: 'var(--gray-900)', fontSize: '0.85rem' }}>
+                          <p className="text-caption truncate leading-tight" style={{ color: 'var(--gray-900)' }}>
                             {video.title}
-                          </p>
-                          <p className="text-body truncate" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
-                            {video.artist}
                           </p>
                         </div>
 
