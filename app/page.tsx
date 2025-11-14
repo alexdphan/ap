@@ -98,9 +98,8 @@ export default function Home() {
               >
                 find me
               </Link>{" "}
-              walking around NYC and SF, and always looking for the next
-              interesting conversation. I also angel invest and help startups
-              grow on the side.
+               embarrasing myself learning new things, or being selfless around others. I also angel invest and advise
+              startups on growth.
             </p>
           </div>
 

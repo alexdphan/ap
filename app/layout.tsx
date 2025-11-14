@@ -121,6 +121,15 @@ export default function RootLayout({
     <html lang="en" className={isDarkMode ? "dark" : ""}>
       <head>
         <meta name="theme-color" content={isDarkMode ? "#1a1512" : "#fff6e5"} />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
+        <style>{`
+          :root {
+            color-scheme: ${isDarkMode ? "dark" : "light"};
+          }
+        `}</style>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${lora.variable} antialiased`}
