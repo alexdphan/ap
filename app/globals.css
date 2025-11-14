@@ -218,8 +218,8 @@ body {
 
   /* Dark Mode - Backgrounds */
   --bg-outer: #1a1512;
-  --bg-content: #2b2520;
-  --bg-player: #2b2520;
+  --bg-content: #1a1512;
+  --bg-player: #1a1512;
 
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
@@ -343,7 +343,7 @@ iframe[src*="cloudflare"] {
 
 .dark .magazine-frame {
   box-shadow: 
-    /* Frame border */ 0 0 0 8px #1a1512,
+    /* Frame border */ 0 0 0 8px #3d3530,
     /* Subtle shadow for depth */ 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 

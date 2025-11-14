@@ -17,28 +17,32 @@ export default function Home() {
       className="flex flex-col w-full mt-8 md:mt-16"
     >
       {/* Magazine Header */}
-      <div className="mb-6 md:mb-8 flex flex-col items-center md:items-start">
+      <div className="mb-6 md:mb-8 flex flex-col items-center md:items-start w-full">
         <h1
           onClick={() => setShowFullName(!showFullName)}
-          className="text-heading cursor-pointer relative overflow-hidden min-w-[160px] text-center md:text-left"
-          style={{ color: "var(--gray-900)" }}
+          className="text-heading cursor-pointer relative overflow-hidden"
+          style={{ color: "var(--gray-900)", minWidth: "200px" }}
         >
-          <span
-            className={`inline-block transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-              showFullName ? "-translate-x-full opacity-0" : ""
-            }`}
+          <motion.span
+            animate={{
+              x: showFullName ? "-100%" : "0%",
+              opacity: showFullName ? 0 : 1,
+            }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="block text-center md:text-left"
           >
             AP
-          </span>
-          <span
-            className={`absolute left-0 top-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-              showFullName
-                ? "translate-x-0 opacity-100"
-                : "translate-x-[-100%] opacity-0"
-            }`}
+          </motion.span>
+          <motion.span
+            animate={{
+              x: showFullName ? "0%" : "-100%",
+              opacity: showFullName ? 1 : 0,
+            }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute left-0 top-0 w-full text-center md:text-left"
           >
             Alex Phan
-          </span>
+          </motion.span>
         </h1>
         <div
           className="h-px w-full mt-2"
@@ -47,7 +51,7 @@ export default function Home() {
       </div>
 
       {/* Content Layout */}
-      <div className="flex flex-col md:grid md:grid-cols-[1fr_auto] gap-8 md:gap-16 items-center md:items-start">
+      <div className="flex flex-col md:grid md:grid-cols-[1fr_auto] gap-8 md:gap-16 items-center">
         {/* Music Player - Shows first on mobile, second on desktop */}
         <div className="flex items-center justify-center w-40 mt-8 md:mt-0 md:order-2">
           <FloatingMusicPlayer />
@@ -98,8 +102,8 @@ export default function Home() {
               >
                 find me
               </Link>{" "}
-               embarrasing myself learning new things, or being selfless around others. I also angel invest and advise
-              startups on growth.
+              embarrasing myself learning new things, or being selfless around
+              others. I also angel invest and advise startups on growth.
             </p>
           </div>
 
@@ -167,12 +171,12 @@ export default function Home() {
           </div>
 
           {/* Writings */}
-          <div>
+          {/* <div>
             <p className="text-body" style={{ color: "var(--gray-700)" }}>
               Also I've been meaning to write more, so expect some thoughts here
               soon.
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
     </motion.div>
