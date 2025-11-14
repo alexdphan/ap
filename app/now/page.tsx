@@ -320,7 +320,7 @@ export default function NowPage() {
                 Recent Highlights
               </p>
               <p className="text-body" style={{ color: "var(--gray-700)" }}>
-                Shipped findrho.co and helped some friends find opportunities
+                Shipped <Link href="https://findrho.co" target="_blank" rel="noopener noreferrer" className="text-body hover:opacity-70 transition-opacity underline" style={{ color: "var(--gray-700)" }}>findrho.co</Link> and helped some friends find opportunities
                 they love.
               </p>
             </div>

@@ -110,7 +110,7 @@ export default function WorkPage() {
                 style={{ backgroundColor: "var(--gray-100)" }}
               />
               <p className="text-body" style={{ color: "var(--gray-400)" }}>
-                Fintech • Series C
+                Fintech • Series B
               </p>
             </div>
 
@@ -261,7 +261,7 @@ export default function WorkPage() {
                 </p>
               </div>
               <p className="text-body" style={{ color: "var(--gray-400)" }}>
-                AI Grant Batch 3 • Series B
+              Developer Tools • AI Grant Batch 3 • Series B
               </p>
             </div>
           </div>

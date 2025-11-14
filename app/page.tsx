@@ -131,7 +131,7 @@ export default function Home() {
                   }}
                   className="absolute left-0 top-full mt-1 flex gap-3 py-2 px-3 z-10"
                   style={{
-                    backgroundColor: "#FFF6E5",
+                    backgroundColor: "var(--bg-content)",
                     border: "1px solid var(--gray-100)",
                   }}
                 >
@@ -165,6 +165,14 @@ export default function Home() {
                 </motion.div>
               )}
             </AnimatePresence>
+          </div>
+
+          {/* Writings */}
+          <div>
+            <p className="text-body" style={{ color: "var(--gray-700)" }}>
+              Also I've been meaning to write more, so expect some thoughts here
+              soon.
+            </p>
           </div>
         </div>
       </div>

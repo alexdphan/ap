@@ -253,7 +253,7 @@ export default function MiniMusicPlayer() {
             }}
           >
             <div ref={dropdownRef} className="relative">
-              <div className="flex items-center gap-3 w-full md:w-[360px] h-[60px] md:h-[64px] px-4 py-3" style={{ backgroundColor: '#FFF6E5', border: '1px solid var(--gray-100)' }}>
+              <div className="flex items-center gap-3 w-full md:w-[360px] h-[60px] md:h-[64px] px-4 py-3" style={{ backgroundColor: 'var(--bg-player)', border: '1px solid var(--gray-100)' }}>
                 {/* Video Thumbnail - Left */}
                 <div
                   onClick={() => setShowDropdown(!showDropdown)}
@@ -349,7 +349,7 @@ export default function MiniMusicPlayer() {
                     style={{
                       scrollbarWidth: "none",
                       msOverflowStyle: "none",
-                      backgroundColor: '#FFF6E5',
+                      backgroundColor: 'var(--bg-player)',
                       border: '1px solid var(--gray-100)',
                       borderTop: 'none',
                     }}

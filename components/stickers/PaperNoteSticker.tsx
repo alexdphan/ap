@@ -48,7 +48,7 @@ export default function PaperNoteSticker({
     >
       <div className="w-full h-full flex items-center justify-center p-1.5 md:p-2">
         <p
-          className="text-[10px] md:text-caption leading-tight text-center"
+          className="text-[10px] md:text-caption leading-tight text-center paper-note-text"
           style={{ color: "var(--gray-900)" }}
         >
           {text}

@@ -53,6 +53,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
   height: 100vh;
   overflow: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    color 0.3s ease;
 }
 
 /* 
@@ -60,7 +66,7 @@ body {
  * Creates a subtle texture to show shadow depth
  */
 .museum-grid-bg {
-  background-color: #fff6e5;
+  background-color: var(--bg-outer);
 }
 
 /* 
@@ -159,11 +165,16 @@ body {
 :root {
   --radius: 0.625rem;
 
-  /* Simplified 4-Gray Palette */
+  /* Light Mode - Simplified 4-Gray Palette */
   --gray-100: #ebe0cc; /* light - borders, subtle backgrounds */
   --gray-400: #a3a3a3; /* medium-light - secondary text, labels */
   --gray-700: #404040; /* medium-dark - body text */
   --gray-900: #171717; /* dark - headings */
+
+  /* Light Mode - Backgrounds */
+  --bg-outer: #fff6e5;
+  --bg-content: #fff6e5;
+  --bg-player: #fff6e5;
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -201,6 +212,17 @@ body {
  ---break---
  */
 .dark {
+  /* Dark Mode - Warm Brown Palette */
+  --gray-100: #3d3530; /* dark borders */
+  --gray-400: #9a8a7a; /* muted text, labels */
+  --gray-700: #d4c4b4; /* body text */
+  --gray-900: #f5ebe0; /* headings */
+
+  /* Dark Mode - Backgrounds */
+  --bg-outer: #1a1512;
+  --bg-content: #2b2520;
+  --bg-player: #2b2520;
+
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -319,7 +341,17 @@ iframe[src*="cloudflare"] {
   box-shadow: 
     /* Frame border */ 0 0 0 8px #3a3a3a,
     /* Subtle shadow for depth */ 0 4px 12px rgba(0, 0, 0, 0.15);
-  /* border: 1px solid var(--gray-100); */
+}
+
+.dark .magazine-frame {
+  box-shadow: 
+    /* Frame border */ 0 0 0 8px #1a1512,
+    /* Subtle shadow for depth */ 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Paper Note Sticker - Force black text in dark mode */
+.dark .paper-note-text {
+  color: #171717 !important;
 }
 
 /* Subtle film grain texture for magazine authenticity */
