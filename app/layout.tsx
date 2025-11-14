@@ -119,6 +119,9 @@ export default function RootLayout({
 
   return (
     <html lang="en" className={isDarkMode ? "dark" : ""}>
+      <head>
+        <meta name="theme-color" content={isDarkMode ? "#1a1512" : "#fff6e5"} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${lora.variable} antialiased`}
       >
