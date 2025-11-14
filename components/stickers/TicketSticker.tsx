@@ -50,7 +50,7 @@ export default function TicketSticker({
           ease: "easeInOut",
         },
       }}
-      className={`${className} cursor-grab active:cursor-grabbing scale-75 md:scale-100`}
+      className={`${className} cursor-grab active:cursor-grabbing scale-50 md:scale-100`}
     >
       <svg
         width="130"

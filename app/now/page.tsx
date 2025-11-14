@@ -92,7 +92,7 @@ export default function NowPage() {
               distance="2,906 mi"
               duration="6 hrs"
               isVisible={isLoaded}
-              className="absolute top-24 left-1/2 -translate-x-1/2 z-40 -rotate-6"
+              className="absolute top-10 md:top-24 left-1/2 -translate-x-1/2 z-40 -rotate-6"
             />
 
             {/* NYC Video */}
@@ -291,7 +291,7 @@ export default function NowPage() {
             }}
           >
             <p
-              className="text-heading text-center"
+              className="text-body text-center"
               style={{ color: "var(--gray-700)" }}
             >
               "If you can make it there, you'll make it anywhere"
@@ -320,8 +320,17 @@ export default function NowPage() {
                 Recent Highlights
               </p>
               <p className="text-body" style={{ color: "var(--gray-700)" }}>
-                Shipped <Link href="https://findrho.co" target="_blank" rel="noopener noreferrer" className="text-body hover:opacity-70 transition-opacity underline" style={{ color: "var(--gray-700)" }}>findrho.co</Link> and helped some friends find opportunities
-                they love.
+                Shipped{" "}
+                <Link
+                  href="https://findrho.co"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-body hover:opacity-70 transition-opacity underline"
+                  style={{ color: "var(--gray-700)" }}
+                >
+                  findrho.co
+                </Link>{" "}
+                and helped some friends find opportunities they love.
               </p>
             </div>
 

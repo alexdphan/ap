@@ -169,7 +169,7 @@ export default function WorkPage() {
                 <StarburstSticker
                   text="Find Rho in action!"
                   isVisible={isLoaded}
-                  className="absolute -right-4 md:-right-12 -top-12 scale-[1] md:scale-[0.6]"
+                  className="absolute -right-4 md:-right-14 -right-8 md:-top-14 -top-8 scale-[1] md:scale-[0.6]"
                 />
               </div>
             </div>
@@ -232,7 +232,7 @@ export default function WorkPage() {
                 <PaperNoteSticker
                   text="Browserbase Director and Series B Launch"
                   isVisible={isLoaded}
-                  className="absolute -bottom-2 md:-bottom-6 left-2 w-[90px] md:w-[80px] h-[60px] md:h-[80px]"
+                  className="absolute -bottom-8 left-56 md:-bottom-6 left-2 w-[90px] md:w-[80px] h-[60px] md:h-[80px]"
                 />
               </div>
             </div>
@@ -261,7 +261,7 @@ export default function WorkPage() {
                 </p>
               </div>
               <p className="text-body" style={{ color: "var(--gray-400)" }}>
-              Developer Tools • AI Grant Batch 3 • Series B
+                Developer Tools • AI Grant Batch 3 • Series B
               </p>
             </div>
           </div>

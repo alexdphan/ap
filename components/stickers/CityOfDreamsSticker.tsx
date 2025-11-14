@@ -9,7 +9,7 @@ interface CityOfDreamsStickerProps {
 
 export default function CityOfDreamsSticker({
   isVisible = true,
-  className = "absolute -top-3 -right-2 md:-top-8 md:-right-8 z-20",
+  className = "absolute -top-3 -right-8 md:-top-8 md:-right-8 z-20",
 }: CityOfDreamsStickerProps) {
   return (
     <motion.div
