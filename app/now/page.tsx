@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import CityOfDreamsSticker from "@/components/stickers/CityOfDreamsSticker";
-import TicketSticker from "@/components/stickers/TicketSticker";
+// import CityOfDreamsSticker from "@/components/stickers/CityOfDreamsSticker";
+// import TicketSticker from "@/components/stickers/TicketSticker";
 
 export default function NowPage() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -71,7 +71,7 @@ export default function NowPage() {
         <div className="space-y-8">
           {/* Intro Paragraph */}
           <div className="relative">
-            <CityOfDreamsSticker isVisible={isLoaded} />
+            {/* <CityOfDreamsSticker isVisible={isLoaded} /> */}
 
             <p
               className="text-body relative z-10"
@@ -86,14 +86,14 @@ export default function NowPage() {
           {/* Videos Section - Side by Side */}
           <div className="grid grid-cols-2 gap-4 relative">
             {/* Ticket Sticker - Between Videos */}
-            <TicketSticker
+            {/* <TicketSticker
               from="NYC"
               to="SF"
               distance="2,906 mi"
               duration="6 hrs"
               isVisible={isLoaded}
               className="absolute top-10 md:top-24 left-1/2 -translate-x-1/2 z-40 -rotate-6"
-            />
+            /> */}
 
             {/* NYC Video */}
             <div className="relative">

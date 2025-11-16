@@ -1,12 +1,12 @@
 "use client";
 
-import { Geist, Geist_Mono, Playfair_Display, Lora } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
-import {
-  MusicPlayerProvider,
-  useMusicPlayer,
-} from "@/contexts/MusicPlayerContext";
-import MiniMusicPlayer from "@/components/MiniMusicPlayer";
+// import {
+//   MusicPlayerProvider,
+//   useMusicPlayer,
+// } from "@/contexts/MusicPlayerContext";
+// import MiniMusicPlayer from "@/components/MiniMusicPlayer";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
@@ -20,14 +20,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const lora = Lora({
-  variable: "--font-lora",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
 });
@@ -42,43 +36,43 @@ function LayoutContent({
   setIsDarkMode: (value: boolean) => void;
 }) {
   const pathname = usePathname();
-  const { hasInteracted } = useMusicPlayer();
+  // const { hasInteracted } = useMusicPlayer();
 
   // Show mini player on non-home pages if user has interacted
-  const showMiniPlayer = pathname !== "/" && hasInteracted;
+  const showMiniPlayer = false; // pathname !== "/" && hasInteracted;
 
   return (
     <>
       {/* Desktop Layout - Box Model Structure */}
       <div
-        className="museum-grid-bg hidden md:flex min-h-screen items-center justify-center overflow-y-auto overflow-x-hidden p-8"
+        className=" md:flex min-h-screen overflow-y-auto overflow-x-hidden justify-center"
         style={{
           backgroundColor: "var(--bg-outer)",
         }}
       >
         <div
-          className="w-full max-w-4xl p-16 my-8 relative z-0"
+          className="w-full max-w-lg mx-auto px-8 py-16 relative z-0"
           style={{
             backgroundColor: "var(--bg-content)",
-            border: "1px solid var(--gray-100)",
+            // border: "1px solid var(--gray-100)",
           }}
         >
           {/* Triangle Tab - Dark Mode Toggle */}
-          <button
+          {/* <button
             onClick={() => setIsDarkMode(!isDarkMode)}
             className="absolute -top-0 -right-0 w-0 h-0 border-t-[30px] border-l-[30px] border-l-transparent hover:opacity-80 transition-all cursor-pointer"
             style={{
               borderTopColor: isDarkMode ? "#f5ebe0" : "#3a3a3a",
             }}
             aria-label="Toggle dark mode"
-          />
+          /> */}
           {children}
         </div>
       </div>
 
       {/* Mobile Layout - Box Model Structure */}
       <div
-        className={`museum-grid-bg md:hidden min-h-screen overflow-y-auto overflow-x-hidden p-4 ${
+        className={`museum-grid-bg md:hidden min-h-screen overflow-y-auto overflow-x-hidden pt-4 flex justify-center ${
           showMiniPlayer ? "pt-[76px]" : ""
         }`}
         style={{
@@ -86,26 +80,26 @@ function LayoutContent({
         }}
       >
         <div
-          className="p-8 my-4 relative z-0"
+          className="px-4 py-16 relative z-0 w-full max-w-lg mx-auto"
           style={{
             backgroundColor: "var(--bg-content)",
-            border: "1px solid var(--gray-100)",
+            // border: "1px solid var(--gray-100)",
           }}
         >
           {/* Triangle Tab - Dark Mode Toggle */}
-          <button
+          {/* <button
             onClick={() => setIsDarkMode(!isDarkMode)}
             className="absolute -top-0 -right-0 w-0 h-0 border-t-[25px] border-l-[25px] border-l-transparent hover:opacity-80 transition-all cursor-pointer"
             style={{
               borderTopColor: isDarkMode ? "#f5ebe0" : "#3a3a3a",
             }}
             aria-label="Toggle dark mode"
-          />
+          /> */}
           {children}
         </div>
       </div>
 
-      <MiniMusicPlayer />
+      {/* <MiniMusicPlayer /> */}
     </>
   );
 }
@@ -131,28 +125,46 @@ export default function RootLayout({
     return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
+  // Update theme-color meta tag when dark mode changes
+  useEffect(() => {
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement("meta");
+      metaThemeColor.setAttribute("name", "theme-color");
+      document.head.appendChild(metaThemeColor);
+    }
+
+    metaThemeColor.setAttribute("content", isDarkMode ? "#121212" : "#fff6e5");
+  }, [isDarkMode]);
+
+  // Set up meta tags on mount
+  useEffect(() => {
+    // Apple mobile web app status bar
+    let metaApple = document.querySelector(
+      'meta[name="apple-mobile-web-app-status-bar-style"]'
+    );
+    if (!metaApple) {
+      metaApple = document.createElement("meta");
+      metaApple.setAttribute("name", "apple-mobile-web-app-status-bar-style");
+      document.head.appendChild(metaApple);
+    }
+    metaApple.setAttribute("content", "black-translucent");
+
+    // Set color-scheme on root
+    document.documentElement.style.colorScheme = isDarkMode ? "dark" : "light";
+  }, [isDarkMode]);
+
   return (
     <html lang="en" className={isDarkMode ? "dark" : ""}>
-      <head>
-        <meta name="theme-color" content={isDarkMode ? "#1a1512" : "#fff6e5"} />
-        <meta
-          name="apple-mobile-web-app-status-bar-style"
-          content="black-translucent"
-        />
-        <style>{`
-          :root {
-            color-scheme: ${isDarkMode ? "dark" : "light"};
-          }
-        `}</style>
-      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${lora.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
       >
-        <MusicPlayerProvider>
-          <LayoutContent isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}>
-            {children}
-          </LayoutContent>
-        </MusicPlayerProvider>
+        {/* <MusicPlayerProvider> */}
+        <LayoutContent isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}>
+          {children}
+        </LayoutContent>
+        {/* </MusicPlayerProvider> */}
       </body>
     </html>
   );

@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import StarburstSticker from "@/components/stickers/StarburstSticker";
-import PaperNoteSticker from "@/components/stickers/PaperNoteSticker";
+// import StarburstSticker from "@/components/stickers/StarburstSticker";
+// import PaperNoteSticker from "@/components/stickers/PaperNoteSticker";
 
 export default function WorkPage() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -166,11 +166,11 @@ export default function WorkPage() {
                     />
                   </motion.div>
                 </div>
-                <StarburstSticker
+                {/* <StarburstSticker
                   text="Find Rho in action!"
                   isVisible={isLoaded}
                   className="absolute -right-4 md:-right-14 -right-8 md:-top-14 -top-8 scale-[1] md:scale-[0.6]"
-                />
+                /> */}
               </div>
             </div>
           </div>
@@ -229,11 +229,11 @@ export default function WorkPage() {
                     />
                   </motion.div>
                 </div>
-                <PaperNoteSticker
+                {/* <PaperNoteSticker
                   text="Browserbase Director and Series B Launch"
                   isVisible={isLoaded}
                   className="absolute -bottom-8 left-56 md:-bottom-6 left-2 w-[90px] md:w-[80px] h-[60px] md:h-[80px]"
-                />
+                /> */}
               </div>
             </div>
 
