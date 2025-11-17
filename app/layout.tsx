@@ -135,7 +135,7 @@ export default function RootLayout({
       document.head.appendChild(metaThemeColor);
     }
 
-    metaThemeColor.setAttribute("content", isDarkMode ? "#121212" : "#fff6e5");
+    metaThemeColor.setAttribute("content", isDarkMode ? "#121212" : "#F5F4F3");
   }, [isDarkMode]);
 
   // Set up meta tags on mount

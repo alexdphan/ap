@@ -62,12 +62,12 @@ body {
 }
 
 /* Global Link and Button Styles */
-a,
+a:not(.no-hover),
 button.underline {
   transition: opacity 0.2s ease;
 }
 
-a:hover,
+a:not(.no-hover):hover,
 button.underline:hover {
   opacity: 0.7 !important;
 }
@@ -177,15 +177,15 @@ button.underline:hover {
   --radius: 0.625rem;
 
   /* Light Mode - Simplified 4-Gray Palette */
-  --gray-100: #ebe0cc; /* light - borders, subtle backgrounds */
+  --gray-100: #e5e5e5; /* light - borders, subtle backgrounds */
   --gray-400: #737373; /* medium-light - secondary text, labels */
-  --gray-700: #1a1a1a; /* medium-dark - body text */
-  --gray-900: #000000; /* dark - headings */
+  --gray-700: #121212; /* medium-dark - body text */
+  --gray-900: #121212; /* dark - headings */
 
   /* Light Mode - Backgrounds */
-  --bg-outer: #fff6e5;
-  --bg-content: #fff6e5;
-  --bg-player: #fff6e5;
+  --bg-outer: #f5f4f3;
+  --bg-content: #f5f4f3;
+  --bg-player: #f5f4f3;
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -288,6 +288,29 @@ button.underline:hover {
   display: none;
 }
 
+/* Subtle scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-100) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--gray-100);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--gray-400);
+}
+
 /* Radically Simplified Typography - 3 Sizes Maximum */
 .text-heading {
   font-family: var(--font-inter);
@@ -326,25 +349,14 @@ button.underline:hover {
   font-style: normal;
 }
 
-/* Kodak 2383 Film Emulation LUT - Warm Vintage Aesthetic */
+/* Video styling - no filters */
 img,
 iframe,
 video,
 .artwork-card img,
 .artwork-card iframe,
 .artwork-card video {
-  filter: saturate(0.85) brightness(1.05) contrast(1.12) sepia(0.15)
-    hue-rotate(-5deg) !important;
   transition: filter 0.3s ease;
-}
-
-/* Apply to video containers and embedded content */
-div[class*="video"] iframe,
-div[class*="Video"] iframe,
-iframe[src*="youtube"],
-iframe[src*="cloudflare"] {
-  filter: saturate(0.85) brightness(1.05) contrast(1.12) sepia(0.15)
-    hue-rotate(-5deg) !important;
 }
 
 /* Magazine Frame Border */
