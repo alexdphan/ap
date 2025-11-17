@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 
 export default function Home() {
   const [showContactDropdown, setShowContactDropdown] = useState(false);
+  const [hoveredContact, setHoveredContact] = useState(false);
   const [showPreview, setShowPreview] = useState<string | null>(null);
   const [hoveredPreview, setHoveredPreview] = useState<string | null>(null);
   const [videoModal, setVideoModal] = useState<string | null>(null);
@@ -36,8 +37,8 @@ export default function Home() {
       url: "https://x.com/alexdphan/status/1879984298138505320?s=20",
     },
     {
-      id: "Early Browser MCP",
-      name: "Director",
+      id: "mcp",
+      name: "Early Browser MCP",
       video: "8c54ad68f121b9d448c66f204de2347b",
       url: "https://x.com/alexdphan/status/1861501370010083519?s=20",
     },
@@ -210,6 +211,7 @@ export default function Home() {
           !contactContainer.contains(event.target as Node)
         ) {
           setShowContactDropdown(false);
+          setHoveredContact(false);
         }
       }
     };
@@ -243,8 +245,8 @@ export default function Home() {
           <div className="w-full">
             {/* Philosophy */}
             <p className="text-body my-5" style={{ color: "var(--gray-700)" }}>
-              You'll constantly find me looking for opportunities that are
-              simple, yet overlooked.
+              I'm constantly looking for opportunities that are simple, yet
+              overlooked.
             </p>
 
             {/* Work */}
@@ -274,7 +276,7 @@ export default function Home() {
                       exit={{ opacity: 0, y: -5 }}
                       onMouseEnter={() => setHoveredPreview("rho")}
                       onMouseLeave={() => setHoveredPreview(null)}
-                      className="absolute left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 top-full mt-2 z-10 w-64 md:w-auto overflow-hidden"
+                      className="absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:left-0 top-full mt-2 z-10 w-[256px] md:w-auto overflow-hidden"
                       style={{
                         backgroundColor: "var(--bg-content)",
                         border: "1px solid var(--gray-100)",
@@ -299,7 +301,7 @@ export default function Home() {
                         </div>
 
                         {/* Project List - Right (Desktop Only) */}
-                        <div className="hidden md:flex md:w-40 p-2 flex-col gap-1 overflow-y-auto max-h-[180px]">
+                        <div className="hidden md:flex md:w-40 p-2 flex-col gap-1 overflow-y-auto max-h-[216px]">
                           {rhoProjects.map((project) => (
                             <div
                               key={project.id}
@@ -354,7 +356,7 @@ export default function Home() {
                       exit={{ opacity: 0, y: -5 }}
                       onMouseEnter={() => setHoveredPreview("browserbase")}
                       onMouseLeave={() => setHoveredPreview(null)}
-                      className="absolute left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 top-full mt-2 z-10 w-64 md:w-auto overflow-hidden"
+                      className="absolute left-1/2 -translate-x-1/4 md:translate-x-0 md:left-0 top-full mt-2 z-10 w-[256px] md:w-auto overflow-hidden"
                       style={{
                         backgroundColor: "var(--bg-content)",
                         border: "1px solid var(--gray-100)",
@@ -379,7 +381,7 @@ export default function Home() {
                         </div>
 
                         {/* Project List - Right (Desktop Only) */}
-                        <div className="hidden md:flex md:w-40 p-2 flex-col gap-1 overflow-y-auto max-h-[180px]">
+                        <div className="hidden md:flex md:w-40 p-2 flex-col gap-1 overflow-y-auto max-h-[216px]">
                           {browserbaseProjects.map((project) => (
                             <div
                               key={project.id}
@@ -449,7 +451,7 @@ export default function Home() {
                       onMouseEnter={() => setHoveredPreview("nyc")}
                       onMouseLeave={() => setHoveredPreview(null)}
                       onClick={(e) => handlePreviewClick("nyc", e)}
-                      className="absolute left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 top-full mt-2 z-10 w-64 md:w-96 aspect-video overflow-hidden cursor-pointer"
+                      className="absolute left-1/2 -translate-x-1/4 md:left-0 md:translate-x-0 top-full mt-2 z-10 w-64 md:w-96 aspect-video overflow-hidden cursor-pointer"
                       style={{
                         backgroundColor: "var(--bg-content)",
                         border: "1px solid var(--gray-100)",
@@ -507,12 +509,11 @@ export default function Home() {
                 </AnimatePresence>
               </span>{" "}
               often. Feel free to{" "}
-            </div>
-
-            <div className="text-body" style={{ color: "var(--gray-700)" }}>
               <span className="relative inline-block contact-dropdown-container">
                 <button
                   onClick={() => setShowContactDropdown(!showContactDropdown)}
+                  onMouseEnter={() => setHoveredContact(true)}
+                  onMouseLeave={() => setHoveredContact(false)}
                   className="underline cursor-pointer bg-transparent border-none p-0 font-inherit"
                   style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
                 >
@@ -521,7 +522,7 @@ export default function Home() {
 
                 {/* Contact Dropdown */}
                 <AnimatePresence>
-                  {showContactDropdown && (
+                  {(showContactDropdown || hoveredContact) && (
                     <motion.div
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -530,6 +531,8 @@ export default function Home() {
                         duration: 0.2,
                         ease: [0.22, 1, 0.36, 1],
                       }}
+                      onMouseEnter={() => setHoveredContact(true)}
+                      onMouseLeave={() => setHoveredContact(false)}
                       className="absolute left-0 top-full mt-2 flex gap-3 py-2 px-3 z-10"
                       style={{
                         backgroundColor: "var(--bg-content)",
@@ -615,7 +618,7 @@ export default function Home() {
                   {(rhoProjects.find((p) => p.id === videoModal) ||
                     browserbaseProjects.find((p) => p.id === videoModal)) && (
                     <div
-                      className="w-full md:w-56 py-4 pl-4 pr-0 flex flex-col gap-2 overflow-y-auto max-h-[200px] md:max-h-[calc(100vh-200px)]"
+                      className="w-full md:w-56 py-4  flex flex-col gap-2 overflow-y-auto max-h-[216px] md:max-h-[calc(100vh-200px)]"
                       style={{
                         backgroundColor: "var(--bg-content)",
                         border: "1px solid var(--gray-100)",

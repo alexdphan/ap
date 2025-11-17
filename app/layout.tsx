@@ -70,35 +70,6 @@ function LayoutContent({
         </div>
       </div>
 
-      {/* Mobile Layout - Box Model Structure */}
-      <div
-        className={`museum-grid-bg md:hidden min-h-screen overflow-y-auto overflow-x-hidden pt-4 flex justify-center ${
-          showMiniPlayer ? "pt-[76px]" : ""
-        }`}
-        style={{
-          backgroundColor: "var(--bg-outer)",
-        }}
-      >
-        <div
-          className="px-4 py-16 relative z-0 w-full max-w-lg mx-auto"
-          style={{
-            backgroundColor: "var(--bg-content)",
-            // border: "1px solid var(--gray-100)",
-          }}
-        >
-          {/* Triangle Tab - Dark Mode Toggle */}
-          {/* <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="absolute -top-0 -right-0 w-0 h-0 border-t-[25px] border-l-[25px] border-l-transparent hover:opacity-80 transition-all cursor-pointer"
-            style={{
-              borderTopColor: isDarkMode ? "#f5ebe0" : "#3a3a3a",
-            }}
-            aria-label="Toggle dark mode"
-          /> */}
-          {children}
-        </div>
-      </div>
-
       {/* <MiniMusicPlayer /> */}
     </>
   );
