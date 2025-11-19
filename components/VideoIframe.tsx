@@ -51,13 +51,13 @@ export default function VideoIframe({
 
       <iframe
         {...props}
-        className={`w-full h-full ${props.className || ""}`}
+        className={`w-full h-full ${className || ""}`}
         onLoad={(e) => {
           setIsLoading(false);
           onLoad?.(e);
         }}
         style={{
-          ...props.style,
+          ...style,
           opacity: isLoading ? 0 : 1,
           transition: "opacity 0.5s ease-in-out",
         }}

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 
 import VideoIframe from "@/components/VideoIframe";
+import Link from "next/link";
 
 export default function Home() {
   const [showContactDropdown, setShowContactDropdown] = useState(false);
@@ -416,7 +417,15 @@ export default function Home() {
                   )}
                 </AnimatePresence>
               </span>{" "}
-              as a founding growth engineer.
+              as a founding growth engineer. Feel free to take a look at my{" "}
+              <Link
+                href="https://alexdphan-github-io.vercel.app/"
+                className="text-body hover:opacity-70 transition-opacity underline"
+                style={{ color: "var(--gray-700)" }}
+              >
+                other projects
+              </Link>
+              .
             </div>
 
             {/* Interests */}
