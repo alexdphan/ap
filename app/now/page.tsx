@@ -174,7 +174,7 @@ export default function NowPage() {
 
               <div className="mt-2 flex justify-between items-end">
                 <p
-                  className="text-caption italic"
+                  className="text-caption"
                   style={{ color: "var(--gray-400)" }}
                 >
                   Live feed, 2025
@@ -267,7 +267,7 @@ export default function NowPage() {
 
               <div className="mt-2 flex justify-between items-end">
                 <p
-                  className="text-caption italic"
+                  className="text-caption"
                   style={{ color: "var(--gray-400)" }}
                 >
                   Live feed, 2025

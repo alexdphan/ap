@@ -1,6 +1,6 @@
 "use client";
 
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
 // import {
 //   MusicPlayerProvider,
@@ -10,20 +10,15 @@ import "./globals.css";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
 });
 
 function LayoutContent({
@@ -51,7 +46,7 @@ function LayoutContent({
         }}
       >
         <div
-          className="w-full max-w-lg mx-auto px-8 py-16 relative z-0"
+          className="w-full max-w-xl mx-auto px-6 py-12 md:py-20 relative z-0"
           style={{
             backgroundColor: "var(--bg-content)",
             // border: "1px solid var(--gray-100)",
@@ -128,9 +123,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" className={isDarkMode ? "dark" : ""}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
-      >
+      <body className={`${inter.variable} ${geistMono.variable} antialiased`}>
         {/* <MusicPlayerProvider> */}
         <LayoutContent isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}>
           {children}
