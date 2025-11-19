@@ -417,15 +417,7 @@ export default function Home() {
                   )}
                 </AnimatePresence>
               </span>{" "}
-              as a founding growth engineer. Feel free to take a look at my{" "}
-              <Link
-                href="https://alexdphan-github-io.vercel.app/"
-                className="text-body hover:opacity-70 transition-opacity underline"
-                style={{ color: "var(--gray-700)" }}
-              >
-                other projects
-              </Link>
-              .
+              as a founding growth engineer.
             </div>
 
             {/* Interests */}
@@ -544,39 +536,66 @@ export default function Home() {
                       }}
                       onMouseEnter={() => setHoveredContact(true)}
                       onMouseLeave={() => setHoveredContact(false)}
-                      className="absolute left-0 top-full mt-2 flex gap-3 py-2 px-3 z-10"
+                      className="absolute left-0 top-full mt-2 py-2 px-3 z-10"
                       style={{
                         backgroundColor: "var(--bg-content)",
                         border: "1px solid var(--gray-100)",
                       }}
                     >
-                      <a
-                        href="mailto:alexphan0515@gmail.com"
-                        className="text-caption"
-                        style={{ color: "var(--gray-700)" }}
-                      >
-                        Email
-                      </a>
-                      <span style={{ color: "var(--gray-400)" }}>·</span>
-                      <a
-                        href="https://linkedin.com/in/alexanderdphan"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-caption"
-                        style={{ color: "var(--gray-700)" }}
-                      >
-                        LinkedIn
-                      </a>
-                      <span style={{ color: "var(--gray-400)" }}>·</span>
-                      <a
-                        href="https://x.com/alexdphan"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-caption"
-                        style={{ color: "var(--gray-700)" }}
-                      >
-                        X
-                      </a>
+                      <div className="flex items-center gap-3">
+                        <a
+                          href="mailto:alexphan0515@gmail.com"
+                          className="text-body hover:opacity-70 transition-opacity"
+                          style={{ color: "var(--gray-700)" }}
+                        >
+                          Email
+                        </a>
+                        <span
+                          className="text-body"
+                          style={{ color: "var(--gray-400)" }}
+                        >
+                          ·
+                        </span>
+                        <a
+                          href="https://linkedin.com/in/alexanderdphan"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-body hover:opacity-70 transition-opacity"
+                          style={{ color: "var(--gray-700)" }}
+                        >
+                          LinkedIn
+                        </a>
+                        <span
+                          className="text-body"
+                          style={{ color: "var(--gray-400)" }}
+                        >
+                          ·
+                        </span>
+                        <a
+                          href="https://x.com/alexdphan"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-body hover:opacity-70 transition-opacity"
+                          style={{ color: "var(--gray-700)" }}
+                        >
+                          X
+                        </a>
+                        <span
+                          className="text-body"
+                          style={{ color: "var(--gray-400)" }}
+                        >
+                          ·
+                        </span>
+                        <a
+                          href="https://alexdphan-github-io.vercel.app/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-body hover:opacity-70 transition-opacity"
+                          style={{ color: "var(--gray-700)" }}
+                        >
+                          Archive
+                        </a>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
