@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 // import CityOfDreamsSticker from "@/components/stickers/CityOfDreamsSticker";
-// import TicketSticker from "@/components/stickers/TicketSticker";
+import VideoIframe from "@/components/VideoIframe";
 
 export default function NowPage() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -111,64 +111,22 @@ export default function NowPage() {
                 onClick={(e) => handleVideoClick("nyc", e)}
               >
                 <div className="w-full aspect-video relative overflow-hidden">
-                  {/* Loading cover */}
-                  <AnimatePresence>
-                    {!isLoaded && (
-                      <motion.div
-                        initial={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.6, ease: "easeInOut" }}
-                        className="absolute inset-0 flex flex-col items-center justify-center z-10"
-                        style={{ backgroundColor: "var(--gray-100)" }}
-                      >
-                        <motion.div
-                          animate={{
-                            opacity: [0.6, 1, 0.6],
-                          }}
-                          transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                          }}
-                          className="flex flex-col items-center gap-2"
-                        >
-                          <div
-                            className="text-caption md:text-body font-light tracking-wide"
-                            style={{ color: "var(--gray-400)" }}
-                          >
-                            Loading the big apple
-                          </div>
-                        </motion.div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Video iframe */}
-                  <motion.div
-                    initial={{ opacity: 0, scale: 1.05 }}
-                    animate={{
-                      opacity: isLoaded ? 1 : 0,
-                      scale: isLoaded ? 1 : 1.05,
+                  <VideoIframe
+                    src="https://www.youtube.com/embed/R1CG9ZuK2V8?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=R1CG9ZuK2V8"
+                    title="NYC Livestream"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                    allowFullScreen
+                    className="pointer-events-none absolute"
+                    style={{
+                      width: "170%",
+                      height: "170%",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      pointerEvents: "none",
                     }}
-                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                    className="w-full h-full absolute inset-0"
-                  >
-                    <iframe
-                      src="https://www.youtube.com/embed/R1CG9ZuK2V8?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=R1CG9ZuK2V8"
-                      title="NYC Livestream"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-                      allowFullScreen
-                      className="pointer-events-none absolute"
-                      style={{
-                        width: "170%",
-                        height: "170%",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                      }}
-                    />
-                  </motion.div>
+                  />
                 </div>
               </div>
 
@@ -204,64 +162,22 @@ export default function NowPage() {
                 onClick={(e) => handleVideoClick("sf", e)}
               >
                 <div className="w-full aspect-video relative overflow-hidden">
-                  {/* Loading cover */}
-                  <AnimatePresence>
-                    {!isLoaded && (
-                      <motion.div
-                        initial={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.6, ease: "easeInOut" }}
-                        className="absolute inset-0 flex flex-col items-center justify-center z-10"
-                        style={{ backgroundColor: "var(--gray-100)" }}
-                      >
-                        <motion.div
-                          animate={{
-                            opacity: [0.6, 1, 0.6],
-                          }}
-                          transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                          }}
-                          className="flex flex-col items-center gap-2"
-                        >
-                          <div
-                            className="text-caption md:text-body font-light tracking-wide"
-                            style={{ color: "var(--gray-400)" }}
-                          >
-                            Talking to devs apologies
-                          </div>
-                        </motion.div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Video iframe */}
-                  <motion.div
-                    initial={{ opacity: 0, scale: 1.05 }}
-                    animate={{
-                      opacity: isLoaded ? 1 : 0,
-                      scale: isLoaded ? 1 : 1.05,
+                  <VideoIframe
+                    src="https://www.youtube.com/embed/CXYr04BWvmc?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=CXYr04BWvmc"
+                    title="SF Video"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                    allowFullScreen
+                    className="pointer-events-none absolute"
+                    style={{
+                      width: "170%",
+                      height: "170%",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      pointerEvents: "none",
                     }}
-                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                    className="w-full h-full absolute inset-0"
-                  >
-                    <iframe
-                      src="https://www.youtube.com/embed/CXYr04BWvmc?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=CXYr04BWvmc"
-                      title="SF Video"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-                      allowFullScreen
-                      className="pointer-events-none absolute"
-                      style={{
-                        width: "170%",
-                        height: "170%",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                      }}
-                    />
-                  </motion.div>
+                  />
                 </div>
               </div>
 
@@ -444,7 +360,7 @@ export default function NowPage() {
               >
                 {/* Video */}
                 <div className="w-full h-full">
-                  <iframe
+                  <VideoIframe
                     className="w-full h-full"
                     src={`https://www.youtube.com/embed/${
                       modalVideo === "nyc" ? "R1CG9ZuK2V8" : "CXYr04BWvmc"

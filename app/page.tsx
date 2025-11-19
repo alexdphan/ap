@@ -3,6 +3,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 
+import VideoIframe from "@/components/VideoIframe";
+
 export default function Home() {
   const [showContactDropdown, setShowContactDropdown] = useState(false);
   const [hoveredContact, setHoveredContact] = useState(false);
@@ -288,7 +290,7 @@ export default function Home() {
                           onClick={(e) => handlePreviewClick("rho", e)}
                           className="flex-1 md:flex-none md:w-96 aspect-video cursor-pointer overflow-hidden relative group"
                         >
-                          <iframe
+                          <VideoIframe
                             key={getCurrentVideo("rho")}
                             src={`https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/${getCurrentVideo(
                               "rho"
@@ -368,7 +370,7 @@ export default function Home() {
                           onClick={(e) => handlePreviewClick("browserbase", e)}
                           className="flex-1 md:flex-none md:w-96 aspect-video cursor-pointer overflow-hidden relative group"
                         >
-                          <iframe
+                          <VideoIframe
                             key={getCurrentVideo("browserbase")}
                             src={`https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/${getCurrentVideo(
                               "browserbase"
@@ -457,7 +459,7 @@ export default function Home() {
                         border: "1px solid var(--gray-100)",
                       }}
                     >
-                      <iframe
+                      <VideoIframe
                         src="https://www.youtube.com/embed/R1CG9ZuK2V8?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=R1CG9ZuK2V8"
                         title="NYC Livestream Preview"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
@@ -497,7 +499,7 @@ export default function Home() {
                         border: "1px solid var(--gray-100)",
                       }}
                     >
-                      <iframe
+                      <VideoIframe
                         src="https://www.youtube.com/embed/CXYr04BWvmc?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=CXYr04BWvmc"
                         title="SF Video Preview"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
@@ -604,7 +606,7 @@ export default function Home() {
                 <div className="flex flex-col md:flex-row gap-2">
                   {/* Video */}
                   <div className="flex-1 aspect-video">
-                    <iframe
+                    <VideoIframe
                       src={getModalVideo().url}
                       title={getModalVideo().title}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"

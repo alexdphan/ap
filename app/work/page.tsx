@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 // import StarburstSticker from "@/components/stickers/StarburstSticker";
-// import PaperNoteSticker from "@/components/stickers/PaperNoteSticker";
+import VideoIframe from "@/components/VideoIframe";
 
 export default function WorkPage() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -117,60 +117,19 @@ export default function WorkPage() {
             <div className="space-y-2 order-1 md:order-2">
               <div className="relative">
                 <div className="w-full aspect-video relative overflow-hidden">
-                  {/* Loading cover */}
-                  <AnimatePresence>
-                    {!isLoaded && (
-                      <motion.div
-                        initial={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.6, ease: "easeInOut" }}
-                        className="absolute inset-0 flex items-center justify-center z-10"
-                        style={{ backgroundColor: "var(--gray-100)" }}
-                      >
-                        <motion.div
-                          animate={{ opacity: [0.6, 1, 0.6] }}
-                          transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                          }}
-                          className="text-caption md:text-body font-light tracking-wide"
-                          style={{ color: "var(--gray-400)" }}
-                        >
-                          Waking up the bankers
-                        </motion.div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Video iframe */}
-                  <motion.div
-                    initial={{ opacity: 0, scale: 1.05 }}
-                    animate={{
-                      opacity: isLoaded ? 1 : 0,
-                      scale: isLoaded ? 1 : 1.05,
+                  <VideoIframe
+                    src="https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/d92f2aed546bf4a481c20b22328c0611/iframe?autoplay=true&muted=true&controls=false&loop=true"
+                    title="Rho Demo"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope"
+                    className="absolute w-full h-full cursor-pointer"
+                    style={{
+                      border: 0,
+                      top: "0",
+                      left: "0",
                     }}
-                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                    className="w-full h-full absolute inset-0 cursor-pointer"
                     onClick={(e) => handleVideoClick("rho", e)}
-                  >
-                    <iframe
-                      src="https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/d92f2aed546bf4a481c20b22328c0611/iframe?autoplay=true&muted=true&controls=false&loop=true"
-                      className="absolute pointer-events-none w-full h-full"
-                      allow="accelerometer; autoplay; encrypted-media; gyroscope"
-                      style={{
-                        border: 0,
-                        top: "0",
-                        left: "0",
-                      }}
-                    />
-                  </motion.div>
+                  />
                 </div>
-                {/* <StarburstSticker
-                  text="Find Rho in action!"
-                  isVisible={isLoaded}
-                  className="absolute -right-4 md:-right-14 -right-8 md:-top-14 -top-8 scale-[1] md:scale-[0.6]"
-                /> */}
               </div>
             </div>
           </div>
@@ -180,60 +139,19 @@ export default function WorkPage() {
             <div className="space-y-2 order-1 md:order-1">
               <div className="relative">
                 <div className="w-full aspect-video relative overflow-hidden">
-                  {/* Loading cover */}
-                  <AnimatePresence>
-                    {!isLoaded && (
-                      <motion.div
-                        initial={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.6, ease: "easeInOut" }}
-                        className="absolute inset-0 flex items-center justify-center z-10"
-                        style={{ backgroundColor: "var(--gray-100)" }}
-                      >
-                        <motion.div
-                          animate={{ opacity: [0.6, 1, 0.6] }}
-                          transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                          }}
-                          className="text-caption md:text-body font-light tracking-wide"
-                          style={{ color: "var(--gray-400)" }}
-                        >
-                          Chasing the headless browsers
-                        </motion.div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Video iframe */}
-                  <motion.div
-                    initial={{ opacity: 0, scale: 1.05 }}
-                    animate={{
-                      opacity: isLoaded ? 1 : 0,
-                      scale: isLoaded ? 1 : 1.05,
+                  <VideoIframe
+                    src="https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/51a62e7e813329fb699cd3cf07804c2f/iframe?autoplay=true&muted=true&controls=false&loop=true"
+                    title="Browserbase Demo"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope"
+                    className="absolute w-full h-full cursor-pointer"
+                    style={{
+                      border: 0,
+                      top: "0",
+                      left: "0",
                     }}
-                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                    className="w-full h-full absolute inset-0 cursor-pointer"
                     onClick={(e) => handleVideoClick("browserbase", e)}
-                  >
-                    <iframe
-                      src="https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/51a62e7e813329fb699cd3cf07804c2f/iframe?autoplay=true&muted=true&controls=false&loop=true"
-                      className="absolute pointer-events-none w-full h-full"
-                      allow="accelerometer; autoplay; encrypted-media; gyroscope"
-                      style={{
-                        border: 0,
-                        top: "0",
-                        left: "0",
-                      }}
-                    />
-                  </motion.div>
+                  />
                 </div>
-                {/* <PaperNoteSticker
-                  text="Browserbase Director and Series B Launch"
-                  isVisible={isLoaded}
-                  className="absolute -bottom-8 left-56 md:-bottom-6 left-2 w-[90px] md:w-[80px] h-[60px] md:h-[80px]"
-                /> */}
               </div>
             </div>
 
@@ -364,7 +282,7 @@ export default function WorkPage() {
               >
                 {/* Video */}
                 <div className="w-full h-full">
-                  <iframe
+                  <VideoIframe
                     className="w-full h-full"
                     src={`https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/${
                       modalVideo === "rho"
