@@ -279,7 +279,7 @@ export default function Home() {
                       exit={{ opacity: 0, y: -5 }}
                       onMouseEnter={() => setHoveredPreview("rho")}
                       onMouseLeave={() => setHoveredPreview(null)}
-                      className="absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:left-0 top-full mt-2 z-10 w-[256px] md:w-auto overflow-hidden"
+                      className="absolute left-1/2 -translate-x-24 min-[420px]:-left-14 min-[420px]:-translate-x-26 md:translate-x-0 md:left-0 top-full mt-2 z-10 w-[256px] md:w-auto overflow-hidden"
                       style={{
                         backgroundColor: "var(--bg-content)",
                         border: "1px solid var(--gray-100)",
@@ -359,7 +359,7 @@ export default function Home() {
                       exit={{ opacity: 0, y: -5 }}
                       onMouseEnter={() => setHoveredPreview("browserbase")}
                       onMouseLeave={() => setHoveredPreview(null)}
-                      className="absolute left-1/2 -translate-x-1/4 md:translate-x-0 md:left-0 top-full mt-2 z-10 w-[256px] md:w-auto overflow-hidden"
+                      className="absolute left-1/2 -translate-x-13 min-[420px]:-left-14 min-[420px]:-translate-x-12 md:left-0 top-full mt-2 z-10 w-[256px] md:w-auto overflow-hidden"
                       style={{
                         backgroundColor: "var(--bg-content)",
                         border: "1px solid var(--gray-100)",
@@ -536,62 +536,56 @@ export default function Home() {
                       }}
                       onMouseEnter={() => setHoveredContact(true)}
                       onMouseLeave={() => setHoveredContact(false)}
-                      className="absolute left-0 top-full mt-2 py-2 px-3 z-10"
+                      className="absolute left-0 top-full mt-1.5 py-1.5 px-2.5 z-10 "
                       style={{
                         backgroundColor: "var(--bg-content)",
                         border: "1px solid var(--gray-100)",
                       }}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2.5">
                         <a
                           href="mailto:alexphan0515@gmail.com"
-                          className="text-body hover:opacity-70 transition-opacity"
-                          style={{ color: "var(--gray-700)" }}
+                          className="text-sm hover:opacity-70 transition-opacity"
+                          style={{ color: "var(--gray-500)" }}
                         >
                           Email
                         </a>
                         <span
-                          className="text-body"
-                          style={{ color: "var(--gray-400)" }}
-                        >
-                          ·
-                        </span>
+                          className="text-sm"
+                          style={{ color: "var(--gray-300)" }}
+                        ></span>
                         <a
                           href="https://linkedin.com/in/alexanderdphan"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-body hover:opacity-70 transition-opacity"
-                          style={{ color: "var(--gray-700)" }}
+                          className="text-sm hover:opacity-70 transition-opacity"
+                          style={{ color: "var(--gray-500)" }}
                         >
                           LinkedIn
                         </a>
                         <span
-                          className="text-body"
-                          style={{ color: "var(--gray-400)" }}
-                        >
-                          ·
-                        </span>
+                          className="text-sm"
+                          style={{ color: "var(--gray-300)" }}
+                        ></span>
                         <a
                           href="https://x.com/alexdphan"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-body hover:opacity-70 transition-opacity"
-                          style={{ color: "var(--gray-700)" }}
+                          className="text-sm hover:opacity-70 transition-opacity"
+                          style={{ color: "var(--gray-500)" }}
                         >
                           X
                         </a>
                         <span
-                          className="text-body"
-                          style={{ color: "var(--gray-400)" }}
-                        >
-                          ·
-                        </span>
+                          className="text-sm"
+                          style={{ color: "var(--gray-300)" }}
+                        ></span>
                         <a
                           href="https://alexdphan-github-io.vercel.app/"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-body hover:opacity-70 transition-opacity"
-                          style={{ color: "var(--gray-700)" }}
+                          className="text-sm hover:opacity-70 transition-opacity"
+                          style={{ color: "var(--gray-500)" }}
                         >
                           Archive
                         </a>
