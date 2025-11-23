@@ -248,7 +248,7 @@ export default function Home() {
           <div className="w-full">
             {/* Philosophy */}
             <p className="text-body my-5" style={{ color: "var(--gray-700)" }}>
-              I'm constantly looking for opportunities that are simple, yet
+              I'm constantly looking for opportunities that are elegantly simple, yet
               overlooked.
             </p>
 
