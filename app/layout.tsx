@@ -14,11 +14,13 @@ const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 function LayoutContent({
@@ -40,7 +42,7 @@ function LayoutContent({
     <>
       {/* Desktop Layout - Box Model Structure */}
       <div
-        className=" md:flex min-h-screen overflow-y-auto overflow-x-hidden justify-center"
+        className="min-h-screen overflow-y-auto overflow-x-hidden"
         style={{
           backgroundColor: "var(--bg-outer)",
         }}

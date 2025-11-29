@@ -56,6 +56,28 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Custom text selection color */
+::selection {
+  background-color: rgba(255, 225, 174, 1);
+  color: inherit;
+}
+
+::-moz-selection {
+  background-color: rgba(255, 225, 174, 1);
+  color: inherit;
+}
+
+/* Dark mode selection */
+.dark ::selection {
+  background-color: rgba(255, 225, 174, 0.4);
+  color: inherit;
+}
+
+.dark ::-moz-selection {
+  background-color: rgba(255, 225, 174, 0.4);
+  color: inherit;
+}
+
 * {
   transition: background-color 0.3s ease, border-color 0.3s ease,
     color 0.3s ease;

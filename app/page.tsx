@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 
 import VideoIframe from "@/components/VideoIframe";
 import Link from "next/link";
@@ -15,7 +16,9 @@ export default function Home() {
   const [selectedSubProject, setSelectedSubProject] = useState<{
     [key: string]: string;
   }>({});
+  const [hoveredVideo, setHoveredVideo] = useState<string | null>(null);
   const previewRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const rhoProjects = [
     {
@@ -100,6 +103,25 @@ export default function Home() {
     return "";
   };
 
+  const handleMouseEnterPreview = (preview: string) => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    if (!showPreview && !showContactDropdown) {
+      setHoveredPreview(preview);
+    }
+  };
+
+  const handleMouseLeavePreview = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoveredPreview(null);
+    }, 1000);
+  };
+
   const handleSubProjectClick = (mainProject: string, subProjectId: string) => {
     // Set the selected project and keep it even when mouse moves away
     setSelectedSubProject((prev) => ({ ...prev, [mainProject]: subProjectId }));
@@ -116,7 +138,10 @@ export default function Home() {
         return updated;
       });
     } else {
+      // Close any other open previews
       setShowPreview(project);
+      setHoveredPreview(null);
+      setShowContactDropdown(false);
       // Set first project as default selection if none selected
       if (!selectedSubProject[project]) {
         if (project === "rho") {
@@ -233,9 +258,33 @@ export default function Home() {
       >
         {/* Magazine Header */}
         <div className="flex flex-col w-full">
-          <h1 className="text-heading" style={{ color: "var(--gray-900)" }}>
-            Alex Phan
-          </h1>
+          <div className="flex items-center gap-4">
+            <Image
+              src="/alex.jpg"
+              alt="Alex Phan"
+              width={48}
+              height={48}
+              className="cursor-pointer transition-none hover:brightness-70 active:brightness-75"
+              style={{ border: "1px solid var(--gray-100)" }}
+              quality={100}
+              priority
+            />
+            <div className="flex flex-col justify-center gap-0">
+              <h1
+                className="text-body leading-relaxed"
+                style={{ color: "var(--gray-900)" }}
+              >
+                AP
+              </h1>
+              <p
+                className="text-body leading-relaxed"
+                style={{ color: "var(--gray-400)", whiteSpace: "pre" }}
+              >
+                Alex Phan
+              </p>
+            </div>
+          </div>
+
           {/* <div
           className="h-px w-full mt-2 mb-5"
           style={{ backgroundColor: "var(--gray-100)" }}
@@ -248,8 +297,14 @@ export default function Home() {
           <div className="w-full">
             {/* Philosophy */}
             <p className="text-body my-5" style={{ color: "var(--gray-700)" }}>
-              I'm constantly looking for opportunities that are elegantly simple, yet
-              overlooked.
+              Constantly looking for opportunities that are{" "}
+              <span className="italic" style={{ color: "var(--gray-900)" }}>
+                elegantly simple
+              </span>
+              , yet{" "}
+              {/* <span className="italic" style={{ color: "var(--gray-900)" }}> */}
+              overlooked
+              {/* </span> */}.
             </p>
 
             {/* Work */}
@@ -257,12 +312,12 @@ export default function Home() {
               className="text-body my-5"
               style={{ color: "var(--gray-700)" }}
             >
-              I'm currently helping{" "}
+              I'm currently establishing growth engineering foundations at{" "}
               <span className="relative inline-block">
                 <button
                   onClick={() => handleProjectClick("rho")}
-                  onMouseEnter={() => setHoveredPreview("rho")}
-                  onMouseLeave={() => setHoveredPreview(null)}
+                  onMouseEnter={() => handleMouseEnterPreview("rho")}
+                  onMouseLeave={handleMouseLeavePreview}
                   className="underline cursor-pointer bg-transparent border-none p-0 font-inherit"
                   style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
                 >
@@ -277,8 +332,8 @@ export default function Home() {
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -5 }}
-                      onMouseEnter={() => setHoveredPreview("rho")}
-                      onMouseLeave={() => setHoveredPreview(null)}
+                      onMouseEnter={() => handleMouseEnterPreview("rho")}
+                      onMouseLeave={handleMouseLeavePreview}
                       className="absolute left-1/2 -translate-x-24 min-[420px]:-left-14 min-[420px]:-translate-x-26 md:translate-x-0 md:left-0 top-full mt-2 z-10 w-[256px] md:w-auto overflow-hidden"
                       style={{
                         backgroundColor: "var(--bg-content)",
@@ -289,6 +344,8 @@ export default function Home() {
                         {/* Video Preview */}
                         <div
                           onClick={(e) => handlePreviewClick("rho", e)}
+                          onMouseEnter={() => setHoveredVideo("rho")}
+                          onMouseLeave={() => setHoveredVideo(null)}
                           className="flex-1 md:flex-none md:w-96 aspect-video cursor-pointer overflow-hidden relative group"
                         >
                           <VideoIframe
@@ -304,44 +361,59 @@ export default function Home() {
                         </div>
 
                         {/* Project List - Right (Desktop Only) */}
-                        <div className="hidden md:flex md:w-40 p-2 flex-col gap-1 overflow-y-auto max-h-[216px]">
-                          {rhoProjects.map((project) => (
-                            <div
-                              key={project.id}
-                              onClick={() =>
-                                handleSubProjectClick("rho", project.id)
-                              }
-                              className="text-left text-xs md:text-sm px-2 py-1 rounded cursor-pointer transition-colors"
-                              style={{
-                                color:
-                                  selectedSubProject["rho"] === project.id
-                                    ? "var(--gray-900)"
-                                    : "var(--gray-400)",
+                        <AnimatePresence>
+                          {hoveredVideo === "rho" && (
+                            <motion.div
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: -10 }}
+                              transition={{
+                                duration: 0.25,
+                                ease: [0.25, 0.1, 0.25, 1],
                               }}
-                              onMouseEnter={(e) =>
-                                (e.currentTarget.style.backgroundColor =
-                                  "var(--gray-100)")
-                              }
-                              onMouseLeave={(e) =>
-                                (e.currentTarget.style.backgroundColor =
-                                  "transparent")
-                              }
+                              onMouseEnter={() => setHoveredVideo("rho")}
+                              onMouseLeave={() => setHoveredVideo(null)}
+                              className="hidden md:flex md:w-40 p-2 flex-col gap-1 overflow-y-auto max-h-[216px]"
                             >
-                              {project.name}
-                            </div>
-                          ))}
-                        </div>
+                              {rhoProjects.map((project) => (
+                                <div
+                                  key={project.id}
+                                  onClick={() =>
+                                    handleSubProjectClick("rho", project.id)
+                                  }
+                                  className="text-left text-xs md:text-sm px-2 py-1 rounded cursor-pointer transition-colors"
+                                  style={{
+                                    color:
+                                      selectedSubProject["rho"] === project.id
+                                        ? "var(--gray-900)"
+                                        : "var(--gray-400)",
+                                  }}
+                                  onMouseEnter={(e) =>
+                                    (e.currentTarget.style.backgroundColor =
+                                      "var(--gray-100)")
+                                  }
+                                  onMouseLeave={(e) =>
+                                    (e.currentTarget.style.backgroundColor =
+                                      "transparent")
+                                  }
+                                >
+                                  {project.name}
+                                </div>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </span>{" "}
-              setup growth engineering foundations. Previously, I was at{" "}
+              </span>
+              . Previously, I was at{" "}
               <span className="relative inline-block">
                 <button
                   onClick={() => handleProjectClick("browserbase")}
-                  onMouseEnter={() => setHoveredPreview("browserbase")}
-                  onMouseLeave={() => setHoveredPreview(null)}
+                  onMouseEnter={() => handleMouseEnterPreview("browserbase")}
+                  onMouseLeave={handleMouseLeavePreview}
                   className="underline cursor-pointer bg-transparent border-none p-0 font-inherit"
                   style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
                 >
@@ -357,8 +429,10 @@ export default function Home() {
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -5 }}
-                      onMouseEnter={() => setHoveredPreview("browserbase")}
-                      onMouseLeave={() => setHoveredPreview(null)}
+                      onMouseEnter={() =>
+                        handleMouseEnterPreview("browserbase")
+                      }
+                      onMouseLeave={handleMouseLeavePreview}
                       className="absolute left-1/2 -translate-x-13 min-[420px]:-left-14 min-[420px]:-translate-x-12 md:left-0 top-full mt-2 z-10 w-[256px] md:w-auto overflow-hidden"
                       style={{
                         backgroundColor: "var(--bg-content)",
@@ -369,6 +443,8 @@ export default function Home() {
                         {/* Video Preview */}
                         <div
                           onClick={(e) => handlePreviewClick("browserbase", e)}
+                          onMouseEnter={() => setHoveredVideo("browserbase")}
+                          onMouseLeave={() => setHoveredVideo(null)}
                           className="flex-1 md:flex-none md:w-96 aspect-video cursor-pointer overflow-hidden relative group"
                         >
                           <VideoIframe
@@ -384,47 +460,68 @@ export default function Home() {
                         </div>
 
                         {/* Project List - Right (Desktop Only) */}
-                        <div className="hidden md:flex md:w-40 p-2 flex-col gap-1 overflow-y-auto max-h-[216px]">
-                          {browserbaseProjects.map((project) => (
-                            <div
-                              key={project.id}
-                              onClick={() =>
-                                handleSubProjectClick("browserbase", project.id)
-                              }
-                              className="text-left text-xs md:text-sm px-2 py-1 rounded cursor-pointer transition-colors"
-                              style={{
-                                color:
-                                  selectedSubProject["browserbase"] ===
-                                  project.id
-                                    ? "var(--gray-900)"
-                                    : "var(--gray-400)",
+                        <AnimatePresence>
+                          {hoveredVideo === "browserbase" && (
+                            <motion.div
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: -10 }}
+                              transition={{
+                                duration: 0.25,
+                                ease: [0.25, 0.1, 0.25, 1],
                               }}
-                              onMouseEnter={(e) =>
-                                (e.currentTarget.style.backgroundColor =
-                                  "var(--gray-100)")
+                              onMouseEnter={() =>
+                                setHoveredVideo("browserbase")
                               }
-                              onMouseLeave={(e) =>
-                                (e.currentTarget.style.backgroundColor =
-                                  "transparent")
-                              }
+                              onMouseLeave={() => setHoveredVideo(null)}
+                              className="hidden md:flex md:w-40 p-2 flex-col gap-1 overflow-y-auto max-h-[216px]"
                             >
-                              {project.name}
-                            </div>
-                          ))}
-                        </div>
+                              {browserbaseProjects.map((project) => (
+                                <div
+                                  key={project.id}
+                                  onClick={() =>
+                                    handleSubProjectClick(
+                                      "browserbase",
+                                      project.id
+                                    )
+                                  }
+                                  className="text-left text-xs md:text-sm px-2 py-1 rounded cursor-pointer transition-colors"
+                                  style={{
+                                    color:
+                                      selectedSubProject["browserbase"] ===
+                                      project.id
+                                        ? "var(--gray-900)"
+                                        : "var(--gray-400)",
+                                  }}
+                                  onMouseEnter={(e) =>
+                                    (e.currentTarget.style.backgroundColor =
+                                      "var(--gray-100)")
+                                  }
+                                  onMouseLeave={(e) =>
+                                    (e.currentTarget.style.backgroundColor =
+                                      "transparent")
+                                  }
+                                >
+                                  {project.name}
+                                </div>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </span>{" "}
-              as a founding growth engineer.
+              as a founding growth engineer. I also angel invest and advise
+              startups on growth.
             </div>
 
             {/* Interests */}
             <p className="text-body my-5" style={{ color: "var(--gray-700)" }}>
-              I also angel invest and advise startups on growth. You'll find me
+              {/* You'll find me
               embarassing myself learning new things, challenging myself, or
-              being selfless around others.
+              being selfless around others. */}
             </p>
             {/* Contact */}
             <div
@@ -435,8 +532,8 @@ export default function Home() {
               <span className="relative inline-block">
                 <button
                   onClick={() => handleProjectClick("nyc")}
-                  onMouseEnter={() => setHoveredPreview("nyc")}
-                  onMouseLeave={() => setHoveredPreview(null)}
+                  onMouseEnter={() => handleMouseEnterPreview("nyc")}
+                  onMouseLeave={handleMouseLeavePreview}
                   className="underline cursor-pointer bg-transparent border-none p-0 font-inherit"
                   style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
                 >
@@ -451,8 +548,8 @@ export default function Home() {
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -5 }}
-                      onMouseEnter={() => setHoveredPreview("nyc")}
-                      onMouseLeave={() => setHoveredPreview(null)}
+                      onMouseEnter={() => handleMouseEnterPreview("nyc")}
+                      onMouseLeave={handleMouseLeavePreview}
                       onClick={(e) => handlePreviewClick("nyc", e)}
                       className="absolute left-1/2 -translate-x-1/4 md:left-0 md:translate-x-0 top-full mt-2 z-10 w-64 md:w-96 aspect-video overflow-hidden cursor-pointer"
                       style={{
@@ -475,8 +572,8 @@ export default function Home() {
               <span className="relative inline-block">
                 <button
                   onClick={() => handleProjectClick("sf")}
-                  onMouseEnter={() => setHoveredPreview("sf")}
-                  onMouseLeave={() => setHoveredPreview(null)}
+                  onMouseEnter={() => handleMouseEnterPreview("sf")}
+                  onMouseLeave={handleMouseLeavePreview}
                   className="underline cursor-pointer bg-transparent border-none p-0 font-inherit"
                   style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
                 >
@@ -491,8 +588,8 @@ export default function Home() {
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -5 }}
-                      onMouseEnter={() => setHoveredPreview("sf")}
-                      onMouseLeave={() => setHoveredPreview(null)}
+                      onMouseEnter={() => handleMouseEnterPreview("sf")}
+                      onMouseLeave={handleMouseLeavePreview}
                       onClick={(e) => handlePreviewClick("sf", e)}
                       className="absolute left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 top-full mt-2 z-10 w-64 md:w-96 aspect-video overflow-hidden cursor-pointer"
                       style={{
@@ -515,7 +612,10 @@ export default function Home() {
               <span className="relative inline-block contact-dropdown-container">
                 <button
                   onClick={() => setShowContactDropdown(!showContactDropdown)}
-                  onMouseEnter={() => setHoveredContact(true)}
+                  onMouseEnter={() => {
+                    setHoveredContact(true);
+                    setHoveredPreview(null);
+                  }}
                   onMouseLeave={() => setHoveredContact(false)}
                   className="underline cursor-pointer bg-transparent border-none p-0 font-inherit"
                   style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
@@ -534,7 +634,10 @@ export default function Home() {
                         duration: 0.2,
                         ease: [0.22, 1, 0.36, 1],
                       }}
-                      onMouseEnter={() => setHoveredContact(true)}
+                      onMouseEnter={() => {
+                        setHoveredContact(true);
+                        setHoveredPreview(null);
+                      }}
                       onMouseLeave={() => setHoveredContact(false)}
                       className="absolute left-0 top-full mt-1.5 py-1.5 px-2.5 z-10 "
                       style={{
@@ -581,7 +684,7 @@ export default function Home() {
                           style={{ color: "var(--gray-300)" }}
                         ></span>
                         <a
-                          href="https://alexdphan-github-io.vercel.app/"
+                          href="https://alexdphan-github-io-alexander-phans-projects.vercel.app/projects"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-sm hover:opacity-70 transition-opacity"
