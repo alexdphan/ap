@@ -262,8 +262,8 @@ export default function Home() {
             <Image
               src="/alex.jpg"
               alt="Alex Phan"
-              width={48}
-              height={48}
+              width={45}
+              height={45}
               className="cursor-pointer transition-none hover:brightness-70 active:brightness-75"
               style={{ border: "1px solid var(--gray-100)" }}
               quality={100}
@@ -297,7 +297,7 @@ export default function Home() {
           <div className="w-full">
             {/* Philosophy */}
             <p className="text-body my-5" style={{ color: "var(--gray-700)" }}>
-              Constantly looking for opportunities that are{" "}
+              Pursuing opportunities that are{" "}
               <span className="italic" style={{ color: "var(--gray-900)" }}>
                 elegantly simple
               </span>
@@ -312,13 +312,13 @@ export default function Home() {
               className="text-body my-5"
               style={{ color: "var(--gray-700)" }}
             >
-              I'm currently establishing growth engineering foundations at{" "}
+              Establishing growth engineering at{" "}
               <span className="relative inline-block">
                 <button
                   onClick={() => handleProjectClick("rho")}
                   onMouseEnter={() => handleMouseEnterPreview("rho")}
                   onMouseLeave={handleMouseLeavePreview}
-                  className="underline cursor-pointer bg-transparent border-none p-0 font-inherit"
+                  className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
                   style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
                 >
                   Rho
@@ -408,13 +408,13 @@ export default function Home() {
                   )}
                 </AnimatePresence>
               </span>
-              . Previously, I was at{" "}
+              . Previously founding growth engineer at{" "}
               <span className="relative inline-block">
                 <button
                   onClick={() => handleProjectClick("browserbase")}
                   onMouseEnter={() => handleMouseEnterPreview("browserbase")}
                   onMouseLeave={handleMouseLeavePreview}
-                  className="underline cursor-pointer bg-transparent border-none p-0 font-inherit"
+                  className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
                   style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
                 >
                   Browserbase
@@ -512,9 +512,8 @@ export default function Home() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </span>{" "}
-              as a founding growth engineer. I also angel invest and advise
-              startups on growth.
+              </span>
+              . Angel investing & growth advising.
             </div>
 
             {/* Interests */}
@@ -523,18 +522,18 @@ export default function Home() {
               embarassing myself learning new things, challenging myself, or
               being selfless around others. */}
             </p>
+
             {/* Contact */}
             <div
               className="text-body my-5"
               style={{ color: "var(--gray-700)" }}
             >
-              I live in{" "}
               <span className="relative inline-block">
                 <button
                   onClick={() => handleProjectClick("nyc")}
                   onMouseEnter={() => handleMouseEnterPreview("nyc")}
                   onMouseLeave={handleMouseLeavePreview}
-                  className="underline cursor-pointer bg-transparent border-none p-0 font-inherit"
+                  className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
                   style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
                 >
                   NYC
@@ -568,13 +567,13 @@ export default function Home() {
                   )}
                 </AnimatePresence>
               </span>{" "}
-              and visit{" "}
+              based,{" "}
               <span className="relative inline-block">
                 <button
                   onClick={() => handleProjectClick("sf")}
                   onMouseEnter={() => handleMouseEnterPreview("sf")}
                   onMouseLeave={handleMouseLeavePreview}
-                  className="underline cursor-pointer bg-transparent border-none p-0 font-inherit"
+                  className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
                   style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
                 >
                   SF
@@ -608,7 +607,7 @@ export default function Home() {
                   )}
                 </AnimatePresence>
               </span>{" "}
-              often. Feel free to{" "}
+              Frequent. Feel free to{" "}
               <span className="relative inline-block contact-dropdown-container">
                 <button
                   onClick={() => setShowContactDropdown(!showContactDropdown)}
@@ -617,7 +616,7 @@ export default function Home() {
                     setHoveredPreview(null);
                   }}
                   onMouseLeave={() => setHoveredContact(false)}
-                  className="underline cursor-pointer bg-transparent border-none p-0 font-inherit"
+                  className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all contact-dropdown-container"
                   style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
                 >
                   reach out

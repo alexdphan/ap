@@ -48,7 +48,7 @@ function LayoutContent({
         }}
       >
         <div
-          className="w-full max-w-xl mx-auto px-6 py-12 md:py-20 relative z-0"
+          className="w-full max-w-xl mx-auto px-6 py-16 md:py-36 relative z-0"
           style={{
             backgroundColor: "var(--bg-content)",
             // border: "1px solid var(--gray-100)",
