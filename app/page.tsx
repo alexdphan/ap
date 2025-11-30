@@ -61,6 +61,12 @@ export default function Home() {
       url: "https://x.com/alexdphan/status/1846271931395534936?s=20",
     },
     {
+      id: "stagehand-v2",
+      name: "Stagehand v2",
+      video: "5288a9f57f7fa07e8d0a12b48675c6e6",
+      url: "https://x.com/Stagehanddev/status/1906771592648249700?s=20",
+    },
+    {
       id: "bb-culture",
       name: "#1 Early Stage",
       video: "c720865aa9ee17dfc4ed6bb752742766",
