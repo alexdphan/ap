@@ -696,7 +696,7 @@ export default function Home() {
                   )}
                 </AnimatePresence>
               </span>{" "}
-              if you'd like to chat about anything.
+              if you'd like to chat.
             </div>
           </div>
         </div>
