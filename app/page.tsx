@@ -613,7 +613,7 @@ export default function Home() {
                   )}
                 </AnimatePresence>
               </span>{" "}
-              Frequent. Feel free to{" "}
+              frequent. Feel free to{" "}
               <span className="relative inline-block contact-dropdown-container">
                 <button
                   onClick={() => setShowContactDropdown(!showContactDropdown)}
