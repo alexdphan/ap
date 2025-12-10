@@ -111,7 +111,7 @@ export default function NowPage() {
                   <iframe
                     width="200%"
                     height="200%"
-                    src="https://www.youtube.com/embed/R1CG9ZuK2V8?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=R1CG9ZuK2V8"
+                    src="https://www.youtube.com/embed/TsgoxkRFit0?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=TsgoxkRFit0"
                     title="NYC Livestream"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
@@ -472,7 +472,7 @@ export default function NowPage() {
                 <iframe
                   className="w-full h-full"
                   src={`https://www.youtube.com/embed/${
-                    modalVideo === "nyc" ? "R1CG9ZuK2V8" : "CXYr04BWvmc"
+                    modalVideo === "nyc" ? "TsgoxkRFit0" : "CXYr04BWvmc"
                   }?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0`}
                   title={modalVideo === "nyc" ? "NYC Livestream" : "SF Video"}
                   frameBorder="0"
