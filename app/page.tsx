@@ -209,7 +209,7 @@ export default function Home() {
     // NYC or SF
     if (videoModal === "nyc") {
       return {
-        url: "https://www.youtube.com/embed/R1CG9ZuK2V8?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0",
+        url: "https://www.youtube.com/embed/TsgoxkRFit0?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0",
         title: "NYC Livestream",
       };
     }
@@ -563,7 +563,7 @@ export default function Home() {
                       }}
                     >
                       <VideoIframe
-                        src="https://www.youtube.com/embed/R1CG9ZuK2V8?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=R1CG9ZuK2V8"
+                        src="https://www.youtube.com/embed/TsgoxkRFit0?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=TsgoxkRFit0"
                         title="NYC Livestream Preview"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
                         className="w-full h-full pointer-events-none"
