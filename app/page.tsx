@@ -1,118 +1,806 @@
 "use client";
 
-import FloatingMusicPlayer from "@/components/FloatingMusicPlayer";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
+
+import VideoIframe from "@/components/VideoIframe";
 import Link from "next/link";
-import { motion } from "framer-motion";
 
 export default function Home() {
+  const [showContactDropdown, setShowContactDropdown] = useState(false);
+  const [hoveredContact, setHoveredContact] = useState(false);
+  const [showPreview, setShowPreview] = useState<string | null>(null);
+  const [hoveredPreview, setHoveredPreview] = useState<string | null>(null);
+  const [videoModal, setVideoModal] = useState<string | null>(null);
+  const [selectedSubProject, setSelectedSubProject] = useState<{
+    [key: string]: string;
+  }>({});
+  const [hoveredVideo, setHoveredVideo] = useState<string | null>(null);
+  const previewRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const rhoProjects = [
+    {
+      id: "findrho.co",
+      name: "Find Rho",
+      video: "d92f2aed546bf4a481c20b22328c0611",
+      url: "https://findrho.co",
+    },
+  ];
+
+  const browserbaseProjects = [
+    {
+      id: "series-b",
+      name: "Director and Series B",
+      video: "51a62e7e813329fb699cd3cf07804c2f",
+      url: "https://browserbase.com",
+    },
+    {
+      id: "brainrot",
+      name: "Brainrot Generator",
+      video: "0a570e29470d2313d66e6a19614ec82b",
+      url: "https://x.com/alexdphan/status/1879984298138505320?s=20",
+    },
+    {
+      id: "mcp",
+      name: "Early Browser MCP",
+      video: "8c54ad68f121b9d448c66f204de2347b",
+      url: "https://x.com/alexdphan/status/1861501370010083519?s=20",
+    },
+    {
+      id: "bb-computer-use",
+      name: "Anthropic's Computer Use",
+      video: "10d6ade97343f1b260298be521cb4be5",
+      url: "https://x.com/alexdphan/status/1849159686467322221?s=20",
+    },
+    {
+      id: "browsegpt",
+      name: "BrowseGPT",
+      video: "07f679d0bb531390748f9c3838adcd00",
+      url: "https://x.com/alexdphan/status/1846271931395534936?s=20",
+    },
+    {
+      id: "stagehand-v2",
+      name: "Stagehand v2",
+      video: "5288a9f57f7fa07e8d0a12b48675c6e6",
+      url: "https://x.com/Stagehanddev/status/1906771592648249700?s=20",
+    },
+    {
+      id: "bb-culture",
+      name: "#1 Early Stage",
+      video: "c720865aa9ee17dfc4ed6bb752742766",
+      url: "https://x.com/alexdphan/status/1904630387856597207",
+    },
+    {
+      id: "series-a",
+      name: "Series A",
+      video: "eb97ebce0968ab2393a92fb7e28b1834",
+      url: "https://x.com/pk_iv/status/1851270308701106383?s=20",
+    },
+    {
+      id: "bb-sdk",
+      name: "Browserbase Playground",
+      video: "ae8fd53badf11d751cac880a6fb18ee2",
+      url: "https://x.com/alexdphan/status/1821618745191899304?s=20",
+    },
+  ];
+
+  const getCurrentVideo = (mainProject: string) => {
+    if (mainProject === "rho") {
+      // Use selected project or default to first
+      if (selectedSubProject[mainProject]) {
+        const project = rhoProjects.find(
+          (p) => p.id === selectedSubProject[mainProject]
+        );
+        return project?.video || rhoProjects[0].video;
+      }
+      return rhoProjects[0].video;
+    }
+    if (mainProject === "browserbase") {
+      if (selectedSubProject[mainProject]) {
+        const project = browserbaseProjects.find(
+          (p) => p.id === selectedSubProject[mainProject]
+        );
+        return project?.video || browserbaseProjects[0].video;
+      }
+      return browserbaseProjects[0].video;
+    }
+    return "";
+  };
+
+  const handleMouseEnterPreview = (preview: string) => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    if (!showPreview && !showContactDropdown) {
+      setHoveredPreview(preview);
+    }
+  };
+
+  const handleMouseLeavePreview = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoveredPreview(null);
+    }, 1000);
+  };
+
+  const handleSubProjectClick = (mainProject: string, subProjectId: string) => {
+    // Set the selected project and keep it even when mouse moves away
+    setSelectedSubProject((prev) => ({ ...prev, [mainProject]: subProjectId }));
+  };
+
+  const handleProjectClick = (project: string) => {
+    // Click on link - toggle preview dropdown
+    if (showPreview === project) {
+      setShowPreview(null);
+      // Clear selection when closing
+      setSelectedSubProject((prev) => {
+        const updated = { ...prev };
+        delete updated[project];
+        return updated;
+      });
+    } else {
+      // Close any other open previews
+      setShowPreview(project);
+      setHoveredPreview(null);
+      setShowContactDropdown(false);
+      // Set first project as default selection if none selected
+      if (!selectedSubProject[project]) {
+        if (project === "rho") {
+          setSelectedSubProject((prev) => ({
+            ...prev,
+            [project]: rhoProjects[0].id,
+          }));
+        } else if (project === "browserbase") {
+          setSelectedSubProject((prev) => ({
+            ...prev,
+            [project]: browserbaseProjects[0].id,
+          }));
+        }
+      }
+    }
+  };
+
+  const handlePreviewClick = (project: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Click inside preview - open full modal with the currently selected video
+    if (project === "rho") {
+      setVideoModal(selectedSubProject["rho"] || rhoProjects[0].id);
+    } else if (project === "browserbase") {
+      setVideoModal(
+        selectedSubProject["browserbase"] || browserbaseProjects[0].id
+      );
+    } else {
+      setVideoModal(project);
+    }
+    setShowPreview(null);
+    setHoveredPreview(null);
+  };
+
+  const handleCloseModal = () => {
+    setVideoModal(null);
+  };
+
+  const getModalVideo = () => {
+    if (!videoModal) return { url: "", title: "" };
+
+    // Check if it's a Rho project
+    const rhoProject = rhoProjects.find((p) => p.id === videoModal);
+    if (rhoProject) {
+      return {
+        url: `https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/${rhoProject.video}/iframe?autoplay=true&muted=false&controls=true&preload=auto&defaultTextTrack=false`,
+        title: rhoProject.name,
+      };
+    }
+
+    // Check if it's a Browserbase project
+    const bbProject = browserbaseProjects.find((p) => p.id === videoModal);
+    if (bbProject) {
+      return {
+        url: `https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/${bbProject.video}/iframe?autoplay=true&muted=false&controls=true&preload=auto&defaultTextTrack=false`,
+        title: bbProject.name,
+      };
+    }
+
+    // NYC or SF
+    if (videoModal === "nyc") {
+      return {
+        url: "https://www.youtube.com/embed/R1CG9ZuK2V8?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0",
+        title: "NYC Livestream",
+      };
+    }
+    if (videoModal === "sf") {
+      return {
+        url: "https://www.youtube.com/embed/CXYr04BWvmc?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0",
+        title: "SF Video",
+      };
+    }
+
+    return { url: "", title: "" };
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showPreview || hoveredPreview) {
+        const target = event.target as Node;
+        const isClickInsidePreview = Object.values(previewRefs.current).some(
+          (ref) => ref?.contains(target)
+        );
+        if (!isClickInsidePreview) {
+          setShowPreview(null);
+        }
+      }
+      if (showContactDropdown) {
+        // Check if click is outside contact dropdown
+        const contactContainer = document.querySelector(
+          ".contact-dropdown-container"
+        );
+        if (
+          contactContainer &&
+          !contactContainer.contains(event.target as Node)
+        ) {
+          setShowContactDropdown(false);
+          setHoveredContact(false);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showPreview, hoveredPreview, showContactDropdown]);
+
   return (
     <>
-      {/* Desktop Layout */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="hidden md:flex flex-col w-full"
+        className="flex flex-col w-full mt-16 md:mt-32"
       >
         {/* Magazine Header */}
-        <div className="mb-12">
-          <h1 className="text-heading-lg" style={{ color: 'var(--gray-900)' }}>AP</h1>
-          <div className="h-px w-full" style={{ backgroundColor: 'var(--gray-100)' }} />
-        </div>
-
-        {/* Two Column Magazine Layout */}
-        <div className="grid grid-cols-[1fr_auto] gap-20 items-start">
-          {/* Left Column - Text */}
-          <div className="space-y-10 max-w-xl">
-            <div>
-              <h2 className="text-label mb-4" style={{ color: 'var(--gray-400)' }}>
-                ABOUT
-              </h2>
-              <p className="text-body" style={{ color: 'var(--gray-700)' }}>
-                I'm currently pursuing{" "}
-                <Link
-                  href="/work"
-                  className="text-heading-md hover:opacity-70 transition-colors"
-                  style={{ color: '#ea580c' }}
-                >
-                  work
-                </Link>{" "}
-                in the fintech space. You'll find me always look for
-                opportunities that are simple, yet overlooked. If you think we'd
-                be great friends, don't hesitate to reach out.
-              </p>
-            </div>
-
-            <div className="h-px w-24" style={{ backgroundColor: 'var(--gray-100)' }} />
-
-            <div>
-              <h2 className="text-label mb-4" style={{ color: 'var(--gray-400)' }}>
-                CURRENTLY LISTENING
-              </h2>
-              <p className="text-body" style={{ color: 'var(--gray-700)' }}>
-                Music that shapes my day, curated moments of inspiration
-              </p>
-            </div>
-          </div>
-
-          {/* Right Column - Music Player */}
-          <div className="flex items-center justify-center">
-            <FloatingMusicPlayer />
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Mobile Layout */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="md:hidden flex flex-col items-center gap-8 w-full"
-      >
-        {/* Magazine Header */}
-        <div className="mb-4 w-full">
-          <h1 className="text-heading-lg text-center" style={{ color: 'var(--gray-900)', fontSize: '2.5rem' }}>
-            AP
-          </h1>
-          <div className="h-px w-full" style={{ backgroundColor: 'var(--gray-100)' }} />
-        </div>
-
-        {/* Floating Music Player */}
-        <FloatingMusicPlayer />
-
-        {/* Bio Description */}
-        <div className="max-w-sm text-center px-4 space-y-6">
-          <div>
-            <h2 className="text-label mb-3" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
-              ABOUT
-            </h2>
-            <p className="text-body" style={{ color: 'var(--gray-700)' }}>
-              I'm currently pursuing{" "}
-              <Link
-                href="/work"
-                className="text-heading-md hover:opacity-70 transition-colors"
-                style={{ color: '#ea580c' }}
+        <div className="flex flex-col w-full">
+          <div className="flex items-center gap-4">
+            <Image
+              src="/alex.jpg"
+              alt="Alex Phan"
+              width={45}
+              height={45}
+              className="cursor-pointer transition-none hover:brightness-70 active:brightness-75"
+              style={{ border: "1px solid var(--gray-100)" }}
+              quality={100}
+              priority
+            />
+            <div className="flex flex-col justify-center gap-0">
+              <h1
+                className="text-body leading-relaxed"
+                style={{ color: "var(--gray-900)" }}
               >
-                work
-              </Link>{" "}
-              in the fintech space. You'll find me always look for opportunities
-              that are simple, yet overlooked. If you think we'd be great
-              friends, don't hesitate to reach out.
-            </p>
+                AP
+              </h1>
+              <p
+                className="text-body leading-relaxed"
+                style={{ color: "var(--gray-400)", whiteSpace: "pre" }}
+              >
+                Alex Phan
+              </p>
+            </div>
           </div>
 
-          <div className="h-px w-16 mx-auto" style={{ backgroundColor: 'var(--gray-100)' }} />
+          {/* <div
+          className="h-px w-full mt-2 mb-5"
+          style={{ backgroundColor: "var(--gray-100)" }}
+        /> */}
+        </div>
 
-          <div>
-            <h2 className="text-label mb-2" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>
-              CURRENTLY LISTENING
-            </h2>
-            <p className="text-body" style={{ color: 'var(--gray-700)', fontSize: '0.8rem' }}>
-              Music that shapes my day
+        {/* Content Layout */}
+        <div className="flex flex-col w-full">
+          {/* Text Content */}
+          <div className="w-full">
+            {/* Philosophy */}
+            <p className="text-body my-5" style={{ color: "var(--gray-700)" }}>
+              Pursuing opportunities that are{" "}
+              <span className="italic" style={{ color: "var(--gray-900)" }}>
+                elegantly simple
+              </span>
+              , yet{" "}
+              {/* <span className="italic" style={{ color: "var(--gray-900)" }}> */}
+              overlooked
+              {/* </span> */}.
             </p>
+
+            {/* Work */}
+            <div
+              className="text-body my-5"
+              style={{ color: "var(--gray-700)" }}
+            >
+              Establishing growth engineering at{" "}
+              <span className="relative inline-block">
+                <button
+                  onClick={() => handleProjectClick("rho")}
+                  onMouseEnter={() => handleMouseEnterPreview("rho")}
+                  onMouseLeave={handleMouseLeavePreview}
+                  className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
+                  style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
+                >
+                  Rho
+                </button>
+                <AnimatePresence>
+                  {(showPreview === "rho" || hoveredPreview === "rho") && (
+                    <motion.div
+                      ref={(el) => {
+                        previewRefs.current["rho"] = el;
+                      }}
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      onMouseEnter={() => handleMouseEnterPreview("rho")}
+                      onMouseLeave={handleMouseLeavePreview}
+                      className="absolute left-1/2 -translate-x-24 min-[420px]:-left-14 min-[420px]:-translate-x-26 md:translate-x-0 md:left-0 top-full mt-2 z-10 w-[256px] md:w-auto overflow-hidden"
+                      style={{
+                        backgroundColor: "var(--bg-content)",
+                        border: "1px solid var(--gray-100)",
+                      }}
+                    >
+                      <div className="flex">
+                        {/* Video Preview */}
+                        <div
+                          onClick={(e) => handlePreviewClick("rho", e)}
+                          onMouseEnter={() => setHoveredVideo("rho")}
+                          onMouseLeave={() => setHoveredVideo(null)}
+                          className="flex-1 md:flex-none md:w-96 aspect-video cursor-pointer overflow-hidden relative group"
+                        >
+                          <VideoIframe
+                            key={getCurrentVideo("rho")}
+                            src={`https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/${getCurrentVideo(
+                              "rho"
+                            )}/iframe?autoplay=true&muted=true&controls=true&loop=true&preload=auto&defaultTextTrack=false`}
+                            title="Rho Preview"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                            className="w-full h-full pointer-events-none"
+                            style={{ border: 0, pointerEvents: "none" }}
+                          />
+                        </div>
+
+                        {/* Project List - Right (Desktop Only) */}
+                        <AnimatePresence>
+                          {hoveredVideo === "rho" && (
+                            <motion.div
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: -10 }}
+                              transition={{
+                                duration: 0.25,
+                                ease: [0.25, 0.1, 0.25, 1],
+                              }}
+                              onMouseEnter={() => setHoveredVideo("rho")}
+                              onMouseLeave={() => setHoveredVideo(null)}
+                              className="hidden md:flex md:w-40 p-2 flex-col gap-1 overflow-y-auto max-h-[216px]"
+                            >
+                              {rhoProjects.map((project) => (
+                                <div
+                                  key={project.id}
+                                  onClick={() =>
+                                    handleSubProjectClick("rho", project.id)
+                                  }
+                                  className="text-left text-xs md:text-sm px-2 py-1 rounded cursor-pointer transition-colors"
+                                  style={{
+                                    color:
+                                      selectedSubProject["rho"] === project.id
+                                        ? "var(--gray-900)"
+                                        : "var(--gray-400)",
+                                  }}
+                                  onMouseEnter={(e) =>
+                                    (e.currentTarget.style.backgroundColor =
+                                      "var(--gray-100)")
+                                  }
+                                  onMouseLeave={(e) =>
+                                    (e.currentTarget.style.backgroundColor =
+                                      "transparent")
+                                  }
+                                >
+                                  {project.name}
+                                </div>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </span>
+              . Previously founding growth engineer at{" "}
+              <span className="relative inline-block">
+                <button
+                  onClick={() => handleProjectClick("browserbase")}
+                  onMouseEnter={() => handleMouseEnterPreview("browserbase")}
+                  onMouseLeave={handleMouseLeavePreview}
+                  className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
+                  style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
+                >
+                  Browserbase
+                </button>
+                <AnimatePresence>
+                  {(showPreview === "browserbase" ||
+                    hoveredPreview === "browserbase") && (
+                    <motion.div
+                      ref={(el) => {
+                        previewRefs.current["browserbase"] = el;
+                      }}
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      onMouseEnter={() =>
+                        handleMouseEnterPreview("browserbase")
+                      }
+                      onMouseLeave={handleMouseLeavePreview}
+                      className="absolute left-1/2 -translate-x-13 min-[420px]:-left-14 min-[420px]:-translate-x-12 md:left-0 top-full mt-2 z-10 w-[256px] md:w-auto overflow-hidden"
+                      style={{
+                        backgroundColor: "var(--bg-content)",
+                        border: "1px solid var(--gray-100)",
+                      }}
+                    >
+                      <div className="flex">
+                        {/* Video Preview */}
+                        <div
+                          onClick={(e) => handlePreviewClick("browserbase", e)}
+                          onMouseEnter={() => setHoveredVideo("browserbase")}
+                          onMouseLeave={() => setHoveredVideo(null)}
+                          className="flex-1 md:flex-none md:w-96 aspect-video cursor-pointer overflow-hidden relative group"
+                        >
+                          <VideoIframe
+                            key={getCurrentVideo("browserbase")}
+                            src={`https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/${getCurrentVideo(
+                              "browserbase"
+                            )}/iframe?autoplay=true&muted=true&controls=true&loop=true&preload=auto&defaultTextTrack=false`}
+                            title="Browserbase Preview"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                            className="w-full h-full pointer-events-none"
+                            style={{ border: 0, pointerEvents: "none" }}
+                          />
+                        </div>
+
+                        {/* Project List - Right (Desktop Only) */}
+                        <AnimatePresence>
+                          {hoveredVideo === "browserbase" && (
+                            <motion.div
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: -10 }}
+                              transition={{
+                                duration: 0.25,
+                                ease: [0.25, 0.1, 0.25, 1],
+                              }}
+                              onMouseEnter={() =>
+                                setHoveredVideo("browserbase")
+                              }
+                              onMouseLeave={() => setHoveredVideo(null)}
+                              className="hidden md:flex md:w-40 p-2 flex-col gap-1 overflow-y-auto max-h-[216px]"
+                            >
+                              {browserbaseProjects.map((project) => (
+                                <div
+                                  key={project.id}
+                                  onClick={() =>
+                                    handleSubProjectClick(
+                                      "browserbase",
+                                      project.id
+                                    )
+                                  }
+                                  className="text-left text-xs md:text-sm px-2 py-1 rounded cursor-pointer transition-colors"
+                                  style={{
+                                    color:
+                                      selectedSubProject["browserbase"] ===
+                                      project.id
+                                        ? "var(--gray-900)"
+                                        : "var(--gray-400)",
+                                  }}
+                                  onMouseEnter={(e) =>
+                                    (e.currentTarget.style.backgroundColor =
+                                      "var(--gray-100)")
+                                  }
+                                  onMouseLeave={(e) =>
+                                    (e.currentTarget.style.backgroundColor =
+                                      "transparent")
+                                  }
+                                >
+                                  {project.name}
+                                </div>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </span>
+              . Angel investing & growth advising.
+            </div>
+
+            {/* Interests */}
+            <p className="text-body my-5" style={{ color: "var(--gray-700)" }}>
+              {/* You'll find me
+              embarassing myself learning new things, challenging myself, or
+              being selfless around others. */}
+            </p>
+
+            {/* Contact */}
+            <div
+              className="text-body my-5"
+              style={{ color: "var(--gray-700)" }}
+            >
+              <span className="relative inline-block">
+                <button
+                  onClick={() => handleProjectClick("nyc")}
+                  onMouseEnter={() => handleMouseEnterPreview("nyc")}
+                  onMouseLeave={handleMouseLeavePreview}
+                  className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
+                  style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
+                >
+                  NYC
+                </button>
+                <AnimatePresence>
+                  {(showPreview === "nyc" || hoveredPreview === "nyc") && (
+                    <motion.div
+                      ref={(el) => {
+                        previewRefs.current["nyc"] = el;
+                      }}
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      onMouseEnter={() => handleMouseEnterPreview("nyc")}
+                      onMouseLeave={handleMouseLeavePreview}
+                      onClick={(e) => handlePreviewClick("nyc", e)}
+                      className="absolute left-1/2 -translate-x-1/4 md:left-0 md:translate-x-0 top-full mt-2 z-10 w-64 md:w-96 aspect-video overflow-hidden cursor-pointer"
+                      style={{
+                        backgroundColor: "var(--bg-content)",
+                        border: "1px solid var(--gray-100)",
+                      }}
+                    >
+                      <VideoIframe
+                        src="https://www.youtube.com/embed/R1CG9ZuK2V8?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=R1CG9ZuK2V8"
+                        title="NYC Livestream Preview"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                        className="w-full h-full pointer-events-none"
+                        style={{ border: 0 }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </span>{" "}
+              based,{" "}
+              <span className="relative inline-block">
+                <button
+                  onClick={() => handleProjectClick("sf")}
+                  onMouseEnter={() => handleMouseEnterPreview("sf")}
+                  onMouseLeave={handleMouseLeavePreview}
+                  className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
+                  style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
+                >
+                  SF
+                </button>
+                <AnimatePresence>
+                  {(showPreview === "sf" || hoveredPreview === "sf") && (
+                    <motion.div
+                      ref={(el) => {
+                        previewRefs.current["sf"] = el;
+                      }}
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      onMouseEnter={() => handleMouseEnterPreview("sf")}
+                      onMouseLeave={handleMouseLeavePreview}
+                      onClick={(e) => handlePreviewClick("sf", e)}
+                      className="absolute left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 top-full mt-2 z-10 w-64 md:w-96 aspect-video overflow-hidden cursor-pointer"
+                      style={{
+                        backgroundColor: "var(--bg-content)",
+                        border: "1px solid var(--gray-100)",
+                      }}
+                    >
+                      <VideoIframe
+                        src="https://www.youtube.com/embed/CXYr04BWvmc?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=CXYr04BWvmc"
+                        title="SF Video Preview"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                        className="w-full h-full pointer-events-none"
+                        style={{ border: 0 }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </span>{" "}
+              frequent. Feel free to{" "}
+              <span className="relative inline-block contact-dropdown-container">
+                <button
+                  onClick={() => setShowContactDropdown(!showContactDropdown)}
+                  onMouseEnter={() => {
+                    setHoveredContact(true);
+                    setHoveredPreview(null);
+                  }}
+                  onMouseLeave={() => setHoveredContact(false)}
+                  className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all contact-dropdown-container"
+                  style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
+                >
+                  reach out
+                </button>
+
+                {/* Contact Dropdown */}
+                <AnimatePresence>
+                  {(showContactDropdown || hoveredContact) && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      transition={{
+                        duration: 0.2,
+                        ease: [0.22, 1, 0.36, 1],
+                      }}
+                      onMouseEnter={() => {
+                        setHoveredContact(true);
+                        setHoveredPreview(null);
+                      }}
+                      onMouseLeave={() => setHoveredContact(false)}
+                      className="absolute left-0 top-full mt-1.5 py-1.5 px-2.5 z-10 "
+                      style={{
+                        backgroundColor: "var(--bg-content)",
+                        border: "1px solid var(--gray-100)",
+                      }}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <a
+                          href="mailto:alexphan0515@gmail.com"
+                          className="text-sm hover:opacity-70 transition-opacity"
+                          style={{ color: "var(--gray-500)" }}
+                        >
+                          Email
+                        </a>
+                        <span
+                          className="text-sm"
+                          style={{ color: "var(--gray-300)" }}
+                        ></span>
+                        <a
+                          href="https://linkedin.com/in/alexanderdphan"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm hover:opacity-70 transition-opacity"
+                          style={{ color: "var(--gray-500)" }}
+                        >
+                          LinkedIn
+                        </a>
+                        <span
+                          className="text-sm"
+                          style={{ color: "var(--gray-300)" }}
+                        ></span>
+                        <a
+                          href="https://x.com/alexdphan"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm hover:opacity-70 transition-opacity"
+                          style={{ color: "var(--gray-500)" }}
+                        >
+                          X
+                        </a>
+                        <span
+                          className="text-sm"
+                          style={{ color: "var(--gray-300)" }}
+                        ></span>
+                        <a
+                          href="https://alexdphan-github-io-alexander-phans-projects.vercel.app/projects"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm hover:opacity-70 transition-opacity"
+                          style={{ color: "var(--gray-500)" }}
+                        >
+                          Archive
+                        </a>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </span>{" "}
+              if you'd like to chat.
+            </div>
           </div>
         </div>
+        {/* </div> */}
       </motion.div>
+
+      {/* Video Modal */}
+      <AnimatePresence>
+        {videoModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8"
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.8)",
+              backdropFilter: "blur(8px)",
+            }}
+            onClick={handleCloseModal}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="relative w-full max-w-5xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {getModalVideo().url && (
+                <div className="flex flex-col md:flex-row gap-2">
+                  {/* Video */}
+                  <div className="flex-1 aspect-video">
+                    <VideoIframe
+                      src={getModalVideo().url}
+                      title={getModalVideo().title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                      allowFullScreen
+                      className="w-full h-full"
+                      style={{ border: 0 }}
+                    />
+                  </div>
+
+                  {/* Sidebar - Below on Mobile, Right on Desktop (Only for Rho/Browserbase) */}
+                  {(rhoProjects.find((p) => p.id === videoModal) ||
+                    browserbaseProjects.find((p) => p.id === videoModal)) && (
+                    <div
+                      className="w-full md:w-56 py-4  flex flex-col gap-2 overflow-y-auto max-h-[216px] md:max-h-[calc(100vh-200px)]"
+                      style={{
+                        backgroundColor: "var(--bg-content)",
+                        border: "1px solid var(--gray-100)",
+                      }}
+                    >
+                      {/* Project List */}
+                      <div className="flex flex-col gap-1 pr-2">
+                        {(rhoProjects.find((p) => p.id === videoModal)
+                          ? rhoProjects
+                          : browserbaseProjects
+                        ).map((project) => (
+                          <button
+                            key={project.id}
+                            onClick={() => {
+                              setVideoModal(project.id);
+                              setSelectedSubProject((prev) => ({
+                                ...prev,
+                                [rhoProjects.find((p) => p.id === videoModal)
+                                  ? "rho"
+                                  : "browserbase"]: project.id,
+                              }));
+                            }}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "var(--gray-100)")
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "transparent")
+                            }
+                            className="text-left text-sm px-3 py-2 rounded cursor-pointer transition-colors"
+                            style={{
+                              color:
+                                videoModal === project.id
+                                  ? "var(--gray-900)"
+                                  : "var(--gray-400)",
+                            }}
+                          >
+                            {project.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

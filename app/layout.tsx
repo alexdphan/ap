@@ -1,89 +1,73 @@
 "use client";
 
-import { Geist, Geist_Mono, Playfair_Display, Lora } from "next/font/google";
+import { Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/Sidebar";
-import { MusicPlayerProvider } from "@/contexts/MusicPlayerContext";
-import MiniMusicPlayer from "@/components/MiniMusicPlayer";
-import MobileNav from "@/components/MobileNav";
+// import {
+//   MusicPlayerProvider,
+//   useMusicPlayer,
+// } from "@/contexts/MusicPlayerContext";
+// import MiniMusicPlayer from "@/components/MiniMusicPlayer";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const lora = Lora({
-  variable: "--font-lora",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-function LayoutContent({ children }: { children: React.ReactNode }) {
+function LayoutContent({
+  children,
+  isDarkMode,
+  setIsDarkMode,
+}: {
+  children: React.ReactNode;
+  isDarkMode: boolean;
+  setIsDarkMode: (value: boolean) => void;
+}) {
   const pathname = usePathname();
+  // const { hasInteracted } = useMusicPlayer();
+
+  // Show mini player on non-home pages if user has interacted
+  const showMiniPlayer = false; // pathname !== "/" && hasInteracted;
 
   return (
     <>
-      {/* Desktop Layout */}
+      {/* Desktop Layout - Box Model Structure */}
       <div
-        className={`museum-grid-bg hidden md:block py-16 px-8 ${
-          pathname === "/" ||
-          pathname === "/inspiration" ||
-          pathname === "/investments"
-            ? "h-screen overflow-hidden"
-            : "min-h-screen"
-        }`}
+        className="min-h-screen overflow-y-auto overflow-x-hidden"
+        style={{
+          backgroundColor: "var(--bg-outer)",
+        }}
       >
-        {/* Centered Container for Sidebar + Content */}
-        <div className="w-full max-w-[1200px] mx-auto grid grid-cols-[auto_1fr] gap-20">
-          {/* Sidebar Column - fixed position, always centered */}
-          <div>
-            <div className="fixed" style={{ transform: 'translateY(-50%)', top: '50%' }}>
-              <Sidebar />
-            </div>
-          </div>
-
-          {/* Content Column */}
-          <div
-            className={`flex ${
-              pathname === "/" ||
-              pathname === "/inspiration" ||
-              pathname === "/investments"
-                ? "min-h-screen items-center justify-center"
-                : "items-start justify-center pt-0"
-            }`}
-          >
-            <div className="w-full max-w-3xl">{children}</div>
-          </div>
+        <div
+          className="w-full max-w-xl mx-auto px-6 py-16 md:py-36 relative z-0"
+          style={{
+            backgroundColor: "var(--bg-content)",
+            // border: "1px solid var(--gray-100)",
+          }}
+        >
+          {/* Triangle Tab - Dark Mode Toggle */}
+          {/* <button
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className="absolute -top-0 -right-0 w-0 h-0 border-t-[30px] border-l-[30px] border-l-transparent hover:opacity-80 transition-all cursor-pointer"
+            style={{
+              borderTopColor: isDarkMode ? "#f5ebe0" : "#3a3a3a",
+            }}
+            aria-label="Toggle dark mode"
+          /> */}
+          {children}
         </div>
       </div>
 
-      {/* Mobile Layout */}
-      <div
-        className={`museum-grid-bg md:hidden flex justify-center px-8 ${
-          pathname === "/" ||
-          pathname === "/inspiration" ||
-          pathname === "/investments"
-            ? "h-screen items-center overflow-hidden"
-            : "min-h-screen overflow-y-auto"
-        }`}
-      >
-        <div className="flex flex-col gap-8 max-w-md w-full">{children}</div>
-      </div>
-
-      <MobileNav />
-      <MiniMusicPlayer />
+      {/* <MiniMusicPlayer /> */}
     </>
   );
 }
@@ -93,14 +77,60 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Detect system dark mode preference
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    // Set initial value
+    setIsDarkMode(mediaQuery.matches);
+
+    // Listen for changes
+    const handler = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
+    mediaQuery.addEventListener("change", handler);
+
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
+
+  // Update theme-color meta tag when dark mode changes
+  useEffect(() => {
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement("meta");
+      metaThemeColor.setAttribute("name", "theme-color");
+      document.head.appendChild(metaThemeColor);
+    }
+
+    metaThemeColor.setAttribute("content", isDarkMode ? "#121212" : "#F5F4F3");
+  }, [isDarkMode]);
+
+  // Set up meta tags on mount
+  useEffect(() => {
+    // Apple mobile web app status bar
+    let metaApple = document.querySelector(
+      'meta[name="apple-mobile-web-app-status-bar-style"]'
+    );
+    if (!metaApple) {
+      metaApple = document.createElement("meta");
+      metaApple.setAttribute("name", "apple-mobile-web-app-status-bar-style");
+      document.head.appendChild(metaApple);
+    }
+    metaApple.setAttribute("content", "black-translucent");
+
+    // Set color-scheme on root
+    document.documentElement.style.colorScheme = isDarkMode ? "dark" : "light";
+  }, [isDarkMode]);
+
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${lora.variable} antialiased`}
-      >
-        <MusicPlayerProvider>
-          <LayoutContent>{children}</LayoutContent>
-        </MusicPlayerProvider>
+    <html lang="en" className={isDarkMode ? "dark" : ""}>
+      <body className={`${inter.variable} ${geistMono.variable} antialiased`}>
+        {/* <MusicPlayerProvider> */}
+        <LayoutContent isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}>
+          {children}
+        </LayoutContent>
+        {/* </MusicPlayerProvider> */}
       </body>
     </html>
   );
