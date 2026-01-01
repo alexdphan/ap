@@ -8,8 +8,6 @@ import VideoIframe from "@/components/VideoIframe";
 import Link from "next/link";
 
 export default function Home() {
-  const [showContactDropdown, setShowContactDropdown] = useState(false);
-  const [hoveredContact, setHoveredContact] = useState(false);
   const [showPreview, setShowPreview] = useState<string | null>(null);
   const [hoveredPreview, setHoveredPreview] = useState<string | null>(null);
   const [videoModal, setVideoModal] = useState<string | null>(null);
@@ -141,7 +139,7 @@ export default function Home() {
       clearTimeout(hoverTimeoutRef.current);
       hoverTimeoutRef.current = null;
     }
-    if (!showPreview && !showContactDropdown) {
+    if (!showPreview) {
       setHoveredPreview(preview);
     }
   };
@@ -174,7 +172,6 @@ export default function Home() {
       // Close any other open previews
       setShowPreview(project);
       setHoveredPreview(null);
-      setShowContactDropdown(false);
       // Set first project as default selection if none selected
       if (!selectedSubProject[project]) {
         if (project === "rho") {
@@ -265,17 +262,6 @@ export default function Home() {
           setHoveredPreview(null);
         }
       }
-
-      // Check contact dropdown
-      if (showContactDropdown) {
-        const contactContainer = document.querySelector(
-          ".contact-dropdown-container"
-        );
-        if (contactContainer && !contactContainer.contains(target)) {
-          setShowContactDropdown(false);
-          setHoveredContact(false);
-        }
-      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -284,7 +270,7 @@ export default function Home() {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
     };
-  }, [showPreview, hoveredPreview, showContactDropdown]);
+  }, [showPreview, hoveredPreview]);
 
   // Drag select functionality
   useEffect(() => {
@@ -437,21 +423,9 @@ export default function Home() {
               style={{ color: "var(--gray-700)" }}
             >
               <button
-                onMouseEnter={() => {
-                  if (hoverTimeoutRef.current) {
-                    clearTimeout(hoverTimeoutRef.current);
-                    hoverTimeoutRef.current = null;
-                  }
-                  setHoveredPreview("nyc");
-                }}
-                onMouseLeave={() => {
-                  if (hoverTimeoutRef.current) {
-                    clearTimeout(hoverTimeoutRef.current);
-                  }
-                  hoverTimeoutRef.current = setTimeout(() => {
-                    setHoveredPreview(null);
-                  }, 3000);
-                }}
+                onClick={() =>
+                  setHoveredPreview(hoveredPreview === "nyc" ? null : "nyc")
+                }
                 className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
                 style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
               >
@@ -480,94 +454,17 @@ export default function Home() {
                 SF
               </button>{" "}
               frequent. Feel free to{" "}
-              <span className="relative inline-block contact-dropdown-container">
-                <button
-                  onClick={() => setShowContactDropdown(!showContactDropdown)}
-                  onMouseEnter={() => {
-                    setHoveredContact(true);
-                    setHoveredPreview(null);
-                  }}
-                  onMouseLeave={() => setHoveredContact(false)}
-                  className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all contact-dropdown-container"
-                  style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
-                >
-                  reach out
-                </button>
-
-                {/* Contact Dropdown */}
-                <AnimatePresence>
-                  {(showContactDropdown || hoveredContact) && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      transition={{
-                        duration: 0.2,
-                        ease: [0.22, 1, 0.36, 1],
-                      }}
-                      onMouseEnter={() => {
-                        setHoveredContact(true);
-                        setHoveredPreview(null);
-                      }}
-                      onMouseLeave={() => setHoveredContact(false)}
-                      className="absolute left-0 top-full mt-1.5 py-1.5 px-2.5 z-10 "
-                      style={{
-                        backgroundColor: "var(--bg-content)",
-                        border: "1px solid var(--gray-100)",
-                      }}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <a
-                          href="mailto:alexphan0515@gmail.com"
-                          className="text-sm hover:opacity-70 transition-opacity"
-                          style={{ color: "var(--gray-500)" }}
-                        >
-                          Email
-                        </a>
-                        <span
-                          className="text-sm"
-                          style={{ color: "var(--gray-300)" }}
-                        ></span>
-                        <a
-                          href="https://linkedin.com/in/alexanderdphan"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm hover:opacity-70 transition-opacity"
-                          style={{ color: "var(--gray-500)" }}
-                        >
-                          LinkedIn
-                        </a>
-                        <span
-                          className="text-sm"
-                          style={{ color: "var(--gray-300)" }}
-                        ></span>
-                        <a
-                          href="https://x.com/alexdphan"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm hover:opacity-70 transition-opacity"
-                          style={{ color: "var(--gray-500)" }}
-                        >
-                          X
-                        </a>
-                        <span
-                          className="text-sm"
-                          style={{ color: "var(--gray-300)" }}
-                        ></span>
-                        <a
-                          href="https://alexdphan-github-io-alexander-phans-projects.vercel.app/projects"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm hover:opacity-70 transition-opacity"
-                          style={{ color: "var(--gray-500)" }}
-                        >
-                          Archive
-                        </a>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </span>{" "}
+              <button
+                onClick={() =>
+                  setHoveredPreview(
+                    hoveredPreview === "contact" ? null : "contact"
+                  )
+                }
+                className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
+                style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
+              >
+                reach out
+              </button>{" "}
               if you'd like to chat.
             </div>
           </div>
@@ -874,6 +771,9 @@ export default function Home() {
             {hoveredPreview === "nyc" && (
               <motion.div
                 key="nyc-preview"
+                ref={(el) => {
+                  previewRefs.current["nyc"] = el;
+                }}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
@@ -957,6 +857,64 @@ export default function Home() {
                 >
                   San Francisco
                 </p>
+              </motion.div>
+            )}
+            {hoveredPreview === "contact" && (
+              <motion.div
+                key="contact-preview"
+                ref={(el) => {
+                  previewRefs.current["contact"] = el;
+                }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full mt-5"
+              >
+                <div
+                  className="w-full py-2 px-3"
+                  style={{
+                    backgroundColor: "var(--bg-content)",
+                    border: "1px solid var(--gray-100)",
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <a
+                      href="mailto:alexphan0515@gmail.com"
+                      className="text-sm hover:opacity-70 transition-opacity"
+                      style={{ color: "var(--gray-500)" }}
+                    >
+                      Email
+                    </a>
+                    <a
+                      href="https://linkedin.com/in/alexanderdphan"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm hover:opacity-70 transition-opacity"
+                      style={{ color: "var(--gray-500)" }}
+                    >
+                      LinkedIn
+                    </a>
+                    <a
+                      href="https://x.com/alexdphan"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm hover:opacity-70 transition-opacity"
+                      style={{ color: "var(--gray-500)" }}
+                    >
+                      X
+                    </a>
+                    <a
+                      href="https://alexdphan-github-io-alexander-phans-projects.vercel.app/projects"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm hover:opacity-70 transition-opacity"
+                      style={{ color: "var(--gray-500)" }}
+                    >
+                      Archive
+                    </a>
+                  </div>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
