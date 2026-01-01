@@ -51,6 +51,7 @@ export default function VideoIframe({
 
       <iframe
         {...props}
+        loading="lazy"
         className={`w-full h-full ${className || ""}`}
         onLoad={(e) => {
           setIsLoading(false);

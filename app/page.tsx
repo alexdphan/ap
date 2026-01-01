@@ -13,12 +13,39 @@ export default function Home() {
   const [showPreview, setShowPreview] = useState<string | null>(null);
   const [hoveredPreview, setHoveredPreview] = useState<string | null>(null);
   const [videoModal, setVideoModal] = useState<string | null>(null);
+  const [showProjectMenu, setShowProjectMenu] = useState<string | null>(null); // 'rho' or 'browserbase'
+  const [selectedVideo, setSelectedVideo] = useState<{
+    rho: string;
+    browserbase: string;
+  }>({
+    rho: "findrho.co",
+    browserbase: "series-b",
+  });
   const [selectedSubProject, setSelectedSubProject] = useState<{
     [key: string]: string;
   }>({});
-  const [hoveredVideo, setHoveredVideo] = useState<string | null>(null);
+  const [videoHeight, setVideoHeight] = useState<{
+    rho: number;
+    browserbase: number;
+  }>({ rho: 0, browserbase: 0 });
   const previewRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const videoRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Drag select state
+  const [dragSelect, setDragSelect] = useState<{
+    isActive: boolean;
+    startX: number;
+    startY: number;
+    currentX: number;
+    currentY: number;
+  }>({
+    isActive: false,
+    startX: 0,
+    startY: 0,
+    currentX: 0,
+    currentY: 0,
+  });
 
   const rhoProjects = [
     {
@@ -125,7 +152,7 @@ export default function Home() {
     }
     hoverTimeoutRef.current = setTimeout(() => {
       setHoveredPreview(null);
-    }, 1000);
+    }, 3000);
   };
 
   const handleSubProjectClick = (mainProject: string, subProjectId: string) => {
@@ -225,25 +252,26 @@ export default function Home() {
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+
+      // Check video previews (rho, browserbase, nyc, sf)
       if (showPreview || hoveredPreview) {
-        const target = event.target as Node;
         const isClickInsidePreview = Object.values(previewRefs.current).some(
           (ref) => ref?.contains(target)
         );
         if (!isClickInsidePreview) {
           setShowPreview(null);
+          setHoveredPreview(null);
         }
       }
+
+      // Check contact dropdown
       if (showContactDropdown) {
-        // Check if click is outside contact dropdown
         const contactContainer = document.querySelector(
           ".contact-dropdown-container"
         );
-        if (
-          contactContainer &&
-          !contactContainer.contains(event.target as Node)
-        ) {
+        if (contactContainer && !contactContainer.contains(target)) {
           setShowContactDropdown(false);
           setHoveredContact(false);
         }
@@ -251,8 +279,61 @@ export default function Home() {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
   }, [showPreview, hoveredPreview, showContactDropdown]);
+
+  // Drag select functionality
+  useEffect(() => {
+    const handleMouseDown = (e: MouseEvent) => {
+      // Only start drag select if clicking on the background (not on interactive elements)
+      const target = e.target as HTMLElement;
+      const isInteractive =
+        target.tagName === "BUTTON" ||
+        target.tagName === "A" ||
+        target.tagName === "INPUT" ||
+        target.closest("button") ||
+        target.closest("a") ||
+        target.closest("iframe");
+
+      if (!isInteractive) {
+        setDragSelect({
+          isActive: true,
+          startX: e.clientX,
+          startY: e.clientY,
+          currentX: e.clientX,
+          currentY: e.clientY,
+        });
+      }
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (dragSelect.isActive) {
+        setDragSelect((prev) => ({
+          ...prev,
+          currentX: e.clientX,
+          currentY: e.clientY,
+        }));
+      }
+    };
+
+    const handleMouseUp = () => {
+      setDragSelect((prev) => ({ ...prev, isActive: false }));
+    };
+
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [dragSelect.isActive]);
 
   return (
     <>
@@ -319,206 +400,27 @@ export default function Home() {
               style={{ color: "var(--gray-700)" }}
             >
               Establishing growth engineering at{" "}
-              <span className="relative inline-block">
-                <button
-                  onClick={() => handleProjectClick("rho")}
-                  onMouseEnter={() => handleMouseEnterPreview("rho")}
-                  onMouseLeave={handleMouseLeavePreview}
-                  className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
-                  style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
-                >
-                  Rho
-                </button>
-                <AnimatePresence>
-                  {(showPreview === "rho" || hoveredPreview === "rho") && (
-                    <motion.div
-                      ref={(el) => {
-                        previewRefs.current["rho"] = el;
-                      }}
-                      initial={{ opacity: 0, y: -5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      onMouseEnter={() => handleMouseEnterPreview("rho")}
-                      onMouseLeave={handleMouseLeavePreview}
-                      className="absolute left-1/2 -translate-x-24 min-[420px]:-left-14 min-[420px]:-translate-x-26 md:translate-x-0 md:left-0 top-full mt-2 z-10 w-[256px] md:w-auto overflow-hidden"
-                      style={{
-                        backgroundColor: "var(--bg-content)",
-                        border: "1px solid var(--gray-100)",
-                      }}
-                    >
-                      <div className="flex">
-                        {/* Video Preview */}
-                        <div
-                          onClick={(e) => handlePreviewClick("rho", e)}
-                          onMouseEnter={() => setHoveredVideo("rho")}
-                          onMouseLeave={() => setHoveredVideo(null)}
-                          className="flex-1 md:flex-none md:w-96 aspect-video cursor-pointer overflow-hidden relative group"
-                        >
-                          <VideoIframe
-                            key={getCurrentVideo("rho")}
-                            src={`https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/${getCurrentVideo(
-                              "rho"
-                            )}/iframe?autoplay=true&muted=true&controls=true&loop=true&preload=auto&defaultTextTrack=false`}
-                            title="Rho Preview"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-                            className="w-full h-full pointer-events-none"
-                            style={{ border: 0, pointerEvents: "none" }}
-                          />
-                        </div>
-
-                        {/* Project List - Right (Desktop Only) */}
-                        <AnimatePresence>
-                          {hoveredVideo === "rho" && (
-                            <motion.div
-                              initial={{ opacity: 0, x: -10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              exit={{ opacity: 0, x: -10 }}
-                              transition={{
-                                duration: 0.25,
-                                ease: [0.25, 0.1, 0.25, 1],
-                              }}
-                              onMouseEnter={() => setHoveredVideo("rho")}
-                              onMouseLeave={() => setHoveredVideo(null)}
-                              className="hidden md:flex md:w-40 p-2 flex-col gap-1 overflow-y-auto max-h-[216px]"
-                            >
-                              {rhoProjects.map((project) => (
-                                <div
-                                  key={project.id}
-                                  onClick={() =>
-                                    handleSubProjectClick("rho", project.id)
-                                  }
-                                  className="text-left text-xs md:text-sm px-2 py-1 rounded cursor-pointer transition-colors"
-                                  style={{
-                                    color:
-                                      selectedSubProject["rho"] === project.id
-                                        ? "var(--gray-900)"
-                                        : "var(--gray-400)",
-                                  }}
-                                  onMouseEnter={(e) =>
-                                    (e.currentTarget.style.backgroundColor =
-                                      "var(--gray-100)")
-                                  }
-                                  onMouseLeave={(e) =>
-                                    (e.currentTarget.style.backgroundColor =
-                                      "transparent")
-                                  }
-                                >
-                                  {project.name}
-                                </div>
-                              ))}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </span>
+              <button
+                onClick={() =>
+                  setHoveredPreview(hoveredPreview === "rho" ? null : "rho")
+                }
+                className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
+                style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
+              >
+                Rho
+              </button>
               . Previously founding growth engineer at{" "}
-              <span className="relative inline-block">
-                <button
-                  onClick={() => handleProjectClick("browserbase")}
-                  onMouseEnter={() => handleMouseEnterPreview("browserbase")}
-                  onMouseLeave={handleMouseLeavePreview}
-                  className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
-                  style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
-                >
-                  Browserbase
-                </button>
-                <AnimatePresence>
-                  {(showPreview === "browserbase" ||
-                    hoveredPreview === "browserbase") && (
-                    <motion.div
-                      ref={(el) => {
-                        previewRefs.current["browserbase"] = el;
-                      }}
-                      initial={{ opacity: 0, y: -5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      onMouseEnter={() =>
-                        handleMouseEnterPreview("browserbase")
-                      }
-                      onMouseLeave={handleMouseLeavePreview}
-                      className="absolute left-1/2 -translate-x-13 min-[420px]:-left-14 min-[420px]:-translate-x-12 md:left-0 top-full mt-2 z-10 w-[256px] md:w-auto overflow-hidden"
-                      style={{
-                        backgroundColor: "var(--bg-content)",
-                        border: "1px solid var(--gray-100)",
-                      }}
-                    >
-                      <div className="flex">
-                        {/* Video Preview */}
-                        <div
-                          onClick={(e) => handlePreviewClick("browserbase", e)}
-                          onMouseEnter={() => setHoveredVideo("browserbase")}
-                          onMouseLeave={() => setHoveredVideo(null)}
-                          className="flex-1 md:flex-none md:w-96 aspect-video cursor-pointer overflow-hidden relative group"
-                        >
-                          <VideoIframe
-                            key={getCurrentVideo("browserbase")}
-                            src={`https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/${getCurrentVideo(
-                              "browserbase"
-                            )}/iframe?autoplay=true&muted=true&controls=true&loop=true&preload=auto&defaultTextTrack=false`}
-                            title="Browserbase Preview"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-                            className="w-full h-full pointer-events-none"
-                            style={{ border: 0, pointerEvents: "none" }}
-                          />
-                        </div>
-
-                        {/* Project List - Right (Desktop Only) */}
-                        <AnimatePresence>
-                          {hoveredVideo === "browserbase" && (
-                            <motion.div
-                              initial={{ opacity: 0, x: -10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              exit={{ opacity: 0, x: -10 }}
-                              transition={{
-                                duration: 0.25,
-                                ease: [0.25, 0.1, 0.25, 1],
-                              }}
-                              onMouseEnter={() =>
-                                setHoveredVideo("browserbase")
-                              }
-                              onMouseLeave={() => setHoveredVideo(null)}
-                              className="hidden md:flex md:w-40 p-2 flex-col gap-1 overflow-y-auto max-h-[216px]"
-                            >
-                              {browserbaseProjects.map((project) => (
-                                <div
-                                  key={project.id}
-                                  onClick={() =>
-                                    handleSubProjectClick(
-                                      "browserbase",
-                                      project.id
-                                    )
-                                  }
-                                  className="text-left text-xs md:text-sm px-2 py-1 rounded cursor-pointer transition-colors"
-                                  style={{
-                                    color:
-                                      selectedSubProject["browserbase"] ===
-                                      project.id
-                                        ? "var(--gray-900)"
-                                        : "var(--gray-400)",
-                                  }}
-                                  onMouseEnter={(e) =>
-                                    (e.currentTarget.style.backgroundColor =
-                                      "var(--gray-100)")
-                                  }
-                                  onMouseLeave={(e) =>
-                                    (e.currentTarget.style.backgroundColor =
-                                      "transparent")
-                                  }
-                                >
-                                  {project.name}
-                                </div>
-                              ))}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </span>
+              <button
+                onClick={() =>
+                  setHoveredPreview(
+                    hoveredPreview === "browserbase" ? null : "browserbase"
+                  )
+                }
+                className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
+                style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
+              >
+                Browserbase
+              </button>
               . Angel investing & growth advising.
             </div>
 
@@ -534,85 +436,49 @@ export default function Home() {
               className="text-body my-5"
               style={{ color: "var(--gray-700)" }}
             >
-              <span className="relative inline-block">
-                <button
-                  onClick={() => handleProjectClick("nyc")}
-                  onMouseEnter={() => handleMouseEnterPreview("nyc")}
-                  onMouseLeave={handleMouseLeavePreview}
-                  className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
-                  style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
-                >
-                  NYC
-                </button>
-                <AnimatePresence>
-                  {(showPreview === "nyc" || hoveredPreview === "nyc") && (
-                    <motion.div
-                      ref={(el) => {
-                        previewRefs.current["nyc"] = el;
-                      }}
-                      initial={{ opacity: 0, y: -5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      onMouseEnter={() => handleMouseEnterPreview("nyc")}
-                      onMouseLeave={handleMouseLeavePreview}
-                      onClick={(e) => handlePreviewClick("nyc", e)}
-                      className="absolute left-1/2 -translate-x-1/4 md:left-0 md:translate-x-0 top-full mt-2 z-10 w-64 md:w-96 aspect-video overflow-hidden cursor-pointer"
-                      style={{
-                        backgroundColor: "var(--bg-content)",
-                        border: "1px solid var(--gray-100)",
-                      }}
-                    >
-                      <VideoIframe
-                        src="https://www.youtube.com/embed/TsgoxkRFit0?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=TsgoxkRFit0"
-                        title="NYC Livestream Preview"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-                        className="w-full h-full pointer-events-none"
-                        style={{ border: 0 }}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </span>{" "}
+              <button
+                onMouseEnter={() => {
+                  if (hoverTimeoutRef.current) {
+                    clearTimeout(hoverTimeoutRef.current);
+                    hoverTimeoutRef.current = null;
+                  }
+                  setHoveredPreview("nyc");
+                }}
+                onMouseLeave={() => {
+                  if (hoverTimeoutRef.current) {
+                    clearTimeout(hoverTimeoutRef.current);
+                  }
+                  hoverTimeoutRef.current = setTimeout(() => {
+                    setHoveredPreview(null);
+                  }, 3000);
+                }}
+                className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
+                style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
+              >
+                NYC
+              </button>{" "}
               based,{" "}
-              <span className="relative inline-block">
-                <button
-                  onClick={() => handleProjectClick("sf")}
-                  onMouseEnter={() => handleMouseEnterPreview("sf")}
-                  onMouseLeave={handleMouseLeavePreview}
-                  className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
-                  style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
-                >
-                  SF
-                </button>
-                <AnimatePresence>
-                  {(showPreview === "sf" || hoveredPreview === "sf") && (
-                    <motion.div
-                      ref={(el) => {
-                        previewRefs.current["sf"] = el;
-                      }}
-                      initial={{ opacity: 0, y: -5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      onMouseEnter={() => handleMouseEnterPreview("sf")}
-                      onMouseLeave={handleMouseLeavePreview}
-                      onClick={(e) => handlePreviewClick("sf", e)}
-                      className="absolute left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 top-full mt-2 z-10 w-64 md:w-96 aspect-video overflow-hidden cursor-pointer"
-                      style={{
-                        backgroundColor: "var(--bg-content)",
-                        border: "1px solid var(--gray-100)",
-                      }}
-                    >
-                      <VideoIframe
-                        src="https://www.youtube.com/embed/CXYr04BWvmc?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=CXYr04BWvmc"
-                        title="SF Video Preview"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-                        className="w-full h-full pointer-events-none"
-                        style={{ border: 0 }}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </span>{" "}
+              <button
+                onMouseEnter={() => {
+                  if (hoverTimeoutRef.current) {
+                    clearTimeout(hoverTimeoutRef.current);
+                    hoverTimeoutRef.current = null;
+                  }
+                  setHoveredPreview("sf");
+                }}
+                onMouseLeave={() => {
+                  if (hoverTimeoutRef.current) {
+                    clearTimeout(hoverTimeoutRef.current);
+                  }
+                  hoverTimeoutRef.current = setTimeout(() => {
+                    setHoveredPreview(null);
+                  }, 3000);
+                }}
+                className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
+                style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
+              >
+                SF
+              </button>{" "}
               frequent. Feel free to{" "}
               <span className="relative inline-block contact-dropdown-container">
                 <button
@@ -705,8 +571,396 @@ export default function Home() {
               if you'd like to chat.
             </div>
           </div>
+
+          {/* Single Video Preview - Shows based on hover */}
+          <AnimatePresence mode="wait">
+            {hoveredPreview === "rho" && (
+              <motion.div
+                key="rho-preview"
+                ref={(el) => {
+                  previewRefs.current["rho"] = el;
+                }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full mt-5"
+              >
+                <div className="relative w-full">
+                  <div
+                    ref={(el) => {
+                      videoRefs.current["rho"] = el;
+                      if (el && el.offsetHeight !== videoHeight.rho) {
+                        setVideoHeight((prev) => ({
+                          ...prev,
+                          rho: el.offsetHeight,
+                        }));
+                      }
+                    }}
+                    className="w-full aspect-video overflow-hidden cursor-pointer"
+                    style={{ border: "1px solid var(--gray-100)" }}
+                    onClick={() =>
+                      setShowProjectMenu(
+                        showProjectMenu === "rho" ? null : "rho"
+                      )
+                    }
+                  >
+                    <VideoIframe
+                      key={selectedVideo.rho}
+                      src={`https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/${
+                        rhoProjects.find((p) => p.id === selectedVideo.rho)
+                          ?.video || rhoProjects[0].video
+                      }/iframe?autoplay=true&muted=true&controls=true&loop=true&preload=metadata&defaultTextTrack=false`}
+                      title="Rho"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                      className="w-full h-full pointer-events-none"
+                      style={{ border: 0 }}
+                    />
+                  </div>
+                  <p
+                    className="text-body mt-2"
+                    style={{ color: "var(--gray-400)" }}
+                  >
+                    Rho
+                  </p>
+
+                  {/* Project Menu - Slide from right on desktop, bottom on mobile */}
+                  <AnimatePresence mode="wait">
+                    {showProjectMenu === "rho" && (
+                      <motion.div
+                        key="rho-menu-desktop"
+                        initial={{ x: "100%", opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: "100%", opacity: 0 }}
+                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        className="absolute top-0 left-full ml-3 hidden md:block w-48 py-1.5 px-2.5"
+                        style={{
+                          backgroundColor: "var(--bg-content)",
+                          border: "1px solid var(--gray-100)",
+                        }}
+                      >
+                        {rhoProjects.map((project) => (
+                          <button
+                            key={project.id}
+                            onClick={() => {
+                              setSelectedVideo((prev) => ({
+                                ...prev,
+                                rho: project.id,
+                              }));
+                            }}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "var(--gray-100)")
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "transparent")
+                            }
+                            className="w-full text-left text-sm px-2 py-1.5 rounded cursor-pointer transition-colors mb-1"
+                            style={{
+                              color:
+                                selectedVideo.rho === project.id
+                                  ? "var(--gray-900)"
+                                  : "var(--gray-400)",
+                            }}
+                          >
+                            {project.name}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Mobile Menu - Slide from bottom */}
+                  <AnimatePresence mode="wait">
+                    {showProjectMenu === "rho" && (
+                      <motion.div
+                        key="rho-menu-mobile"
+                        initial={{ y: "100%", opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: "100%", opacity: 0 }}
+                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        className="md:hidden w-full mt-3 py-1.5 px-2.5"
+                        style={{
+                          backgroundColor: "var(--bg-content)",
+                          border: "1px solid var(--gray-100)",
+                        }}
+                      >
+                        {rhoProjects.map((project) => (
+                          <button
+                            key={project.id}
+                            onClick={() => {
+                              setSelectedVideo((prev) => ({
+                                ...prev,
+                                rho: project.id,
+                              }));
+                            }}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "var(--gray-100)")
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "transparent")
+                            }
+                            className="w-full text-left text-sm px-2 py-1.5 rounded cursor-pointer transition-colors mb-1"
+                            style={{
+                              color:
+                                selectedVideo.rho === project.id
+                                  ? "var(--gray-900)"
+                                  : "var(--gray-400)",
+                            }}
+                          >
+                            {project.name}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
+            {hoveredPreview === "browserbase" && (
+              <motion.div
+                key="browserbase-preview"
+                ref={(el) => {
+                  previewRefs.current["browserbase"] = el;
+                }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full mt-5"
+              >
+                <div className="relative w-full">
+                  <div
+                    ref={(el) => {
+                      videoRefs.current["browserbase"] = el;
+                      if (el && el.offsetHeight !== videoHeight.browserbase) {
+                        setVideoHeight((prev) => ({
+                          ...prev,
+                          browserbase: el.offsetHeight,
+                        }));
+                      }
+                    }}
+                    className="w-full aspect-video overflow-hidden cursor-pointer"
+                    style={{ border: "1px solid var(--gray-100)" }}
+                    onClick={() =>
+                      setShowProjectMenu(
+                        showProjectMenu === "browserbase" ? null : "browserbase"
+                      )
+                    }
+                  >
+                    <VideoIframe
+                      key={selectedVideo.browserbase}
+                      src={`https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/${
+                        browserbaseProjects.find(
+                          (p) => p.id === selectedVideo.browserbase
+                        )?.video || browserbaseProjects[0].video
+                      }/iframe?autoplay=true&muted=true&controls=true&loop=true&preload=metadata&defaultTextTrack=false`}
+                      title="Browserbase"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                      className="w-full h-full pointer-events-none"
+                      style={{ border: 0 }}
+                    />
+                  </div>
+                  <p
+                    className="text-body mt-2"
+                    style={{ color: "var(--gray-400)" }}
+                  >
+                    Browserbase
+                  </p>
+
+                  {/* Project Menu - Slide from right on desktop, bottom on mobile */}
+                  <AnimatePresence mode="wait">
+                    {showProjectMenu === "browserbase" && (
+                      <motion.div
+                        key="browserbase-menu-desktop"
+                        initial={{ x: "100%", opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: "100%", opacity: 0 }}
+                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        className="absolute top-0 left-full ml-3 hidden md:block w-48 overflow-y-auto py-1.5 px-2.5"
+                        style={{
+                          backgroundColor: "var(--bg-content)",
+                          border: "1px solid var(--gray-100)",
+                          height:
+                            videoHeight.browserbase > 0
+                              ? `${videoHeight.browserbase}px`
+                              : "auto",
+                        }}
+                      >
+                        {browserbaseProjects.map((project) => (
+                          <button
+                            key={project.id}
+                            onClick={() => {
+                              setSelectedVideo((prev) => ({
+                                ...prev,
+                                browserbase: project.id,
+                              }));
+                            }}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "var(--gray-100)")
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "transparent")
+                            }
+                            className="w-full text-left text-sm px-2 py-1.5 rounded cursor-pointer transition-colors mb-1"
+                            style={{
+                              color:
+                                selectedVideo.browserbase === project.id
+                                  ? "var(--gray-900)"
+                                  : "var(--gray-400)",
+                            }}
+                          >
+                            {project.name}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Mobile Menu - Slide from bottom */}
+                  <AnimatePresence mode="wait">
+                    {showProjectMenu === "browserbase" && (
+                      <motion.div
+                        key="browserbase-menu-mobile"
+                        initial={{ y: "100%", opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: "100%", opacity: 0 }}
+                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        className="md:hidden w-full mt-3 p-3"
+                        style={{
+                          backgroundColor: "var(--bg-content)",
+                          border: "1px solid var(--gray-100)",
+                        }}
+                      >
+                        {browserbaseProjects.map((project) => (
+                          <button
+                            key={project.id}
+                            onClick={() => {
+                              setSelectedVideo((prev) => ({
+                                ...prev,
+                                browserbase: project.id,
+                              }));
+                            }}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "var(--gray-100)")
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "transparent")
+                            }
+                            className="w-full text-left text-sm px-2 py-1.5 rounded cursor-pointer transition-colors mb-1"
+                            style={{
+                              color:
+                                selectedVideo.browserbase === project.id
+                                  ? "var(--gray-900)"
+                                  : "var(--gray-400)",
+                            }}
+                          >
+                            {project.name}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
+            {hoveredPreview === "nyc" && (
+              <motion.div
+                key="nyc-preview"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full mt-5"
+                onMouseEnter={() => {
+                  if (hoverTimeoutRef.current) {
+                    clearTimeout(hoverTimeoutRef.current);
+                    hoverTimeoutRef.current = null;
+                  }
+                  setHoveredPreview("nyc");
+                }}
+                onMouseLeave={() => {
+                  if (hoverTimeoutRef.current) {
+                    clearTimeout(hoverTimeoutRef.current);
+                  }
+                  hoverTimeoutRef.current = setTimeout(() => {
+                    setHoveredPreview(null);
+                  }, 3000);
+                }}
+              >
+                <div
+                  className="w-full aspect-video overflow-hidden"
+                  style={{ border: "1px solid var(--gray-100)" }}
+                >
+                  <VideoIframe
+                    src="https://www.youtube.com/embed/R1CG9ZuK2V8?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=R1CG9ZuK2V8"
+                    title="NYC Livestream"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                    className="w-full h-full pointer-events-none"
+                    style={{ border: 0 }}
+                  />
+                </div>
+                <p
+                  className="text-body mt-2"
+                  style={{ color: "var(--gray-400)" }}
+                >
+                  New York City
+                </p>
+              </motion.div>
+            )}
+            {hoveredPreview === "sf" && (
+              <motion.div
+                key="sf-preview"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full mt-5"
+                onMouseEnter={() => {
+                  if (hoverTimeoutRef.current) {
+                    clearTimeout(hoverTimeoutRef.current);
+                    hoverTimeoutRef.current = null;
+                  }
+                  setHoveredPreview("sf");
+                }}
+                onMouseLeave={() => {
+                  if (hoverTimeoutRef.current) {
+                    clearTimeout(hoverTimeoutRef.current);
+                  }
+                  hoverTimeoutRef.current = setTimeout(() => {
+                    setHoveredPreview(null);
+                  }, 3000);
+                }}
+              >
+                <div
+                  className="w-full aspect-video overflow-hidden"
+                  style={{ border: "1px solid var(--gray-100)" }}
+                >
+                  <VideoIframe
+                    src="https://www.youtube.com/embed/CXYr04BWvmc?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=CXYr04BWvmc"
+                    title="SF Video"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                    className="w-full h-full pointer-events-none"
+                    style={{ border: 0 }}
+                  />
+                </div>
+                <p
+                  className="text-body mt-2"
+                  style={{ color: "var(--gray-400)" }}
+                >
+                  San Francisco
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-        {/* </div> */}
       </motion.div>
 
       {/* Video Modal */}
@@ -719,8 +973,7 @@ export default function Home() {
             transition={{ duration: 0.3 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8"
             style={{
-              backgroundColor: "rgba(0, 0, 0, 0.8)",
-              backdropFilter: "blur(8px)",
+              backdropFilter: "blur(12px)",
             }}
             onClick={handleCloseModal}
           >
@@ -750,14 +1003,14 @@ export default function Home() {
                   {(rhoProjects.find((p) => p.id === videoModal) ||
                     browserbaseProjects.find((p) => p.id === videoModal)) && (
                     <div
-                      className="w-full md:w-56 py-4  flex flex-col gap-2 overflow-y-auto max-h-[216px] md:max-h-[calc(100vh-200px)]"
+                      className="w-full md:w-56 p-3 flex flex-col gap-2 overflow-y-auto max-h-[216px] md:max-h-[calc(100vh-200px)]"
                       style={{
                         backgroundColor: "var(--bg-content)",
                         border: "1px solid var(--gray-100)",
                       }}
                     >
                       {/* Project List */}
-                      <div className="flex flex-col gap-1 pr-2">
+                      <div className="flex flex-col gap-1">
                         {(rhoProjects.find((p) => p.id === videoModal)
                           ? rhoProjects
                           : browserbaseProjects
@@ -781,7 +1034,7 @@ export default function Home() {
                               (e.currentTarget.style.backgroundColor =
                                 "transparent")
                             }
-                            className="text-left text-sm px-3 py-2 rounded cursor-pointer transition-colors"
+                            className="text-left text-sm px-2 py-1.5 rounded cursor-pointer transition-colors"
                             style={{
                               color:
                                 videoModal === project.id
@@ -799,6 +1052,41 @@ export default function Home() {
               )}
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Drag Select Box */}
+      <AnimatePresence>
+        {dragSelect.isActive && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              left: Math.min(dragSelect.startX, dragSelect.currentX),
+              top: Math.min(dragSelect.startY, dragSelect.currentY),
+              width: Math.abs(dragSelect.currentX - dragSelect.startX),
+              height: Math.abs(dragSelect.currentY - dragSelect.startY),
+            }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{
+              opacity: { duration: 0.15, ease: [0.16, 1, 0.3, 1] },
+              scale: { duration: 0.2, ease: [0.16, 1, 0.3, 1] },
+              default: {
+                type: "spring",
+                stiffness: 500,
+                damping: 40,
+                mass: 0.5,
+              },
+            }}
+            className="fixed pointer-events-none z-[9999]"
+            style={{
+              backgroundColor: "rgba(255, 225, 174, 0.12)",
+              border: "1px solid rgba(255, 225, 174, 0.9)",
+              boxShadow:
+                "0 0 0 1px rgba(255, 225, 174, 0.1), 0 2px 8px rgba(255, 225, 174, 0.15)",
+            }}
+          />
         )}
       </AnimatePresence>
     </>
