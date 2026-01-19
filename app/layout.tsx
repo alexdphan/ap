@@ -42,13 +42,13 @@ function LayoutContent({
     <>
       {/* Desktop Layout - Box Model Structure */}
       <div
-        className="min-h-screen overflow-y-auto overflow-x-hidden"
+        className="min-h-screen overflow-y-auto overflow-x-hidden flex justify-center"
         style={{
           backgroundColor: "var(--bg-outer)",
         }}
       >
         <div
-          className="w-full max-w-xl mx-auto px-6 py-16 md:py-36 relative z-0"
+          className="w-full max-w-md md:max-w-lg px-6 py-16 md:py-24 relative z-0"
           style={{
             backgroundColor: "var(--bg-content)",
             // border: "1px solid var(--gray-100)",
