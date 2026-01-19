@@ -327,7 +327,7 @@ export default function Home() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="flex flex-col w-full mt-16 md:mt-32"
+        className="flex flex-col w-full"
       >
         {/* Magazine Header */}
         <div className="flex flex-col w-full">
@@ -370,7 +370,7 @@ export default function Home() {
           <div className="w-full">
             {/* Philosophy */}
             <p className="text-body my-5" style={{ color: "var(--gray-700)" }}>
-              Pursuing opportunities that are{" "}
+              Pursuing opportunities {" "}
               <span className="italic" style={{ color: "var(--gray-900)" }}>
                 elegantly simple
               </span>
@@ -433,21 +433,9 @@ export default function Home() {
               </button>{" "}
               based,{" "}
               <button
-                onMouseEnter={() => {
-                  if (hoverTimeoutRef.current) {
-                    clearTimeout(hoverTimeoutRef.current);
-                    hoverTimeoutRef.current = null;
-                  }
-                  setHoveredPreview("sf");
-                }}
-                onMouseLeave={() => {
-                  if (hoverTimeoutRef.current) {
-                    clearTimeout(hoverTimeoutRef.current);
-                  }
-                  hoverTimeoutRef.current = setTimeout(() => {
-                    setHoveredPreview(null);
-                  }, 3000);
-                }}
+                onClick={() =>
+                  setHoveredPreview(hoveredPreview === "sf" ? null : "sf")
+                }
                 className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
                 style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
               >
@@ -477,9 +465,9 @@ export default function Home() {
                 ref={(el) => {
                   previewRefs.current["rho"] = el;
                 }}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="w-full mt-5"
               >
@@ -623,9 +611,9 @@ export default function Home() {
                 ref={(el) => {
                   previewRefs.current["browserbase"] = el;
                 }}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="w-full mt-5"
               >
@@ -774,9 +762,9 @@ export default function Home() {
                 ref={(el) => {
                   previewRefs.current["nyc"] = el;
                 }}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="w-full mt-5"
                 onMouseEnter={() => {
@@ -800,7 +788,7 @@ export default function Home() {
                   style={{ border: "1px solid var(--gray-100)" }}
                 >
                   <VideoIframe
-                    src="https://www.youtube.com/embed/R1CG9ZuK2V8?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=R1CG9ZuK2V8"
+                    src="https://www.youtube.com/embed/TsgoxkRFit0?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=TsgoxkRFit0"
                     title="NYC Livestream"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
                     className="w-full h-full pointer-events-none"
@@ -818,9 +806,9 @@ export default function Home() {
             {hoveredPreview === "sf" && (
               <motion.div
                 key="sf-preview"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="w-full mt-5"
                 onMouseEnter={() => {
@@ -865,9 +853,9 @@ export default function Home() {
                 ref={(el) => {
                   previewRefs.current["contact"] = el;
                 }}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="w-full mt-5"
               >
