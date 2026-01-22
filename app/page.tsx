@@ -371,7 +371,7 @@ export default function Home() {
             {/* Philosophy */}
             <p className="text-body my-5" style={{ color: "var(--gray-700)" }}>
               Pursuing opportunities {" "}
-              <span className="italic" style={{ color: "var(--gray-900)" }}>
+              <span style={{ color: "var(--gray-900)" }}>
                 elegantly simple
               </span>
               , yet{" "}
