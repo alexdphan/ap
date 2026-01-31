@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useRef } from "react";
+import { useRef } from "react";
+import { motion, useSpring, useTransform } from "framer-motion";
+import { springs } from "@/lib/animation";
 
 interface ArtworkCardProps {
   title?: string;
@@ -20,9 +22,12 @@ export default function ArtworkCard({
   width = 200,
   height = 250,
 }: ArtworkCardProps) {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+
+  // Spring-based rotation for smooth mouse tracking
+  const rotateX = useSpring(0, springs.cardTrack);
+  const rotateY = useSpring(0, springs.cardTrack);
+  const scale = useSpring(1, springs.cardTrack);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -34,19 +39,23 @@ export default function ArtworkCard({
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    const rotateX = ((y - centerY) / centerY) * -10;
-    const rotateY = ((x - centerX) / centerX) * 10;
+    // Calculate rotation - spring will smoothly interpolate
+    const targetRotateX = ((y - centerY) / centerY) * -10;
+    const targetRotateY = ((x - centerX) / centerX) * 10;
 
-    setMousePosition({ x: rotateY, y: rotateX });
+    rotateX.set(targetRotateX);
+    rotateY.set(targetRotateY);
   };
 
   const handleMouseLeave = () => {
-    setIsHovered(false);
-    setMousePosition({ x: 0, y: 0 });
+    // Spring will smoothly animate back to 0
+    rotateX.set(0);
+    rotateY.set(0);
+    scale.set(1);
   };
 
   const handleMouseEnter = () => {
-    setIsHovered(true);
+    scale.set(1.02);
   };
 
   return (
@@ -61,19 +70,17 @@ export default function ArtworkCard({
       )}
 
       {/* Artwork Image with Floating Shadow */}
-      <div
+      <motion.div
         ref={cardRef}
         className="artwork-card mb-6"
         onMouseMove={handleMouseMove}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         style={{
-          transform: `perspective(1000px) rotateX(${
-            mousePosition.y
-          }deg) rotateY(${mousePosition.x}deg) scale(${isHovered ? 1.02 : 1})`,
-          transition: isHovered
-            ? "transform 0.1s ease-out"
-            : "transform 0.5s ease-out",
+          perspective: 1000,
+          rotateX,
+          rotateY,
+          scale,
         }}
       >
         <Image
@@ -84,7 +91,7 @@ export default function ArtworkCard({
           className="object-cover"
           priority
         />
-      </div>
+      </motion.div>
 
       {/* Artwork Date */}
       {date && (

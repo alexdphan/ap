@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 
 import VideoIframe from "@/components/VideoIframe";
+import { springs, transitions } from "@/lib/animation";
 import Link from "next/link";
 
 export default function Home() {
@@ -326,7 +327,10 @@ export default function Home() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        transition={{
+          ...springs.snappy,
+          opacity: { duration: 0.2 },
+        }}
         className="flex flex-col w-full"
       >
         {/* Magazine Header */}
@@ -468,7 +472,7 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                transition={springs.snappy}
                 className="w-full mt-5"
               >
                 <div className="relative w-full">
@@ -517,7 +521,7 @@ export default function Home() {
                         initial={{ x: "100%", opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         exit={{ x: "100%", opacity: 0 }}
-                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        transition={springs.snappy}
                         className="absolute top-0 left-full ml-3 hidden md:block w-48 py-1.5 px-2.5"
                         style={{
                           backgroundColor: "var(--bg-content)",
@@ -564,7 +568,7 @@ export default function Home() {
                         initial={{ y: "100%", opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: "100%", opacity: 0 }}
-                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        transition={springs.snappy}
                         className="md:hidden w-full mt-3 py-1.5 px-2.5"
                         style={{
                           backgroundColor: "var(--bg-content)",
@@ -614,7 +618,7 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                transition={springs.snappy}
                 className="w-full mt-5"
               >
                 <div className="relative w-full">
@@ -664,7 +668,7 @@ export default function Home() {
                         initial={{ x: "100%", opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         exit={{ x: "100%", opacity: 0 }}
-                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        transition={springs.snappy}
                         className="absolute top-0 left-full ml-3 hidden md:block w-48 overflow-y-auto py-1.5 px-2.5"
                         style={{
                           backgroundColor: "var(--bg-content)",
@@ -715,7 +719,7 @@ export default function Home() {
                         initial={{ y: "100%", opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: "100%", opacity: 0 }}
-                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        transition={springs.snappy}
                         className="md:hidden w-full mt-3 p-3"
                         style={{
                           backgroundColor: "var(--bg-content)",
@@ -765,7 +769,7 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                transition={springs.snappy}
                 className="w-full mt-5"
                 onMouseEnter={() => {
                   if (hoverTimeoutRef.current) {
@@ -809,7 +813,7 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                transition={springs.snappy}
                 className="w-full mt-5"
                 onMouseEnter={() => {
                   if (hoverTimeoutRef.current) {
@@ -856,7 +860,7 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                transition={springs.snappy}
                 className="w-full mt-5"
               >
                 <div
@@ -916,7 +920,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={transitions.fade}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8"
             style={{
               backdropFilter: "blur(12px)",
@@ -924,10 +928,13 @@ export default function Home() {
             onClick={handleCloseModal}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.98, opacity: 0, y: 10 }}
+              transition={{
+                ...springs.snappy,
+                opacity: { duration: 0.15 },
+              }}
               className="relative w-full max-w-5xl"
               onClick={(e) => e.stopPropagation()}
             >

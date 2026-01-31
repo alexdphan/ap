@@ -32,28 +32,29 @@ const Float: React.FC<FloatProps> = ({
   // Use refs for animation values to avoid recreating the animation frame callback
   const time = useRef(0)
 
+  // Smoothing factor - lower = smoother, more lag
+  const smoothing = 0.08
+
   useAnimationFrame(() => {
-    time.current += speed * 0.02
+    time.current += speed * 0.015 // Slightly slower for smoother motion
 
-    // Smooth floating motion on all axes
-    const newX = Math.sin(time.current * 0.7 + timeOffset) * amplitude[0]
-    const newY = Math.sin(time.current * 0.6 + timeOffset) * amplitude[1]
-    const newZ = Math.sin(time.current * 0.5 + timeOffset) * amplitude[2]
+    // Calculate target positions with smooth sinusoidal motion
+    const targetX = Math.sin(time.current * 0.7 + timeOffset) * amplitude[0]
+    const targetY = Math.sin(time.current * 0.6 + timeOffset) * amplitude[1]
+    const targetZ = Math.sin(time.current * 0.5 + timeOffset) * amplitude[2]
 
-    // 3D rotations with different frequencies for more organic movement
-    const newRotateX =
-      Math.sin(time.current * 0.5 + timeOffset) * rotationRange[0]
-    const newRotateY =
-      Math.sin(time.current * 0.4 + timeOffset) * rotationRange[1]
-    const newRotateZ =
-      Math.sin(time.current * 0.3 + timeOffset) * rotationRange[2]
+    // Calculate target rotations with different frequencies for organic movement
+    const targetRotateX = Math.sin(time.current * 0.5 + timeOffset) * rotationRange[0]
+    const targetRotateY = Math.sin(time.current * 0.4 + timeOffset) * rotationRange[1]
+    const targetRotateZ = Math.sin(time.current * 0.3 + timeOffset) * rotationRange[2]
 
-    x.set(newX)
-    y.set(newY)
-    z.set(newZ)
-    rotateX.set(newRotateX)
-    rotateY.set(newRotateY)
-    rotateZ.set(newRotateZ)
+    // Smooth interpolation - eases towards target
+    x.set(x.get() + (targetX - x.get()) * smoothing)
+    y.set(y.get() + (targetY - y.get()) * smoothing)
+    z.set(z.get() + (targetZ - z.get()) * smoothing)
+    rotateX.set(rotateX.get() + (targetRotateX - rotateX.get()) * smoothing)
+    rotateY.set(rotateY.get() + (targetRotateY - rotateY.get()) * smoothing)
+    rotateZ.set(rotateZ.get() + (targetRotateZ - rotateZ.get()) * smoothing)
   })
 
   return (

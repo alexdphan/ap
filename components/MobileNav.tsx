@@ -3,6 +3,36 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { springs, transitions, easing } from "@/lib/animation";
+
+// iOS-style staggered menu items
+const menuVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.03,
+      delayChildren: 0.05,
+    },
+  },
+  exit: {
+    opacity: 0,
+    transition: {
+      staggerChildren: 0.02,
+      staggerDirection: -1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, x: -8 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.15, ease: easing.iosOut },
+  },
+  exit: { opacity: 0, x: -8, transition: { duration: 0.1 } },
+};
 
 export default function MobileNav() {
   const pathname = usePathname();
@@ -32,20 +62,17 @@ export default function MobileNav() {
         onClick={() => setIsOpen(!isOpen)}
         className="px-4 py-3 bg-white border border-gray-200 shadow-lg flex items-center gap-2"
         whileTap={{ scale: 0.95 }}
+        transition={springs.tap}
       >
         <motion.div
-          animate={{
-            rotate: isOpen ? 90 : 0,
-          }}
-          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          animate={{ rotate: isOpen ? 90 : 0 }}
+          transition={springs.snappy}
           className="w-5 h-5 border border-gray-900 flex items-center justify-center"
         >
           <motion.div
             className="w-2 h-2 bg-gray-900"
-            animate={{
-              scale: isOpen ? 0 : 1,
-            }}
-            transition={{ duration: 0.2 }}
+            animate={{ scale: isOpen ? 0 : 1 }}
+            transition={springs.tap}
           />
         </motion.div>
         <span className="editorial-label text-[10px] text-gray-900">
@@ -53,29 +80,44 @@ export default function MobileNav() {
         </span>
       </motion.button>
 
-      {/* Expanded Menu - Magazine Style */}
+      {/* Expanded Menu - iOS Sheet Style */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            transition={springs.snappy}
             className="absolute bottom-full mb-4 bg-white border border-gray-200 shadow-2xl px-6 py-5 min-w-[180px]"
           >
             {/* Menu Header */}
-            <div className="mb-4 pb-3 border-b border-gray-200">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.1, delay: 0.05 }}
+              className="mb-4 pb-3 border-b border-gray-200"
+            >
               <p className="editorial-display text-2xl text-gray-900">Index</p>
-            </div>
+            </motion.div>
 
-            <nav className="space-y-4">
+            <motion.nav
+              variants={menuVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="space-y-4"
+            >
               {pages.map((page, index) => {
                 const isActive = page.href === pathname;
                 return (
-                  <button
+                  <motion.button
                     key={page.href}
+                    variants={itemVariants}
                     onClick={() => handleNavigate(page.href)}
                     className="block w-full text-left transition-colors group"
+                    whileHover={{ x: 3 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={springs.tap}
                   >
                     <div className="flex items-baseline gap-3">
                       <span className="editorial-caption text-[10px] text-gray-400">
@@ -91,17 +133,22 @@ export default function MobileNav() {
                         {page.label}
                       </p>
                     </div>
-                  </button>
+                  </motion.button>
                 );
               })}
-            </nav>
+            </motion.nav>
 
             {/* Footer */}
-            <div className="mt-5 pt-4 border-t border-gray-100">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.1, delay: 0.15 }}
+              className="mt-5 pt-4 border-t border-gray-100"
+            >
               <p className="editorial-caption text-[9px] text-gray-400 tracking-wider">
                 AP · 2025
               </p>
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
