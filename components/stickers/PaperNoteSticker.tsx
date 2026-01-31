@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { easing, springs, stickerTransitions } from "@/lib/animation";
 
 interface PaperNoteStickerProps {
   text: string;
@@ -17,28 +18,24 @@ export default function PaperNoteSticker({
     <motion.div
       drag
       dragMomentum={false}
-      whileHover={{ scale: 1.02, rotate: 2 }}
-      whileTap={{ scale: 0.95, cursor: "grabbing" }}
-      initial={{ opacity: 0, scale: 1.05, rotate: 0 }}
+      dragElastic={0.05}
+      dragTransition={stickerTransitions.drag}
+      whileHover={{ scale: 1.02, rotate: 1 }}
+      whileTap={{ scale: 0.96 }}
+      whileDrag={{ scale: 1.03 }}
+      initial={{ opacity: 0, scale: 1.02 }}
       animate={{
         opacity: isVisible ? 1 : 0,
-        scale: isVisible ? 1 : 1.05,
-        rotate: [0, 2, -2, 0],
-        y: [0, -6, 0],
+        scale: isVisible ? 1 : 1.02,
+        rotate: [0, 1.5, -1.5, 0],
+        y: [0, -4, 0],
       }}
       transition={{
-        opacity: { duration: 1, ease: [0.22, 1, 0.36, 1] },
-        scale: { duration: 1, ease: [0.22, 1, 0.36, 1] },
-        rotate: {
-          duration: 4.5,
-          repeat: Infinity,
-          ease: "easeInOut",
-        },
-        y: {
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut",
-        },
+        opacity: { duration: 0.15, ease: easing.iosOut },
+        scale: { duration: 0.15, ease: easing.iosOut },
+        rotate: stickerTransitions.float.rotate,
+        y: stickerTransitions.float.y,
+        default: springs.tap,
       }}
       className={`${className} shadow-sm bg-cover bg-center cursor-grab active:cursor-grabbing scale-75 md:scale-100`}
       style={{

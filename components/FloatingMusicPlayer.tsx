@@ -1,25 +1,18 @@
 "use client";
 
 import Float from "@/components/fancy/blocks/float";
-import { motion } from "framer-motion";
+import { motion, useSpring } from "framer-motion";
 import { useState, useRef } from "react";
-// import { useMusicPlayer } from "@/contexts/MusicPlayerContext";
+import { springs, easing } from "@/lib/animation";
 
 export default function FloatingMusicPlayer() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
   const [showGif, setShowGif] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // const {
-  //   currentVideo,
-  //   isPlaying,
-  //   iframeRef,
-  //   handlePrevious,
-  //   handleNext,
-  //   togglePlay,
-  //   setShouldOpenDropdown,
-  // } = useMusicPlayer();
+  // Snappy spring-based rotation for mouse tracking
+  const rotateX = useSpring(0, springs.cardTrack);
+  const rotateY = useSpring(0, springs.cardTrack);
+  const scale = useSpring(1, springs.cardTrack);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -31,34 +24,39 @@ export default function FloatingMusicPlayer() {
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    const rotateX = ((y - centerY) / centerY) * -5;
-    const rotateY = ((x - centerX) / centerX) * 5;
+    const targetRotateX = ((y - centerY) / centerY) * -5;
+    const targetRotateY = ((x - centerX) / centerX) * 5;
 
-    setMousePosition({ x: rotateY, y: rotateX });
+    rotateX.set(targetRotateX);
+    rotateY.set(targetRotateY);
   };
 
   const handleMouseLeave = () => {
-    setIsHovered(false);
-    setMousePosition({ x: 0, y: 0 });
+    rotateX.set(0);
+    rotateY.set(0);
+    scale.set(1);
   };
 
   const handleMouseEnter = () => {
-    setIsHovered(true);
+    scale.set(1.01);
   };
 
   const handleToggleGif = () => {
-    // console.log("Toggling GIF, current state:", showGif);
     setShowGif((prev) => !prev);
-    // Reset tilt on click for easier interaction
-    setMousePosition({ x: 0, y: 0 });
+    rotateX.set(0);
+    rotateY.set(0);
   };
 
   return (
     <div className="flex flex-col items-center justify-center w-40">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, delay: 0.5, ease: "easeOut" }}
+        transition={{
+          ...springs.snappy,
+          delay: 0.3,
+          opacity: { duration: 0.15, delay: 0.3 },
+        }}
       >
         <div
           ref={cardRef}
@@ -69,21 +67,16 @@ export default function FloatingMusicPlayer() {
           className="cursor-pointer"
         >
           <Float speed={0.6} amplitude={[3, 8, 8]} rotationRange={[3, 3, 2]}>
-            <div
+            <motion.div
               className="artwork-card"
               style={{
-                transform: `perspective(1000px) rotateX(${
-                  mousePosition.y
-                }deg) rotateY(${mousePosition.x}deg) scale(${
-                  isHovered ? 1.01 : 1
-                })`,
-                transition: isHovered
-                  ? "transform 0.15s ease-out"
-                  : "transform 0.5s ease-out",
+                perspective: 1000,
+                rotateX,
+                rotateY,
+                scale,
               }}
             >
               <div className="w-28 h-28 relative overflow-hidden bg-gray-100 magazine-frame">
-                {/* Toggle between placeholder and simpson.gif */}
                 {showGif ? (
                   <img
                     src="/simpson.gif"
@@ -96,142 +89,10 @@ export default function FloatingMusicPlayer() {
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           </Float>
         </div>
       </motion.div>
-      {/* Music controls temporarily disabled */}
-      {/* <motion.div
-        className="pt-6 flex flex-col items-center gap-2"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, delay: 0.7, ease: "easeOut" }}
-      >
-        <div className="text-center w-full">
-          <p
-            className="text-body cursor-pointer hover:opacity-70 transition-opacity truncate px-2"
-            style={{ color: "var(--gray-900)" }}
-            onClick={() => setShouldOpenDropdown(true)}
-          >
-            {currentVideo.title}
-          </p>
-          <p
-            className="text-caption cursor-pointer hover:opacity-70 transition-opacity truncate px-2"
-            style={{ color: "var(--gray-400)" }}
-            onClick={() => setShouldOpenDropdown(true)}
-          >
-            {currentVideo.artist}
-          </p>
-        </div>
-
-        <MusicControls
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-          onTogglePlay={togglePlay}
-          isPlaying={isPlaying}
-        />
-      </motion.div> */}
     </div>
   );
 }
-
-// interface MusicControlsProps {
-//   onPrevious: () => void;
-//   onNext: () => void;
-//   onTogglePlay: () => void;
-//   isPlaying: boolean;
-// }
-
-// const MusicControls = ({
-//   onPrevious,
-//   onNext,
-//   onTogglePlay,
-//   isPlaying,
-// }: MusicControlsProps) => {
-//   const bars = 5;
-
-//   const getRandomHeights = () => {
-//     return Array.from({ length: bars }, () => Math.random() * 0.8 + 0.2);
-//   };
-
-//   const [heights, setHeights] = useState(getRandomHeights());
-
-//   useEffect(() => {
-//     if (isPlaying) {
-//       const waveformIntervalId = setInterval(() => {
-//         setHeights(getRandomHeights());
-//       }, 100);
-
-//       return () => {
-//         clearInterval(waveformIntervalId);
-//       };
-//     }
-//     setHeights(Array(bars).fill(0.1));
-//   }, [isPlaying]);
-
-//   return (
-//     <div className="flex items-center gap-2 px-2 py-1.5">
-//       {/* Previous Button */}
-//       <button
-//         onClick={onPrevious}
-//         className="w-7 h-7 flex items-center justify-center rounded-full transition-all hover:opacity-70"
-//       >
-//         <svg
-//           className="w-5 h-5"
-//           style={{ color: "var(--gray-900)" }}
-//           fill="currentColor"
-//           viewBox="0 0 24 24"
-//         >
-//           <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
-//         </svg>
-//       </button>
-
-//       {/* Play/Pause Waveform Button */}
-//       <motion.div
-//         onClick={onTogglePlay}
-//         whileTap={{ scale: 0.95 }}
-//         transition={{ duration: 0.2 }}
-//         className="cursor-pointer px-3 py-1.5 flex items-center justify-center "
-//       >
-//         <motion.div
-//           initial={{ opacity: 0 }}
-//           animate={{ opacity: 1 }}
-//           className="flex h-[14px] items-center gap-[2px]"
-//         >
-//           {/* Waveform visualization */}
-//           {heights.map((height, index) => (
-//             <motion.div
-//               key={index}
-//               className="w-[2px] rounded-full"
-//               style={{ backgroundColor: "var(--gray-900)" }}
-//               initial={{ height: 2 }}
-//               animate={{
-//                 height: Math.max(4, height * 14),
-//               }}
-//               transition={{
-//                 type: "spring",
-//                 stiffness: 300,
-//                 damping: 10,
-//               }}
-//             />
-//           ))}
-//         </motion.div>
-//       </motion.div>
-
-//       {/* Next Button */}
-//       <button
-//         onClick={onNext}
-//         className="w-7 h-7 flex items-center justify-center rounded-full transition-all hover:opacity-70"
-//       >
-//         <svg
-//           className="w-5 h-5"
-//           style={{ color: "var(--gray-900)" }}
-//           fill="currentColor"
-//           viewBox="0 0 24 24"
-//         >
-//           <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
-//         </svg>
-//       </button>
-//     </div>
-//   );
-// };

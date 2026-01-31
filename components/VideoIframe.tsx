@@ -27,22 +27,25 @@ export default function VideoIframe({
           <motion.div
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="absolute inset-0 z-10"
+            transition={{ duration: 0.15, ease: [0, 0, 0.2, 1] }}
+            className="absolute inset-0 z-10 overflow-hidden"
             style={{
               backgroundColor: "var(--gray-100)",
             }}
           >
+            {/* Fast shimmer effect */}
             <motion.div
-              className="w-full h-full"
-              animate={{ opacity: [0.5, 0.8, 0.5] }}
+              className="absolute inset-0"
+              animate={{ x: ["-100%", "100%"] }}
               transition={{
-                duration: 2,
+                duration: 0.8,
                 repeat: Infinity,
-                ease: "easeInOut",
+                ease: "linear",
               }}
               style={{
-                backgroundColor: "var(--gray-100)",
+                background:
+                  "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)",
+                width: "50%",
               }}
             />
           </motion.div>
@@ -60,10 +63,9 @@ export default function VideoIframe({
         style={{
           ...style,
           opacity: isLoading ? 0 : 1,
-          transition: "opacity 0.5s ease-in-out",
+          transition: "opacity 0.15s ease-out",
         }}
       />
     </div>
   );
 }
-
