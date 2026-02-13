@@ -339,8 +339,8 @@ export default function Home() {
             <Image
               src="/alex.jpg"
               alt="Alex Phan"
-              width={45}
-              height={45}
+              width={56}
+              height={56}
               className="cursor-pointer transition-none hover:brightness-70 active:brightness-75"
               style={{ border: "1px solid var(--gray-100)" }}
               quality={100}
@@ -374,14 +374,7 @@ export default function Home() {
           <div className="w-full">
             {/* Philosophy */}
             <p className="text-body my-5" style={{ color: "var(--gray-700)" }}>
-              Pursuing opportunities {" "}
-              <span style={{ color: "var(--gray-900)" }}>
-                elegantly simple
-              </span>
-              , yet{" "}
-              {/* <span className="italic" style={{ color: "var(--gray-900)" }}> */}
-              overlooked
-              {/* </span> */}.
+              Pursuing opportunities elegantly simple, yet overlooked
             </p>
 
             {/* Work */}
@@ -389,7 +382,17 @@ export default function Home() {
               className="text-body my-5"
               style={{ color: "var(--gray-700)" }}
             >
-              Establishing growth engineering at{" "}
+              Now at SPC, exploring the{" "}
+              <a
+                href="https://www.tryonra.com/map"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 transition-all"
+                style={{ color: "var(--gray-700)" }}
+              >
+                imports industry
+              </a>
+              . Angel investing & growth advising on the side. Previously, growth engineer at{" "}
               <button
                 onClick={() =>
                   setHoveredPreview(hoveredPreview === "rho" ? null : "rho")
@@ -399,7 +402,7 @@ export default function Home() {
               >
                 Rho
               </button>
-              . Previously founding growth engineer at{" "}
+              {" "}and{" "}
               <button
                 onClick={() =>
                   setHoveredPreview(
@@ -411,15 +414,8 @@ export default function Home() {
               >
                 Browserbase
               </button>
-              . Angel investing & growth advising.
+              {" "}(founding).
             </div>
-
-            {/* Interests */}
-            <p className="text-body my-5" style={{ color: "var(--gray-700)" }}>
-              {/* You'll find me
-              embarassing myself learning new things, challenging myself, or
-              being selfless around others. */}
-            </p>
 
             {/* Contact */}
             <div
@@ -457,7 +453,7 @@ export default function Home() {
               >
                 reach out
               </button>{" "}
-              if you'd like to chat.
+              if you'd like to chat
             </div>
           </div>
 
