@@ -414,7 +414,7 @@ export default function Home() {
               >
                 Browserbase
               </button>
-              {" "}(founding).
+              .
             </div>
 
             {/* Contact */}
