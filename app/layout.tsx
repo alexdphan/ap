@@ -126,9 +126,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={isDarkMode ? "dark" : ""}>
       <head>
-        {/* Preconnect to Cloudflare Stream for faster video loading */}
+        {/* Preconnect to video hosts for faster loading */}
         <link rel="preconnect" href="https://customer-vs7mnf7pn9caalyg.cloudflarestream.com" />
         <link rel="dns-prefetch" href="https://customer-vs7mnf7pn9caalyg.cloudflarestream.com" />
+        <link rel="preconnect" href="https://www.youtube.com" />
+        <link rel="dns-prefetch" href="https://www.youtube.com" />
       </head>
       <body className={`${inter.variable} ${geistMono.variable} antialiased`}>
         {/* <MusicPlayerProvider> */}
