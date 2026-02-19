@@ -56,25 +56,24 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Custom text selection (drag-select) color */
-*::selection {
-  background-color: rgba(255, 225, 174, 1);
+/* Custom text selection color - must be unlayered to override tw-animate-css */
+::selection {
+  background-color: rgba(0, 0, 0, 0.08);
   color: inherit;
 }
 
-*::-moz-selection {
-  background-color: rgba(255, 225, 174, 1);
+::-moz-selection {
+  background-color: rgba(0, 0, 0, 0.08);
   color: inherit;
 }
 
-/* Dark mode selection */
-.dark *::selection {
-  background-color: rgba(255, 225, 174, 0.4);
+.dark ::selection {
+  background-color: rgba(255, 255, 255, 0.15);
   color: inherit;
 }
 
-.dark *::-moz-selection {
-  background-color: rgba(255, 225, 174, 0.4);
+.dark ::-moz-selection {
+  background-color: rgba(255, 255, 255, 0.15);
   color: inherit;
 }
 
@@ -344,7 +343,7 @@ button.underline:hover {
 
 .text-body {
   font-family: var(--font-inter);
-  font-size: 1rem; /* 16px - Standard accessible size */
+  font-size: 0.875rem; /* 14px */
   font-weight: 400;
   line-height: 1.6;
   letter-spacing: -0.01em;
