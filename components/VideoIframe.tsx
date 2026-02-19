@@ -48,6 +48,8 @@ export default function VideoIframe({
           ...style,
           opacity: isLoading ? 0 : 1,
           transition: "opacity 0.3s ease-out",
+          transform: "scale(1.02)",
+          transformOrigin: "center center",
         }}
       />
     </div>
