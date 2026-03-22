@@ -416,7 +416,7 @@ export default function Home() {
               </button>
               , exploring the{" "}
               <a
-                href="https://www.tryonra.com/map"
+                href="https://www.tryonra.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 transition-all"
