@@ -415,15 +415,15 @@ export default function Home() {
                 SPC
               </button>
               , exploring the{" "}
-              <a
-                href="https://www.tryonra.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 transition-all"
-                style={{ color: "var(--gray-700)" }}
+              <button
+                onClick={() =>
+                  setHoveredPreview(hoveredPreview === "imports" ? null : "imports")
+                }
+                className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
+                style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
               >
                 imports industry
-              </a>
+              </button>
               . Angel investing & growth advising on the side. Previously, growth engineer at{" "}
               <button
                 onClick={() =>
@@ -547,6 +547,47 @@ export default function Home() {
                 </p>
               </a>
             </div>
+          </motion.div>
+
+          {/* Imports industry dropdown */}
+          <motion.div
+            ref={(el) => {
+              previewRefs.current["imports"] = el;
+            }}
+            initial={false}
+            animate={
+              hoveredPreview === "imports"
+                ? { opacity: 1, height: "auto", marginTop: 0 }
+                : { opacity: 0, height: 0, marginTop: 0 }
+            }
+            transition={springs.snappy}
+            className="w-full"
+            style={{
+              overflow: "hidden",
+              pointerEvents: hoveredPreview === "imports" ? "auto" : "none",
+            }}
+          >
+            <a
+              href="https://www.tryonra.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full aspect-video overflow-hidden no-hover hover:opacity-85 transition-opacity"
+              style={{ border: "1px solid var(--gray-100)" }}
+            >
+              <iframe
+                src="https://www.tryonra.com/"
+                title="Imports Industry"
+                className="w-full h-full pointer-events-none"
+                style={{ border: 0 }}
+                loading="lazy"
+              />
+            </a>
+            <p
+              className="text-body mt-2"
+              style={{ color: "var(--gray-900)" }}
+            >
+              Financing for importers
+            </p>
           </motion.div>
 
           {/* Persistent video previews — iframes stay mounted so they never reload.
