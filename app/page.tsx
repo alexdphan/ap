@@ -586,7 +586,7 @@ export default function Home() {
               className="text-body mt-2"
               style={{ color: "var(--gray-900)" }}
             >
-              Financing for importers
+              🚢
             </p>
           </motion.div>
 
