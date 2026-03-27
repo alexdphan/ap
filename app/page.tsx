@@ -567,7 +567,7 @@ export default function Home() {
               pointerEvents: hoveredPreview === "imports" ? "auto" : "none",
             }}
           >
-            <a
+            {/* <a
               href="https://www.tryonra.com/"
               target="_blank"
               rel="noopener noreferrer"
@@ -581,7 +581,7 @@ export default function Home() {
                 style={{ border: 0 }}
                 loading="lazy"
               />
-            </a>
+            </a> */}
             <p
               className="text-body mt-2"
               style={{ color: "var(--gray-900)" }}
