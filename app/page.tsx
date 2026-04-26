@@ -414,7 +414,7 @@ export default function Home() {
               >
                 SPC
               </button>
-              , exploring the{" "}
+              , exploring{" "}
               <button
                 onClick={() =>
                   setHoveredPreview(hoveredPreview === "fintech" ? null : "fintech")
