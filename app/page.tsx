@@ -422,7 +422,7 @@ export default function Home() {
                 className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
                 style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
               >
-                fintech industry
+                fintech
               </button>
               . Angel investing & growth advising on the side. Previously, growth engineer at{" "}
               <button
