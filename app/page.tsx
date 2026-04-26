@@ -417,12 +417,12 @@ export default function Home() {
               , exploring the{" "}
               <button
                 onClick={() =>
-                  setHoveredPreview(hoveredPreview === "imports" ? null : "imports")
+                  setHoveredPreview(hoveredPreview === "fintech" ? null : "fintech")
                 }
                 className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
                 style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
               >
-                imports industry
+                fintech industry
               </button>
               . Angel investing & growth advising on the side. Previously, growth engineer at{" "}
               <button
@@ -549,14 +549,14 @@ export default function Home() {
             </div>
           </motion.div>
 
-          {/* Imports industry dropdown */}
+          {/* Fintech industry dropdown */}
           <motion.div
             ref={(el) => {
-              previewRefs.current["imports"] = el;
+              previewRefs.current["fintech"] = el;
             }}
             initial={false}
             animate={
-              hoveredPreview === "imports"
+              hoveredPreview === "fintech"
                 ? { opacity: 1, height: "auto", marginTop: 0 }
                 : { opacity: 0, height: 0, marginTop: 0 }
             }
@@ -564,7 +564,7 @@ export default function Home() {
             className="w-full"
             style={{
               overflow: "hidden",
-              pointerEvents: hoveredPreview === "imports" ? "auto" : "none",
+              pointerEvents: hoveredPreview === "fintech" ? "auto" : "none",
             }}
           >
             {/* <a
@@ -576,7 +576,7 @@ export default function Home() {
             >
               <iframe
                 src="https://www.tryonra.com/"
-                title="Imports Industry"
+                title="Fintech Industry"
                 className="w-full h-full pointer-events-none"
                 style={{ border: 0 }}
                 loading="lazy"
@@ -586,7 +586,7 @@ export default function Home() {
               className="text-body mt-2"
               style={{ color: "var(--gray-900)" }}
             >
-              🚢
+              💸
             </p>
           </motion.div>
 
