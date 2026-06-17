@@ -53,7 +53,7 @@ className="text-body"
 **Example**:
 ```tsx
 <p className="text-body" style={{ color: 'var(--gray-700)' }}>
-  I'm currently pursuing work in the fintech space.
+  I'm currently exploring something new.
 </p>
 ```
 
