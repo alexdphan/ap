@@ -404,27 +404,7 @@ export default function Home() {
               className="text-body my-5"
               style={{ color: "var(--gray-700)" }}
             >
-              At{" "}
-              <button
-                onClick={() =>
-                  setHoveredPreview(hoveredPreview === "spc" ? null : "spc")
-                }
-                className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
-                style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
-              >
-                SPC
-              </button>
-              , exploring{" "}
-              <button
-                onClick={() =>
-                  setHoveredPreview(hoveredPreview === "fintech" ? null : "fintech")
-                }
-                className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
-                style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
-              >
-                fintech
-              </button>
-              . Angel investing & growth advising on the side. Previously, growth engineer at{" "}
+              Angel investing & growth advising on the side. Previously, growth engineer at{" "}
               <button
                 onClick={() =>
                   setHoveredPreview(hoveredPreview === "rho" ? null : "rho")
@@ -488,107 +468,6 @@ export default function Home() {
               if you'd like to chat.
             </div>
           </div>
-
-          {/* SPC dropdown */}
-          <motion.div
-            ref={(el) => {
-              previewRefs.current["spc"] = el;
-            }}
-            initial={false}
-            animate={
-              hoveredPreview === "spc"
-                ? { opacity: 1, height: "auto", marginTop: 0 }
-                : { opacity: 0, height: 0, marginTop: 0 }
-            }
-            transition={springs.snappy}
-            className="w-full"
-            style={{
-              overflow: "hidden",
-              pointerEvents: hoveredPreview === "spc" ? "auto" : "none",
-            }}
-          >
-            <div className="flex gap-3 w-full">
-              <a
-                href="https://blog.southparkcommons.com/p/what-is-negative-1-to-0"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 no-hover hover:opacity-85 transition-opacity"
-              >
-                <img
-                  src="/spc-blog.png"
-                  alt="What is -1 to 0"
-                  className="w-full object-cover"
-                  style={{ border: "1px solid var(--gray-100)" }}
-                />
-                <p
-                  className="text-body mt-2"
-                  style={{ color: "var(--gray-900)" }}
-                >
-                  What is -1 to 0?
-                </p>
-              </a>
-              <a
-                href="https://www.southparkcommons.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 no-hover hover:opacity-85 transition-opacity"
-              >
-                <img
-                  src="/spc-home.png"
-                  alt="South Park Commons"
-                  className="w-full object-cover"
-                  style={{ border: "1px solid var(--gray-100)" }}
-                />
-                <p
-                  className="text-body mt-2"
-                  style={{ color: "var(--gray-900)" }}
-                >
-                  South Park Commons
-                </p>
-              </a>
-            </div>
-          </motion.div>
-
-          {/* Fintech industry dropdown */}
-          <motion.div
-            ref={(el) => {
-              previewRefs.current["fintech"] = el;
-            }}
-            initial={false}
-            animate={
-              hoveredPreview === "fintech"
-                ? { opacity: 1, height: "auto", marginTop: 0 }
-                : { opacity: 0, height: 0, marginTop: 0 }
-            }
-            transition={springs.snappy}
-            className="w-full"
-            style={{
-              overflow: "hidden",
-              pointerEvents: hoveredPreview === "fintech" ? "auto" : "none",
-            }}
-          >
-            {/* <a
-              href="https://www.tryonra.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full aspect-video overflow-hidden no-hover hover:opacity-85 transition-opacity"
-              style={{ border: "1px solid var(--gray-100)" }}
-            >
-              <iframe
-                src="https://www.tryonra.com/"
-                title="Fintech Industry"
-                className="w-full h-full pointer-events-none"
-                style={{ border: 0 }}
-                loading="lazy"
-              />
-            </a> */}
-            <p
-              className="text-body mt-2"
-              style={{ color: "var(--gray-900)" }}
-            >
-              💸
-            </p>
-          </motion.div>
 
           {/* Persistent video previews — iframes stay mounted so they never reload.
                Container animates height/opacity; iframe is clipped but alive when hidden. */}
