@@ -1,143 +1,74 @@
-"use client";
-
-import { Inter, Geist_Mono } from "next/font/google";
+import { AgentationToolbar } from "@/components/AgentationToolbar";
+import "@fontsource/open-runde/400.css";
+import "@fontsource/open-runde/500.css";
+import "@fontsource/open-runde/600.css";
+import "@fontsource/open-runde/700.css";
 import "./globals.css";
-// import {
-//   MusicPlayerProvider,
-//   useMusicPlayer,
-// } from "@/contexts/MusicPlayerContext";
-// import MiniMusicPlayer from "@/components/MiniMusicPlayer";
-import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { metadata, profilePageJsonLd } from "./metadata";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["300", "400", "500", "600", "700"],
-});
+export { metadata };
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
+const themeScript = `
+  (() => {
+    const query = window.matchMedia('(prefers-color-scheme: dark)');
+    const applyTheme = (isDark) => {
+      document.documentElement.classList.toggle('dark', isDark);
+      document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', isDark ? '#111110' : '#f6f5f2');
+    };
 
-function LayoutContent({
-  children,
-  isDarkMode,
-  setIsDarkMode,
-}: {
-  children: React.ReactNode;
-  isDarkMode: boolean;
-  setIsDarkMode: (value: boolean) => void;
-}) {
-  const pathname = usePathname();
-  // const { hasInteracted } = useMusicPlayer();
-
-  // Show mini player on non-home pages if user has interacted
-  const showMiniPlayer = false; // pathname !== "/" && hasInteracted;
-
-  return (
-    <>
-      {/* Desktop Layout - Box Model Structure */}
-      <div
-        className="min-h-screen overflow-y-auto overflow-x-hidden flex justify-center"
-        style={{
-          backgroundColor: "var(--bg-outer)",
-        }}
-      >
-        <div
-          className="w-full max-w-md md:max-w-lg px-6 py-16 md:py-24 relative z-0"
-          style={{
-            backgroundColor: "var(--bg-content)",
-            // border: "1px solid var(--gray-100)",
-          }}
-        >
-          {/* Triangle Tab - Dark Mode Toggle */}
-          {/* <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="absolute -top-0 -right-0 w-0 h-0 border-t-[30px] border-l-[30px] border-l-transparent hover:opacity-80 transition-all cursor-pointer"
-            style={{
-              borderTopColor: isDarkMode ? "#f5ebe0" : "#3a3a3a",
-            }}
-            aria-label="Toggle dark mode"
-          /> */}
-          {children}
-        </div>
-      </div>
-
-      {/* <MiniMusicPlayer /> */}
-    </>
-  );
-}
+    applyTheme(query.matches);
+    query.addEventListener('change', (event) => applyTheme(event.matches));
+  })();
+`;
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  // Detect system dark mode preference
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
-    // Set initial value
-    setIsDarkMode(mediaQuery.matches);
-
-    // Listen for changes
-    const handler = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
-    mediaQuery.addEventListener("change", handler);
-
-    return () => mediaQuery.removeEventListener("change", handler);
-  }, []);
-
-  // Update theme-color meta tag when dark mode changes
-  useEffect(() => {
-    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
-
-    if (!metaThemeColor) {
-      metaThemeColor = document.createElement("meta");
-      metaThemeColor.setAttribute("name", "theme-color");
-      document.head.appendChild(metaThemeColor);
-    }
-
-    metaThemeColor.setAttribute("content", isDarkMode ? "#121212" : "#F5F4F3");
-  }, [isDarkMode]);
-
-  // Set up meta tags on mount
-  useEffect(() => {
-    // Apple mobile web app status bar
-    let metaApple = document.querySelector(
-      'meta[name="apple-mobile-web-app-status-bar-style"]'
-    );
-    if (!metaApple) {
-      metaApple = document.createElement("meta");
-      metaApple.setAttribute("name", "apple-mobile-web-app-status-bar-style");
-      document.head.appendChild(metaApple);
-    }
-    metaApple.setAttribute("content", "black-translucent");
-
-    // Set color-scheme on root
-    document.documentElement.style.colorScheme = isDarkMode ? "dark" : "light";
-  }, [isDarkMode]);
-
   return (
-    <html lang="en" className={isDarkMode ? "dark" : ""}>
+    <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Preconnect to video hosts for faster loading */}
-        <link rel="preconnect" href="https://customer-vs7mnf7pn9caalyg.cloudflarestream.com" />
-        <link rel="dns-prefetch" href="https://customer-vs7mnf7pn9caalyg.cloudflarestream.com" />
+        <meta name="theme-color" content="#f6f5f2" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <link
+          rel="preconnect"
+          href="https://customer-vs7mnf7pn9caalyg.cloudflarestream.com"
+        />
+        <link
+          rel="dns-prefetch"
+          href="https://customer-vs7mnf7pn9caalyg.cloudflarestream.com"
+        />
         <link rel="preconnect" href="https://www.youtube.com" />
         <link rel="dns-prefetch" href="https://www.youtube.com" />
       </head>
-      <body className={`${inter.variable} ${geistMono.variable} antialiased`}>
-        {/* <MusicPlayerProvider> */}
-        <LayoutContent isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}>
-          {children}
-        </LayoutContent>
-        {/* </MusicPlayerProvider> */}
+      <body className="antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(profilePageJsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
+        <div
+          className="flex min-h-dvh justify-center overflow-x-hidden overflow-y-auto"
+          style={{ backgroundColor: "var(--bg-outer)" }}
+        >
+          <main
+            className="relative z-0 w-full max-w-lg px-6 py-16 sm:py-20"
+            style={{ backgroundColor: "var(--bg-content)" }}
+          >
+            {children}
+          </main>
+        </div>
+        {process.env.NODE_ENV === "development" ? (
+          <AgentationToolbar />
+        ) : null}
       </body>
     </html>
   );

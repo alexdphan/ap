@@ -8,8 +8,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Open Runde", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Open Runde", ui-sans-serif, system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -43,17 +43,18 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-size-base: 1.0625rem; /* 17px - minimum font size */
 }
 
 body {
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  font-family: "Open Runde", ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.875rem;
   font-weight: 400;
-  letter-spacing: -0.01em;
+  line-height: 1.6;
+  letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--bg-outer);
+  color: var(--text-primary);
 }
 
 /* Custom text selection color - must be unlayered to override tw-animate-css */
@@ -77,17 +78,7 @@ body {
   color: inherit;
 }
 
-* {
-  transition: background-color 0.3s ease, border-color 0.3s ease,
-    color 0.3s ease;
-}
-
 /* Global Link and Button Styles */
-a:not(.no-hover),
-button.underline {
-  transition: opacity 0.2s ease;
-}
-
 a:not(.no-hover):hover,
 button.underline:hover {
   opacity: 0.7 !important;
@@ -112,20 +103,10 @@ button.underline:hover {
  * This is closer to powdered charcoal airbrushed with a giant diffuser 
  * than digital drop shadow.
  */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 .artwork-card {
   position: relative;
   display: inline-block;
   isolation: isolate;
-  animation: fadeIn 0.8s ease-out forwards;
   transform-style: preserve-3d;
   will-change: transform;
   cursor: pointer;
@@ -196,17 +177,28 @@ button.underline:hover {
  */
 :root {
   --radius: 0.625rem;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 
-  /* Light Mode - Simplified 4-Gray Palette */
-  --gray-100: #e5e5e5; /* light - borders, subtle backgrounds */
-  --gray-400: #737373; /* medium-light - secondary text, labels */
-  --gray-700: #121212; /* medium-dark - body text */
-  --gray-900: #121212; /* dark - headings */
+  /* Light Mode - Semantic Neutrals */
+  --text-primary: #1a1a18;
+  --text-muted: #666661;
+  --border-subtle: oklch(0 0 0 / 0.1);
+  --image-outline: oklch(0 0 0 / 0.1);
+  --surface-raised: #fbfaf7;
+  --surface-outline: 0 0 0 1px oklch(0 0 0 / 0.08);
+  --modal-scrim: rgb(17 17 16 / 0.08);
+
+  /* Compatibility aliases for existing components */
+  --gray-100: var(--border-subtle);
+  --gray-400: var(--text-muted);
+  --gray-700: var(--text-primary);
+  --gray-900: var(--text-primary);
 
   /* Light Mode - Backgrounds */
-  --bg-outer: #f5f4f3;
-  --bg-content: #f5f4f3;
-  --bg-player: #f5f4f3;
+  --bg-outer: #f6f5f2;
+  --bg-content: #f6f5f2;
+  --bg-player: #f6f5f2;
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -244,16 +236,23 @@ button.underline:hover {
  ---break---
  */
 .dark {
-  /* Dark Mode - Cool Gray Palette */
-  --gray-100: #2a2a2a; /* dark borders */
-  --gray-400: #a0a0a0; /* muted text, labels */
-  --gray-700: #e5e5e5; /* body text */
-  --gray-900: #ffffff; /* headings */
+  /* Dark Mode - Semantic Neutrals */
+  --text-primary: #d8d8d3;
+  --text-muted: #92928c;
+  --border-subtle: oklch(1 0 0 / 0.12);
+  --image-outline: oklch(1 0 0 / 0.1);
+  --surface-raised: #191918;
+  --surface-outline: 0 0 0 1px oklch(1 0 0 / 0.1);
+  --modal-scrim: rgb(0 0 0 / 0.22);
+  --gray-100: var(--border-subtle);
+  --gray-400: var(--text-muted);
+  --gray-700: var(--text-primary);
+  --gray-900: var(--text-primary);
 
   /* Dark Mode - Backgrounds */
-  --bg-outer: #121212;
-  --bg-content: #121212;
-  --bg-player: #121212;
+  --bg-outer: #111110;
+  --bg-content: #111110;
+  --bg-player: #111110;
 
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
@@ -334,50 +333,138 @@ button.underline:hover {
 
 /* Radically Simplified Typography - 3 Sizes Maximum */
 .text-heading {
-  font-family: var(--font-inter);
-  font-size: 1.25rem; /* 20px */
-  font-weight: 500; /* Medium weight for headings */
-  letter-spacing: -0.02em;
-  line-height: 1.3;
+  font-family: inherit;
+  font-size: 0.875rem; /* 14px maximum */
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.4;
 }
 
 .text-body {
-  font-family: var(--font-inter);
+  font-family: inherit;
   font-size: 0.875rem; /* 14px */
   font-weight: 400;
   line-height: 1.6;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
 }
 
 .text-caption {
-  font-family: var(--font-geist-mono); /* Mono for technical/meta feel */
+  font-family: inherit;
   font-size: 0.8125rem; /* 13px */
   font-weight: 400;
   line-height: 1.4;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
+}
+
+.profile-image {
+  outline: 1px solid var(--image-outline);
+  outline-offset: -1px;
+}
+
+.media-frame {
+  outline: 1px solid var(--image-outline);
+  outline-offset: -1px;
+}
+
+.surface-panel {
+  background-color: var(--surface-raised);
+  box-shadow: var(--surface-outline);
+}
+
+.inline-preview-trigger {
+  appearance: none;
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  line-height: inherit;
+  vertical-align: baseline;
+  cursor: pointer;
+  text-decoration-line: underline;
+  text-decoration-color: var(--text-muted);
+  text-decoration-thickness: from-font;
+  text-underline-offset: 0.25em;
+  text-decoration-skip-ink: auto;
+  touch-action: manipulation;
+}
+
+.inline-preview-trigger:hover {
+  text-decoration-color: currentColor;
+}
+
+.inline-preview-trigger:active {
+  opacity: 0.72;
+}
+
+.inline-preview-trigger:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.preview-panel {
+  margin-block-start: 0.75rem;
+}
+
+.modal-backdrop {
+  background-color: var(--modal-scrim);
+}
+
+.drag-select-active {
+  user-select: none;
+  cursor: crosshair;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body,
+  a:not(.no-hover),
+  button.underline,
+  .inline-preview-trigger,
+  img,
+  iframe,
+  video {
+    transition-duration: 120ms;
+  }
+
+  .artwork-card {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .modal-backdrop {
+    background-color: rgb(18 18 18 / 0.46);
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --text-muted: #4f4f4a;
+    --border-subtle: oklch(0 0 0 / 0.2);
+    --image-outline: oklch(0 0 0 / 0.2);
+  }
+
+  .dark {
+    --text-muted: #c3c3bd;
+    --border-subtle: oklch(1 0 0 / 0.22);
+    --image-outline: oklch(1 0 0 / 0.22);
+  }
 }
 
 /* Deprecated - keeping for backwards compatibility */
 .text-heading-lg,
 .text-heading-md,
 .text-label {
-  font-family: var(--font-inter);
-  font-size: 0.9375rem;
+  font-family: inherit;
+  font-size: 0.875rem;
   font-weight: 400;
   line-height: 1.6;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   text-transform: none;
   font-style: normal;
-}
-
-/* Video styling - no filters */
-img,
-iframe,
-video,
-.artwork-card img,
-.artwork-card iframe,
-.artwork-card video {
-  transition: filter 0.3s ease;
 }
 
 /* Magazine Frame Border */
@@ -396,40 +483,4 @@ video,
 /* Paper Note Sticker - Force black text in dark mode */
 .dark .paper-note-text {
   color: #171717 !important;
-}
-
-/* Subtle film grain texture for magazine authenticity */
-img,
-video {
-  position: relative;
-}
-
-img::before,
-video::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  background-size: 180px 180px;
-  opacity: 0.15;
-  pointer-events: none;
-  mix-blend-mode: overlay;
-  z-index: 1;
-}
-
-/* Very subtle vignette for editorial polish */
-img::after,
-video::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse at center,
-    transparent 0%,
-    transparent 60%,
-    rgba(0, 0, 0, 0.02) 100%
-  );
-  pointer-events: none;
-  mix-blend-mode: multiply;
-  z-index: 2;
 }

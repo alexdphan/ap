@@ -65,9 +65,9 @@ export default function StarburstSticker({
         </svg>
         <div className="absolute inset-0 flex items-center justify-center px-3 md:px-4 -translate-y-1 md:-translate-y-3 translate-x-1 md:translate-x-2">
           <span
-            className="text-white font-black text-sm md:text-xl tracking-tight text-center leading-tight"
+            className="text-center text-sm font-bold leading-tight tracking-tight text-white"
             style={{
-              fontFamily: 'Impact, "Arial Black", sans-serif',
+              fontFamily: '"Open Runde", sans-serif',
               WebkitTextStroke: "1.5px black",
               paintOrder: "stroke fill",
               transform: "rotate(-8deg)",
