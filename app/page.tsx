@@ -1,18 +1,15 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useCallback, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 
 import VideoIframe from "@/components/VideoIframe";
 import { springs, transitions } from "@/lib/animation";
-import Link from "next/link";
 
 export default function Home() {
-  const [showPreview, setShowPreview] = useState<string | null>(null);
   const [hoveredPreview, setHoveredPreview] = useState<string | null>(null);
   const [videoModal, setVideoModal] = useState<string | null>(null);
-  const [showProjectMenu, setShowProjectMenu] = useState<string | null>(null); // 'rho' or 'browserbase'
   const [selectedVideo, setSelectedVideo] = useState<{
     rho: string;
     browserbase: string;
@@ -20,22 +17,17 @@ export default function Home() {
     rho: "findrho.co",
     browserbase: "series-b",
   });
-  const [selectedSubProject, setSelectedSubProject] = useState<{
+  const [, setSelectedSubProject] = useState<{
     [key: string]: string;
   }>({});
-  const [videoHeight, setVideoHeight] = useState<{
-    rho: number;
-    browserbase: number;
-  }>({ rho: 0, browserbase: 0 });
   const [modalVisible, setModalVisible] = useState(false);
   const [preloadReady, setPreloadReady] = useState<Record<string, boolean>>(
     {}
   );
   const previewRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-  const videoRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const projectListRef = useRef<HTMLDivElement | null>(null);
   const [listScroll, setListScroll] = useState<{ atStart: boolean; atEnd: boolean }>({ atStart: true, atEnd: false });
+  const shouldReduceMotion = useReducedMotion();
 
   // Drag select state
   const [dragSelect, setDragSelect] = useState<{
@@ -118,119 +110,35 @@ export default function Home() {
     },
   ];
 
-  const getCurrentVideo = (mainProject: string) => {
-    if (mainProject === "rho") {
-      // Use selected project or default to first
-      if (selectedSubProject[mainProject]) {
-        const project = rhoProjects.find(
-          (p) => p.id === selectedSubProject[mainProject]
-        );
-        return project?.video || rhoProjects[0].video;
-      }
-      return rhoProjects[0].video;
-    }
-    if (mainProject === "browserbase") {
-      if (selectedSubProject[mainProject]) {
-        const project = browserbaseProjects.find(
-          (p) => p.id === selectedSubProject[mainProject]
-        );
-        return project?.video || browserbaseProjects[0].video;
-      }
-      return browserbaseProjects[0].video;
-    }
-    return "";
-  };
+  const isPreloadedModal =
+    videoModal === selectedVideo.rho ||
+    videoModal === selectedVideo.browserbase;
+  const isModalVisible = Boolean(
+    videoModal &&
+      (isPreloadedModal ? preloadReady[videoModal] : modalVisible)
+  );
 
-  const handleMouseEnterPreview = (preview: string) => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
-    if (!showPreview) {
-      setHoveredPreview(preview);
-    }
-  };
-
-  const handleMouseLeavePreview = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-    }
-    hoverTimeoutRef.current = setTimeout(() => {
-      setHoveredPreview(null);
-    }, 3000);
-  };
-
-  const handleSubProjectClick = (mainProject: string, subProjectId: string) => {
-    // Set the selected project and keep it even when mouse moves away
-    setSelectedSubProject((prev) => ({ ...prev, [mainProject]: subProjectId }));
-  };
-
-  const handleProjectClick = (project: string) => {
-    // Click on link - toggle preview dropdown
-    if (showPreview === project) {
-      setShowPreview(null);
-      // Clear selection when closing
-      setSelectedSubProject((prev) => {
-        const updated = { ...prev };
-        delete updated[project];
-        return updated;
-      });
-    } else {
-      // Close any other open previews
-      setShowPreview(project);
-      setHoveredPreview(null);
-      // Set first project as default selection if none selected
-      if (!selectedSubProject[project]) {
-        if (project === "rho") {
-          setSelectedSubProject((prev) => ({
-            ...prev,
-            [project]: rhoProjects[0].id,
-          }));
-        } else if (project === "browserbase") {
-          setSelectedSubProject((prev) => ({
-            ...prev,
-            [project]: browserbaseProjects[0].id,
-          }));
-        }
-      }
-    }
-  };
-
-  const handlePreviewClick = (project: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    // Click inside preview - open full modal with the currently selected video
-    if (project === "rho") {
-      setVideoModal(selectedSubProject["rho"] || rhoProjects[0].id);
-    } else if (project === "browserbase") {
-      setVideoModal(
-        selectedSubProject["browserbase"] || browserbaseProjects[0].id
-      );
-    } else {
-      setVideoModal(project);
-    }
-    setShowPreview(null);
-    setHoveredPreview(null);
-  };
-
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setVideoModal(null);
     setModalVisible(false);
-  };
+  }, []);
 
-  // Drive modalVisible for preloaded videos (instant open)
   useEffect(() => {
-    if (videoModal) {
-      const isPreloaded =
-        videoModal === selectedVideo.rho ||
-        videoModal === selectedVideo.browserbase;
-      if (isPreloaded && preloadReady[videoModal]) {
-        setModalVisible(true);
-      }
-      // Non-preloaded videos: modalVisible is set by fallback's onLoad
-    } else {
-      setModalVisible(false);
-    }
-  }, [videoModal, preloadReady, selectedVideo.rho, selectedVideo.browserbase]);
+    if (!videoModal) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") handleCloseModal();
+    };
+
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleCloseModal, videoModal]);
 
   const getModalVideo = () => {
     if (!videoModal) return { url: "", title: "" };
@@ -276,12 +184,11 @@ export default function Home() {
       const target = event.target as Node;
 
       // Check video previews (rho, browserbase, nyc, sf)
-      if (showPreview || hoveredPreview) {
+      if (hoveredPreview) {
         const isClickInsidePreview = Object.values(previewRefs.current).some(
           (ref) => ref?.contains(target)
         );
         if (!isClickInsidePreview) {
-          setShowPreview(null);
           setHoveredPreview(null);
         }
       }
@@ -293,11 +200,13 @@ export default function Home() {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
     };
-  }, [showPreview, hoveredPreview]);
+  }, [hoveredPreview]);
 
   // Drag select functionality
   useEffect(() => {
-    const handleMouseDown = (e: MouseEvent) => {
+    const handlePointerDown = (e: PointerEvent) => {
+      if (!e.isPrimary) return;
+
       // Only start drag select if clicking on the background (not on interactive elements)
       const target = e.target as HTMLElement;
       const isInteractive =
@@ -309,6 +218,7 @@ export default function Home() {
         target.closest("iframe");
 
       if (!isInteractive) {
+        target.setPointerCapture?.(e.pointerId);
         setDragSelect({
           isActive: true,
           startX: e.clientX,
@@ -319,7 +229,8 @@ export default function Home() {
       }
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handlePointerMove = (e: PointerEvent) => {
+      if (!e.isPrimary) return;
       if (dragSelect.isActive) {
         setDragSelect((prev) => ({
           ...prev,
@@ -329,178 +240,164 @@ export default function Home() {
       }
     };
 
-    const handleMouseUp = () => {
+    const handlePointerUp = (e: PointerEvent) => {
+      if (!e.isPrimary) return;
       setDragSelect((prev) => ({ ...prev, isActive: false }));
     };
 
-    document.addEventListener("mousedown", handleMouseDown);
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("pointermove", handlePointerMove);
+    document.addEventListener("pointerup", handlePointerUp);
+    document.addEventListener("pointercancel", handlePointerUp);
 
     return () => {
-      document.removeEventListener("mousedown", handleMouseDown);
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("pointermove", handlePointerMove);
+      document.removeEventListener("pointerup", handlePointerUp);
+      document.removeEventListener("pointercancel", handlePointerUp);
     };
+  }, [dragSelect.isActive]);
+
+  useEffect(() => {
+    document.body.classList.toggle("drag-select-active", dragSelect.isActive);
+    return () => document.body.classList.remove("drag-select-active");
   }, [dragSelect.isActive]);
 
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{
-          ...springs.snappy,
-          opacity: { duration: 0.2 },
-        }}
-        className="flex flex-col w-full"
-      >
-        {/* Magazine Header */}
-        <div className="flex flex-col w-full">
-          <div className="flex items-center gap-4">
-            <Image
-              src="/alex.jpg"
-              alt="Alex Phan"
-              width={56}
-              height={56}
-              className="cursor-pointer transition-none hover:brightness-70 active:brightness-75 object-cover"
-              style={{ border: "1px solid var(--gray-100)", width: 56, height: 56 }}
-              quality={100}
-              priority
-            />
-            <div className="flex flex-col justify-center gap-0">
-              <h1
-                className="text-body leading-relaxed"
-                style={{ color: "var(--gray-900)" }}
-              >
-                AP
-              </h1>
-              <p
-                className="text-body leading-relaxed"
-                style={{ color: "var(--gray-400)", whiteSpace: "pre" }}
-              >
-                Alex Phan
-              </p>
+      <div className="flex w-full flex-col">
+        <div className="flex w-full flex-col gap-3.5">
+          {/* Profile and copy share one vertical spacing rhythm. */}
+          <header className="w-full">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/alex.jpg"
+                alt="Alex Phan"
+                width={48}
+                height={48}
+                className="profile-image size-12 shrink-0 object-cover"
+                quality={100}
+                priority
+              />
+              <div className="flex h-12 min-w-0 flex-col justify-center">
+                <h1
+                  className="text-body font-medium leading-5"
+                  style={{ color: "var(--text-primary)" }}
+                >
+                  AP
+                </h1>
+                <p
+                  className="text-caption"
+                  style={{ color: "var(--text-muted)", whiteSpace: "pre" }}
+                >
+                  Alex Phan
+                </p>
+              </div>
             </div>
-          </div>
+          </header>
 
-          {/* <div
-          className="h-px w-full mt-2 mb-5"
-          style={{ backgroundColor: "var(--gray-100)" }}
-        /> */}
-        </div>
+          {/* Philosophy */}
+          <p
+            className="text-body text-pretty"
+            style={{ color: "var(--gray-700)" }}
+          >
+            Pursuing opportunities elegantly simple, yet overlooked.
+          </p>
 
-        {/* Content Layout */}
-        <div className="flex flex-col w-full">
-          {/* Text Content */}
-          <div className="w-full">
-            {/* Philosophy */}
-            <p className="text-body my-5" style={{ color: "var(--gray-700)" }}>
-              Pursuing opportunities elegantly simple, yet overlooked.
-            </p>
-
-            {/* Work */}
-            <div
-              className="text-body my-5"
-              style={{ color: "var(--gray-700)" }}
-            >
-              Angel investing & growth advising on the side. Previously, growth engineer at{" "}
+          {/* Work */}
+          <div
+            className="text-body text-pretty"
+            style={{ color: "var(--gray-700)" }}
+          >
+              Angel investing & growth advising on the side. Previously,
+              growth engineer at{" "}
               <button
+                type="button"
                 onClick={() =>
                   setHoveredPreview(hoveredPreview === "rho" ? null : "rho")
                 }
-                className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
-                style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
+                className="inline-preview-trigger"
               >
                 Rho
               </button>
-              {" "}and{" "}
+              {" "}
+              and{" "}
               <button
+                type="button"
                 onClick={() =>
                   setHoveredPreview(
                     hoveredPreview === "browserbase" ? null : "browserbase"
                   )
                 }
-                className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
-                style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
+                className="inline-preview-trigger"
               >
                 Browserbase
               </button>
               .
-            </div>
+          </div>
 
-            {/* Contact */}
-            <div
-              className="text-body my-5"
-              style={{ color: "var(--gray-700)" }}
-            >
+          {/* Contact */}
+          <div
+            className="text-body text-pretty"
+            style={{ color: "var(--gray-700)" }}
+          >
               <button
+                type="button"
                 onClick={() =>
                   setHoveredPreview(hoveredPreview === "nyc" ? null : "nyc")
                 }
-                className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
-                style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
+                className="inline-preview-trigger"
               >
                 NYC
               </button>{" "}
               based,{" "}
               <button
+                type="button"
                 onClick={() =>
                   setHoveredPreview(hoveredPreview === "sf" ? null : "sf")
                 }
-                className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
-                style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
+                className="inline-preview-trigger"
               >
                 SF
               </button>{" "}
               frequent. Feel free to{" "}
               <button
+                type="button"
                 onClick={() =>
                   setHoveredPreview(
                     hoveredPreview === "contact" ? null : "contact"
                   )
                 }
-                className="cursor-pointer underline decoration-gray-400 underline-offset-4 hover:decoration-gray-900 bg-transparent border-none p-0 font-inherit transition-all"
-                style={{ color: "var(--gray-700)", fontFamily: "inherit" }}
+                className="inline-preview-trigger"
               >
                 reach out
               </button>{" "}
-              if you'd like to chat.
-            </div>
+              if you’d like to chat.
           </div>
+        </div>
 
-          {/* Persistent video previews — iframes stay mounted so they never reload.
-               Container animates height/opacity; iframe is clipped but alive when hidden. */}
-          <motion.div
+        {/* Every preview uses the original persistent spring reveal. */}
+        <motion.div
             ref={(el) => {
               previewRefs.current["rho"] = el;
             }}
             initial={false}
             animate={
               hoveredPreview === "rho"
-                ? { opacity: 1, height: "auto", marginTop: 0 }
-                : { opacity: 0, height: 0, marginTop: 0 }
+                ? { opacity: 1, height: "auto" }
+                : { opacity: 0, height: 0 }
             }
-            transition={springs.snappy}
+            transition={shouldReduceMotion ? { duration: 0 } : springs.snappy}
             className="w-full"
             style={{
               overflow: "hidden",
               pointerEvents: hoveredPreview === "rho" ? "auto" : "none",
             }}
+            aria-hidden={hoveredPreview !== "rho"}
           >
-            <div className="relative w-full">
+            <div className="relative w-full pt-6">
               <div
-                ref={(el) => {
-                  videoRefs.current["rho"] = el;
-                  if (el && el.offsetHeight !== videoHeight.rho) {
-                    setVideoHeight((prev) => ({
-                      ...prev,
-                      rho: el.offsetHeight,
-                    }));
-                  }
-                }}
-                className="w-full aspect-video overflow-hidden"
-                style={{ border: "1px solid var(--gray-100)" }}
+                className="media-frame aspect-video w-full overflow-hidden"
               >
                 <VideoIframe
                   key={selectedVideo.rho}
@@ -516,45 +413,36 @@ export default function Home() {
                 />
               </div>
               <p
-                className="text-body mt-2"
+                className="mt-3 text-caption font-medium"
                 style={{ color: "var(--gray-900)" }}
               >
                 Rho
               </p>
             </div>
-          </motion.div>
+        </motion.div>
 
-          <motion.div
+        <motion.div
             ref={(el) => {
               previewRefs.current["browserbase"] = el;
             }}
             initial={false}
             animate={
               hoveredPreview === "browserbase"
-                ? { opacity: 1, height: "auto", marginTop: 0 }
-                : { opacity: 0, height: 0, marginTop: 0 }
+                ? { opacity: 1, height: "auto" }
+                : { opacity: 0, height: 0 }
             }
-            transition={springs.snappy}
+            transition={shouldReduceMotion ? { duration: 0 } : springs.snappy}
             className="w-full"
             style={{
               overflow: "hidden",
               pointerEvents:
                 hoveredPreview === "browserbase" ? "auto" : "none",
             }}
+            aria-hidden={hoveredPreview !== "browserbase"}
           >
-            <div className="relative w-full">
+            <div className="relative w-full pt-6">
               <div
-                ref={(el) => {
-                  videoRefs.current["browserbase"] = el;
-                  if (el && el.offsetHeight !== videoHeight.browserbase) {
-                    setVideoHeight((prev) => ({
-                      ...prev,
-                      browserbase: el.offsetHeight,
-                    }));
-                  }
-                }}
-                className="w-full aspect-video overflow-hidden"
-                style={{ border: "1px solid var(--gray-100)" }}
+                className="media-frame aspect-video w-full overflow-hidden"
               >
                 <VideoIframe
                   key={selectedVideo.browserbase}
@@ -570,10 +458,10 @@ export default function Home() {
                   style={{ border: 0 }}
                 />
               </div>
-              <div className="relative mt-2">
+              <div className="relative mt-3">
                 <div
                   ref={projectListRef}
-                  className="flex items-center gap-1.5 overflow-x-auto"
+                  className="flex items-center gap-7 overflow-x-auto"
                   style={{
                     scrollbarWidth: "none",
                     maskImage: `linear-gradient(to right, ${listScroll.atStart ? "black" : "transparent"} 0%, black ${listScroll.atStart ? "0%" : "10%"}, black ${listScroll.atEnd ? "100%" : "80%"}, ${listScroll.atEnd ? "black" : "transparent"} 100%)`,
@@ -586,16 +474,10 @@ export default function Home() {
                     setListScroll({ atStart, atEnd });
                   }}
                 >
-                  {browserbaseProjects.map((project, i) => (
-                    <span key={project.id} className="flex items-center gap-1.5 shrink-0">
-                      {i > 0 && (
-                        <span
-                          style={{ color: "var(--gray-300)", display: "inline-flex", alignItems: "center" }}
-                        >
-                          <span style={{ width: "12px", height: "6px", backgroundColor: "var(--gray-300)", display: "block" }} />
-                        </span>
-                      )}
+                  {browserbaseProjects.map((project) => (
+                    <span key={project.id} className="shrink-0">
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedVideo((prev) => ({
@@ -603,7 +485,7 @@ export default function Home() {
                             browserbase: project.id,
                           }));
                         }}
-                        className="text-sm cursor-pointer bg-transparent border-none p-0 font-inherit transition-colors whitespace-nowrap hover:opacity-70"
+                        className="text-caption cursor-pointer whitespace-nowrap border-none bg-transparent p-0 hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
                         style={{
                           color:
                             selectedVideo.browserbase === project.id
@@ -615,197 +497,172 @@ export default function Home() {
                       </button>
                     </span>
                   ))}
-                  <span className="shrink-0 w-8" aria-hidden="true" />
+                  <span className="w-6 shrink-0" aria-hidden="true" />
                 </div>
               </div>
             </div>
-          </motion.div>
+        </motion.div>
 
-          <motion.div
+        <motion.div
             ref={(el) => {
               previewRefs.current["nyc"] = el;
             }}
             initial={false}
             animate={
               hoveredPreview === "nyc"
-                ? { opacity: 1, height: "auto", marginTop: 0 }
-                : { opacity: 0, height: 0, marginTop: 0 }
+                ? { opacity: 1, height: "auto" }
+                : { opacity: 0, height: 0 }
             }
-            transition={springs.snappy}
+            transition={shouldReduceMotion ? { duration: 0 } : springs.snappy}
             className="w-full"
             style={{
               overflow: "hidden",
               pointerEvents: hoveredPreview === "nyc" ? "auto" : "none",
             }}
-            onMouseEnter={() => {
-              if (hoverTimeoutRef.current) {
-                clearTimeout(hoverTimeoutRef.current);
-                hoverTimeoutRef.current = null;
-              }
-              setHoveredPreview("nyc");
-            }}
-            onMouseLeave={() => {
-              if (hoverTimeoutRef.current) {
-                clearTimeout(hoverTimeoutRef.current);
-              }
-              hoverTimeoutRef.current = setTimeout(() => {
-                setHoveredPreview(null);
-              }, 3000);
-            }}
+            aria-hidden={hoveredPreview !== "nyc"}
           >
-            <div
-              className="w-full aspect-video overflow-hidden"
-              style={{ border: "1px solid var(--gray-100)" }}
-            >
-              <VideoIframe
-                src="https://www.youtube.com/embed/VGnFLdQW39A?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=VGnFLdQW39A"
-                title="NYC Livestream"
-                loading="eager"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-                className="w-full h-full pointer-events-none"
-                style={{ border: 0 }}
-              />
+            <div className="w-full pt-6">
+              <div
+                className="media-frame aspect-video w-full overflow-hidden"
+              >
+                <VideoIframe
+                  src="https://www.youtube.com/embed/VGnFLdQW39A?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=VGnFLdQW39A"
+                  title="NYC Livestream"
+                  loading="eager"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                  className="h-full w-full pointer-events-none"
+                  style={{ border: 0 }}
+                />
+              </div>
+              <p
+                className="mt-3 text-caption font-medium"
+                style={{ color: "var(--gray-900)" }}
+              >
+                New York City
+              </p>
             </div>
-            <p
-              className="text-body mt-2"
-              style={{ color: "var(--gray-900)" }}
-            >
-              New York City
-            </p>
-          </motion.div>
+        </motion.div>
 
-          <motion.div
+        <motion.div
+            ref={(el) => {
+              previewRefs.current["sf"] = el;
+            }}
             initial={false}
             animate={
               hoveredPreview === "sf"
-                ? { opacity: 1, height: "auto", marginTop: 0 }
-                : { opacity: 0, height: 0, marginTop: 0 }
+                ? { opacity: 1, height: "auto" }
+                : { opacity: 0, height: 0 }
             }
-            transition={springs.snappy}
+            transition={shouldReduceMotion ? { duration: 0 } : springs.snappy}
             className="w-full"
             style={{
               overflow: "hidden",
               pointerEvents: hoveredPreview === "sf" ? "auto" : "none",
             }}
-            onMouseEnter={() => {
-              if (hoverTimeoutRef.current) {
-                clearTimeout(hoverTimeoutRef.current);
-                hoverTimeoutRef.current = null;
-              }
-              setHoveredPreview("sf");
-            }}
-            onMouseLeave={() => {
-              if (hoverTimeoutRef.current) {
-                clearTimeout(hoverTimeoutRef.current);
-              }
-              hoverTimeoutRef.current = setTimeout(() => {
-                setHoveredPreview(null);
-              }, 3000);
-            }}
+            aria-hidden={hoveredPreview !== "sf"}
           >
-            <div
-              className="w-full aspect-video overflow-hidden"
-              style={{ border: "1px solid var(--gray-100)" }}
-            >
-              <VideoIframe
-                src="https://www.youtube.com/embed/CXYr04BWvmc?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=CXYr04BWvmc"
-                title="SF Video"
-                loading="eager"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-                className="w-full h-full pointer-events-none"
-                style={{ border: 0 }}
-              />
+            <div className="w-full pt-6">
+              <div
+                className="media-frame aspect-video w-full overflow-hidden"
+              >
+                <VideoIframe
+                  src="https://www.youtube.com/embed/CXYr04BWvmc?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&fs=0&iv_load_policy=3&disablekb=1&cc_load_policy=0&playsinline=1&loop=1&playlist=CXYr04BWvmc"
+                  title="SF Video"
+                  loading="eager"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                  className="h-full w-full pointer-events-none"
+                  style={{ border: 0 }}
+                />
+              </div>
+              <p
+                className="mt-3 text-caption font-medium"
+                style={{ color: "var(--gray-900)" }}
+              >
+                San Francisco
+              </p>
             </div>
-            <p
-              className="text-body mt-2"
-              style={{ color: "var(--gray-900)" }}
-            >
-              San Francisco
-            </p>
-          </motion.div>
+        </motion.div>
 
-          {/* Contact preview — same height/opacity animation as all others */}
-          <motion.div
+        <motion.div
             ref={(el) => {
               previewRefs.current["contact"] = el;
             }}
             initial={false}
             animate={
               hoveredPreview === "contact"
-                ? { opacity: 1, height: "auto", marginTop: 0 }
+                ? { opacity: 1, height: "auto", marginTop: 24 }
                 : { opacity: 0, height: 0, marginTop: 0 }
             }
-            transition={springs.snappy}
+            transition={
+              shouldReduceMotion
+                ? { duration: 0 }
+                : {
+                    ...springs.snappy,
+                    opacity: { ...transitions.fade, duration: 0.12 },
+                  }
+            }
             className="w-full"
             style={{
               overflow: "hidden",
               pointerEvents: hoveredPreview === "contact" ? "auto" : "none",
             }}
+            aria-hidden={hoveredPreview !== "contact"}
           >
-            <div
-              className="w-full py-2 px-3"
-              style={{
-                backgroundColor: "var(--bg-content)",
-                border: "1px solid var(--gray-100)",
-              }}
-            >
-              <div className="flex items-center gap-3">
+            <div className="relative w-full">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border border-[var(--image-outline)] p-3">
                 <a
-                  href="mailto:alexphan0515@gmail.com"
-                  className="text-sm hover:opacity-70 transition-opacity"
-                  style={{ color: "var(--gray-500)" }}
-                >
-                  Email
+                    href="mailto:alexphan0515@gmail.com"
+                    className="text-caption font-medium hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    Email
                 </a>
                 <a
-                  href="https://linkedin.com/in/alexanderdphan"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm hover:opacity-70 transition-opacity"
-                  style={{ color: "var(--gray-500)" }}
-                >
-                  LinkedIn
+                    href="https://linkedin.com/in/alexanderdphan"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-caption font-medium hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    LinkedIn
                 </a>
                 <a
-                  href="https://x.com/alexdphan"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm hover:opacity-70 transition-opacity"
-                  style={{ color: "var(--gray-500)" }}
-                >
-                  X
+                    href="https://x.com/alexdphan"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-caption font-medium hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    X
                 </a>
                 <a
-                  href="https://alexdphan-github-io-alexander-phans-projects.vercel.app/projects"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm hover:opacity-70 transition-opacity"
-                  style={{ color: "var(--gray-500)" }}
-                >
-                  Archive
+                    href="https://alexdphan-github-io-alexander-phans-projects.vercel.app/projects"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-caption font-medium hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    Archive
                 </a>
               </div>
             </div>
-          </motion.div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
 
       {/* ======= VIDEO MODAL SYSTEM =======
-           Preloaded modals: persistent iframes for default rho/bb videos.
-           The SAME iframe element transitions from hidden to visible — no reload, truly instant.
-           Fallback modal: for YouTube and sidebar-switched videos, uses VideoIframe with shimmer. */}
+           Preloaded modals keep their iframes mounted for an instant open.
+           Fallback modal handles YouTube and sidebar-switched videos. */}
 
       {/* Modal backdrop — shared across preloaded and fallback modals */}
       <AnimatePresence>
-        {videoModal && modalVisible && (
+        {videoModal && isModalVisible && (
           <motion.div
             key="modal-backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={transitions.fade}
-            className="fixed inset-0 z-50"
-            style={{ backdropFilter: "blur(12px)" }}
+            transition={shouldReduceMotion ? { duration: 0 } : transitions.fade}
+            className="modal-backdrop fixed inset-0 z-50"
             onClick={handleCloseModal}
           />
         )}
@@ -831,36 +688,49 @@ export default function Home() {
           projects: browserbaseProjects,
         },
       ].map(({ videoId, project, category, projects }) => {
-        const isActive = videoModal === videoId && modalVisible;
+        const isActive = videoModal === videoId && isModalVisible;
         const url = `https://customer-vs7mnf7pn9caalyg.cloudflarestream.com/${project.video}/iframe?autoplay=true&muted=true&controls=true&preload=auto&defaultTextTrack=false`;
 
         return (
-          <motion.div
+          <div
             key={`preload-${videoId}`}
-            initial={false}
-            animate={
-              isActive
-                ? { scale: 1, opacity: 1, y: 0 }
-                : { scale: 0.95, opacity: 0, y: 20 }
-            }
-            transition={{
-              ...springs.snappy,
-              opacity: { duration: 0.15 },
+            className="fixed inset-0 z-[51] flex items-center justify-center p-4 sm:p-6 lg:p-8"
+            style={{
+              pointerEvents: isActive ? "auto" : "none",
+              overscrollBehavior: "contain",
             }}
-            className="fixed inset-0 z-[51] flex items-center justify-center p-4 md:p-8"
-            style={{ pointerEvents: isActive ? "auto" : "none" }}
+            aria-hidden={!isActive}
+            role={isActive ? "dialog" : undefined}
+            aria-modal={isActive ? "true" : undefined}
+            aria-label={isActive ? project.name : undefined}
             onClick={isActive ? handleCloseModal : undefined}
           >
-            <div
+            <motion.div
+              initial={false}
+              animate={
+                isActive
+                  ? { opacity: 1, transform: "translateY(0) scale(1)" }
+                  : {
+                      opacity: 0,
+                      transform: shouldReduceMotion
+                        ? "translateY(0) scale(1)"
+                        : "translateY(20px) scale(0.95)",
+                    }
+              }
+              transition={
+                shouldReduceMotion
+                  ? { duration: 0 }
+                  : { ...springs.snappy, opacity: { duration: 0.15 } }
+              }
               className="relative w-full max-w-5xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex flex-col md:flex-row gap-2">
-                <div className="flex-1 aspect-video">
+              <div className="flex flex-col gap-4 md:flex-row">
+                <div className="aspect-video min-w-0 flex-1">
                   <iframe
                     src={url}
                     title={project.name}
-                    className="w-full h-full"
+                    className="h-full w-full"
                     style={{ border: 0 }}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
                     allowFullScreen
@@ -876,15 +746,12 @@ export default function Home() {
                 </div>
                 {isActive && (
                   <div
-                    className="w-full md:w-56 p-3 flex flex-col gap-2 overflow-y-auto max-h-[216px] md:max-h-[calc(100vh-200px)]"
-                    style={{
-                      backgroundColor: "var(--bg-content)",
-                      border: "1px solid var(--gray-100)",
-                    }}
+                    className="surface-panel flex max-h-56 w-full flex-col overflow-y-auto p-2 md:max-h-none md:w-56 md:self-stretch"
                   >
                     <div className="flex flex-col gap-1">
                       {projects.map((proj) => (
                         <button
+                          type="button"
                           key={proj.id}
                           onClick={() => {
                             setVideoModal(proj.id);
@@ -901,7 +768,7 @@ export default function Home() {
                             (e.currentTarget.style.backgroundColor =
                               "transparent")
                           }
-                          className="text-left text-sm px-2 py-1.5 rounded cursor-pointer transition-colors"
+                          className="text-caption cursor-pointer rounded p-2 text-left"
                           style={{
                             color:
                               videoModal === proj.id
@@ -916,8 +783,8 @@ export default function Home() {
                   </div>
                 )}
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         );
       })}
 
@@ -929,55 +796,77 @@ export default function Home() {
             <motion.div
               key="fallback-modal"
               initial={{ opacity: 0 }}
-              animate={{ opacity: modalVisible ? 1 : 0 }}
+              animate={{ opacity: isModalVisible ? 1 : 0 }}
               exit={{ opacity: 0 }}
-              transition={transitions.fade}
-              className="fixed inset-0 z-[51] flex items-center justify-center p-4 md:p-8"
-              style={{ pointerEvents: modalVisible ? "auto" : "none" }}
+              transition={shouldReduceMotion ? { duration: 0 } : transitions.fade}
+              className="fixed inset-0 z-[51] flex items-center justify-center p-4 sm:p-6 lg:p-8"
+              style={{
+                pointerEvents: isModalVisible ? "auto" : "none",
+                overscrollBehavior: "contain",
+              }}
+              role="dialog"
+              aria-modal="true"
+              aria-label={getModalVideo().title}
               onClick={handleCloseModal}
             >
               <motion.div
-                initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                animate={
-                  modalVisible
-                    ? { scale: 1, opacity: 1, y: 0 }
-                    : { scale: 0.95, opacity: 0, y: 20 }
+                initial={
+                  shouldReduceMotion
+                    ? { opacity: 0 }
+                    : {
+                        opacity: 0,
+                        transform: "translateY(20px) scale(0.95)",
+                      }
                 }
-                exit={{ scale: 0.98, opacity: 0, y: 10 }}
-                transition={{
-                  ...springs.snappy,
-                  opacity: { duration: 0.15 },
-                }}
+                animate={
+                  isModalVisible
+                    ? { opacity: 1, transform: "translateY(0) scale(1)" }
+                    : {
+                        opacity: 0,
+                        transform: shouldReduceMotion
+                          ? "translateY(0) scale(1)"
+                          : "translateY(20px) scale(0.95)",
+                      }
+                }
+                exit={
+                  shouldReduceMotion
+                    ? { opacity: 0 }
+                    : {
+                        opacity: 0,
+                        transform: "translateY(10px) scale(0.98)",
+                      }
+                }
+                transition={
+                  shouldReduceMotion
+                    ? { duration: 0 }
+                    : { ...springs.snappy, opacity: { duration: 0.15 } }
+                }
                 className="relative w-full max-w-5xl"
                 onClick={(e) => e.stopPropagation()}
               >
                 {getModalVideo().url && (
-                  <div className="flex flex-col md:flex-row gap-2">
-                    <div className="flex-1 aspect-video">
+                  <div className="flex flex-col gap-4 md:flex-row">
+                    <div className="aspect-video min-w-0 flex-1">
                       <VideoIframe
                         src={getModalVideo().url}
                         title={getModalVideo().title}
                         loading="eager"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
                         allowFullScreen
-                        className="w-full h-full"
+                        className="h-full w-full"
                         style={{ border: 0 }}
                         onLoad={() => {
                           if (!modalVisible) setModalVisible(true);
                         }}
                       />
                     </div>
-                    {modalVisible &&
+                    {isModalVisible &&
                       (rhoProjects.find((p) => p.id === videoModal) ||
                         browserbaseProjects.find(
                           (p) => p.id === videoModal
                         )) && (
                         <div
-                          className="w-full md:w-56 p-3 flex flex-col gap-2 overflow-y-auto max-h-[216px] md:max-h-[calc(100vh-200px)]"
-                          style={{
-                            backgroundColor: "var(--bg-content)",
-                            border: "1px solid var(--gray-100)",
-                          }}
+                          className="surface-panel flex max-h-56 w-full flex-col overflow-y-auto p-2 md:max-h-none md:w-56 md:self-stretch"
                         >
                           <div className="flex flex-col gap-1">
                             {(rhoProjects.find((p) => p.id === videoModal)
@@ -985,6 +874,7 @@ export default function Home() {
                               : browserbaseProjects
                             ).map((project) => (
                               <button
+                                type="button"
                                 key={project.id}
                                 onClick={() => {
                                   setVideoModal(project.id);
@@ -1005,7 +895,7 @@ export default function Home() {
                                   (e.currentTarget.style.backgroundColor =
                                     "transparent")
                                 }
-                                className="text-left text-sm px-2 py-1.5 rounded cursor-pointer transition-colors"
+                                className="text-caption cursor-pointer rounded p-2 text-left"
                                 style={{
                                   color:
                                     videoModal === project.id
@@ -1027,37 +917,19 @@ export default function Home() {
       </AnimatePresence>
 
       {/* Drag Select Box */}
-      <AnimatePresence>
-        {dragSelect.isActive && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{
-              opacity: 1,
-              scale: 1,
+      {dragSelect.isActive && (
+          <div
+            className="fixed pointer-events-none z-[9999]"
+            style={{
               left: Math.min(dragSelect.startX, dragSelect.currentX),
               top: Math.min(dragSelect.startY, dragSelect.currentY),
               width: Math.abs(dragSelect.currentX - dragSelect.startX),
               height: Math.abs(dragSelect.currentY - dragSelect.startY),
-            }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{
-              opacity: { duration: 0.15, ease: [0.16, 1, 0.3, 1] },
-              scale: { duration: 0.2, ease: [0.16, 1, 0.3, 1] },
-              default: {
-                type: "spring",
-                stiffness: 500,
-                damping: 40,
-                mass: 0.5,
-              },
-            }}
-            className="fixed pointer-events-none z-[9999]"
-            style={{
               backgroundColor: "color-mix(in srgb, var(--gray-900) 5%, transparent)",
               boxShadow: "0 0 0 0.5px color-mix(in srgb, var(--gray-900) 15%, transparent)",
             }}
           />
-        )}
-      </AnimatePresence>
+      )}
     </>
   );
 }

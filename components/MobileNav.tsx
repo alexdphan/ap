@@ -97,7 +97,7 @@ export default function MobileNav() {
               transition={{ duration: 0.1, delay: 0.05 }}
               className="mb-4 pb-3 border-b border-gray-200"
             >
-              <p className="editorial-display text-2xl text-gray-900">Index</p>
+              <p className="editorial-display text-sm font-medium text-gray-900">Index</p>
             </motion.div>
 
             <motion.nav
