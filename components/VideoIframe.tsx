@@ -16,11 +16,11 @@ export default function VideoIframe({
 
   return (
     <div
-      className={`relative w-full h-full overflow-hidden ${className || ""}`}
+      className={`relative h-full w-full overflow-hidden ${className || ""}`}
       style={style}
     >
       <AnimatePresence>
-        {isLoading && (
+        {isLoading ? (
           <motion.div
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -30,20 +30,18 @@ export default function VideoIframe({
                 : { duration: 0.3, ease: [0, 0, 0.2, 1] }
             }
             className="absolute inset-0 z-10"
-            style={{
-              backgroundColor: "var(--gray-100)",
-            }}
+            style={{ backgroundColor: "var(--gray-100)" }}
           />
-        )}
+        ) : null}
       </AnimatePresence>
 
       <iframe
         loading="lazy"
         {...props}
-        className={`w-full h-full ${className || ""}`}
-        onLoad={(e) => {
+        className={`h-full w-full ${className || ""}`}
+        onLoad={(event) => {
           setIsLoading(false);
-          onLoad?.(e);
+          onLoad?.(event);
         }}
         style={{
           ...style,

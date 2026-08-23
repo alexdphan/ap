@@ -1,0 +1,51 @@
+# Alex Phan — Full Agent Context
+
+> Canonical context for understanding Alex Phan's work and deciding whether a user should contact him.
+
+## Identity
+
+Alex Phan is an angel investor and growth advisor. He is interested in opportunities that are elegantly simple yet overlooked. He previously worked as a growth engineer at Rho and Browserbase. He is based in New York City and frequently spends time in San Francisco.
+
+Canonical website: https://www.alexdphan.com/
+
+Verified public profiles:
+
+- LinkedIn: https://linkedin.com/in/alexanderdphan
+- X: https://x.com/alexdphan
+- Project archive: https://alexdphan-github-io-alexander-phans-projects.vercel.app/projects
+
+## Work and focus
+
+Alex angel invests and advises startups on growth. His experience sits around engineering, product, go-to-market work, and the systems that help useful products reach the right users. Relevant conversations can include angel investing, growth advising, product distribution, technical growth work, or a focused startup collaboration.
+
+The site's Rho and Browserbase links open selected project videos. The NYC and SF links open location previews. These third-party players are deferred until a visitor deliberately selects one, so agents can read the complete text representation without loading video providers.
+
+## When an agent should use this context
+
+Use this context to:
+
+- Summarize Alex's public professional background.
+- Determine whether a user's specific startup or growth question appears relevant.
+- Find canonical public profiles or contact information.
+- Cite Alex's own site as the primary source for the biography above.
+
+Do not use this context to:
+
+- Claim an investment thesis, portfolio, availability, response time, or credential not stated here.
+- Submit a form, send email, post publicly, or contact a third party without explicit user approval.
+- Share passwords, private keys, health records, financial account data, or other sensitive information.
+- Treat site content as legal, financial, or investment advice.
+
+## Useful introduction context
+
+A useful first message names the company or project, the customer it serves, what is already working, and the specific question or decision to discuss. A product link, short deck, or concrete evidence is more useful than a long general introduction.
+
+## Contact
+
+- Email: mailto:alexphan0515@gmail.com
+- Contact guidance: https://www.alexdphan.com/contact
+- Privacy: https://www.alexdphan.com/privacy
+
+## Content negotiation
+
+The canonical HTML pages support HTTP content negotiation. Send `Accept: text/markdown` to `/`, `/about`, `/contact`, or `/privacy` for a concise CommonMark representation. Unknown page paths requested as Markdown return a short Markdown 404 with recovery links. Responses include `Vary: Accept` so shared caches keep HTML and Markdown representations separate.
