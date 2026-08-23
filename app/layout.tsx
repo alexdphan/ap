@@ -1,12 +1,18 @@
 import { AgentationToolbar } from "@/components/AgentationToolbar";
-import "@fontsource/open-runde/400.css";
-import "@fontsource/open-runde/500.css";
-import "@fontsource/open-runde/600.css";
-import "@fontsource/open-runde/700.css";
+import localFont from "next/font/local";
 import "./globals.css";
 import { metadata, profilePageJsonLd } from "./metadata";
 
 export { metadata };
+
+const openRunde = localFont({
+  src: "./fonts/open-runde-latin-subset-400.woff2",
+  display: "swap",
+  fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
+  preload: true,
+  variable: "--font-open-runde",
+  weight: "400",
+});
 
 const themeScript = `
   (() => {
@@ -29,7 +35,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={openRunde.variable}
+      suppressHydrationWarning
+    >
       <head>
         <meta name="theme-color" content="#f6f5f2" />
         <meta
@@ -37,16 +47,6 @@ export default function RootLayout({
           content="black-translucent"
         />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-        <link
-          rel="preconnect"
-          href="https://customer-vs7mnf7pn9caalyg.cloudflarestream.com"
-        />
-        <link
-          rel="dns-prefetch"
-          href="https://customer-vs7mnf7pn9caalyg.cloudflarestream.com"
-        />
-        <link rel="preconnect" href="https://www.youtube.com" />
-        <link rel="dns-prefetch" href="https://www.youtube.com" />
       </head>
       <body className="antialiased">
         <script

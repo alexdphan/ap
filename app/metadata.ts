@@ -1,23 +1,33 @@
 import type { Metadata } from "next";
 
-export const siteUrl = "https://alexdphan.com";
+import { SITE_ORIGIN } from "@/lib/agent-content";
 
-const description =
-  "Alex Phan is an angel investor and growth advisor focused on elegantly simple, overlooked opportunities. Previously a growth engineer at Rho and Browserbase.";
+export const siteUrl = SITE_ORIGIN;
+
+const title = "AP";
+const description = "Alex Phan | Angel Investor & Growth Advisor";
+const profileDescription =
+  "Alex Phan is an angel investor, growth advisor, and former growth engineer at Rho and Browserbase.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Alex Phan — Angel Investor & Growth Advisor",
+  title: {
+    default: title,
+    template: "%s | AP",
+  },
   description,
   alternates: {
     canonical: "/",
+    types: {
+      "text/markdown": "/llms.txt",
+    },
   },
   authors: [{ name: "Alex Phan", url: "/" }],
   creator: "Alex Phan",
   publisher: "Alex Phan",
   category: "technology",
   openGraph: {
-    title: "Alex Phan — Angel Investor & Growth Advisor",
+    title,
     description,
     url: "/",
     siteName: "Alex Phan",
@@ -34,7 +44,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Alex Phan — Angel Investor & Growth Advisor",
+    title,
     description,
     creator: "@alexdphan",
     images: ["/opengraph-image.png"],
@@ -60,7 +70,7 @@ export const profilePageJsonLd = {
   "@type": "ProfilePage",
   url: siteUrl,
   name: "Alex Phan",
-  description,
+  description: profileDescription,
   mainEntity: {
     "@type": "Person",
     "@id": `${siteUrl}/#alex-phan`,
@@ -68,7 +78,7 @@ export const profilePageJsonLd = {
     alternateName: "@alexdphan",
     url: siteUrl,
     image: `${siteUrl}/alex.jpg`,
-    description,
+    description: profileDescription,
     sameAs: [
       "https://linkedin.com/in/alexanderdphan",
       "https://x.com/alexdphan",
