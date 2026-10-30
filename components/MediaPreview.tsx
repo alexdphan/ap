@@ -139,11 +139,11 @@ export default function MediaPreview({ preview }: { preview: MediaPreviewKey }) 
       </div>
 
       {preview === "browserbase" ? (
-        <div className="relative mt-3">
+        <div className="relative -mx-6 sm:mx-0">
           <div
             ref={projectListRef}
             aria-label="Browserbase projects"
-            className="flex items-center gap-7 overflow-x-auto"
+            className="flex items-center gap-7 overflow-x-auto overscroll-x-contain px-6 sm:px-0"
             role="group"
             style={{
               scrollbarWidth: "none",
@@ -168,8 +168,13 @@ export default function MediaPreview({ preview }: { preview: MediaPreviewKey }) 
                   onClick={(event) => {
                     event.stopPropagation();
                     setBrowserbaseProjectId(project.id);
+                    event.currentTarget.scrollIntoView({
+                      behavior: "smooth",
+                      block: "nearest",
+                      inline: "nearest",
+                    });
                   }}
-                  className="cursor-pointer whitespace-nowrap border-none bg-transparent p-0 text-caption hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
+                  className="cursor-pointer whitespace-nowrap border-none bg-transparent px-0 py-3 text-caption hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
                   style={{
                     color:
                       browserbaseProject.id === project.id

@@ -78,10 +78,49 @@ body {
   color: inherit;
 }
 
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Global Link and Button Styles */
-a:not(.no-hover):hover,
-button.underline:hover {
-  opacity: 0.7 !important;
+@media (hover: hover) and (pointer: fine) {
+  a:not(.no-hover):hover,
+  button.underline:hover {
+    opacity: 0.7 !important;
+  }
+}
+
+/* Touch has no hover, so confirm the press instead */
+@media (hover: none) {
+  a:not(.no-hover):active {
+    opacity: 0.6;
+  }
+}
+
+/* Page column: clears the notch, home indicator, and landscape insets */
+.page-shell {
+  padding-top: calc(4rem + env(safe-area-inset-top));
+  padding-right: max(1.5rem, env(safe-area-inset-right));
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  padding-left: max(1.5rem, env(safe-area-inset-left));
+}
+
+@media (min-width: 40rem) {
+  .page-shell {
+    padding-top: calc(5rem + env(safe-area-inset-top));
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Grows the tappable area toward 44px without shifting the layout */
+.touch-target {
+  position: relative;
+}
+
+.touch-target::after {
+  content: "";
+  position: absolute;
+  inset: -0.75rem -0.375rem;
 }
 
 /* 
@@ -387,10 +426,22 @@ button.underline:hover {
   text-decoration-thickness: from-font;
   text-underline-offset: 0.25em;
   text-decoration-skip-ink: auto;
+  white-space: nowrap;
   touch-action: manipulation;
 }
 
-.inline-preview-trigger:hover {
+@media (hover: hover) and (pointer: fine) {
+  .inline-preview-trigger:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+/* Lines of prose sit ~22px apart; keep inline hit areas from stacking */
+.inline-preview-trigger.touch-target::after {
+  inset-block: -0.125rem;
+}
+
+.inline-preview-trigger[aria-expanded="true"] {
   text-decoration-color: currentColor;
 }
 

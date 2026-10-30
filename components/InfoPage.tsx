@@ -6,6 +6,12 @@ type InfoSection = {
   content: ReactNode;
 };
 
+const INFO_LINKS = [
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+  { href: "/privacy", label: "Privacy" },
+];
+
 type InfoPageProps = {
   title: string;
   intro: string;
@@ -18,7 +24,7 @@ export default function InfoPage({ title, intro, sections }: InfoPageProps) {
       <header className="flex flex-col gap-4">
         <Link
           href="/"
-          className="w-fit text-caption underline decoration-[var(--text-muted)] underline-offset-4"
+          className="touch-target w-fit text-caption underline decoration-[var(--text-muted)] underline-offset-4"
           style={{ color: "var(--text-muted)" }}
         >
           Alex Phan
@@ -62,16 +68,21 @@ export default function InfoPage({ title, intro, sections }: InfoPageProps) {
         aria-label="Information pages"
         className="flex flex-wrap gap-x-5 gap-y-2 border-t border-[var(--border-subtle)] pt-4 text-caption"
       >
-        <Link href="/about" className="underline underline-offset-4">
-          About
-        </Link>
-        <Link href="/contact" className="underline underline-offset-4">
-          Contact
-        </Link>
-        <Link href="/privacy" className="underline underline-offset-4">
-          Privacy
-        </Link>
-        <a href="/llms.txt" className="underline underline-offset-4">
+        {INFO_LINKS.map((link) => {
+          const isCurrent = link.label === title;
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              aria-current={isCurrent ? "page" : undefined}
+              className="touch-target underline underline-offset-4 aria-[current=page]:no-underline"
+              style={isCurrent ? { color: "var(--text-muted)" } : undefined}
+            >
+              {link.label}
+            </Link>
+          );
+        })}
+        <a href="/llms.txt" className="touch-target underline underline-offset-4">
           Agent guide
         </a>
       </nav>

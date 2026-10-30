@@ -29,7 +29,7 @@ function ContactLinks() {
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border border-[var(--image-outline)] p-3">
         <a
           href="mailto:alexphan0515@gmail.com"
-          className="text-caption font-medium hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="touch-target text-caption font-medium hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
           style={{ color: "var(--text-primary)" }}
         >
           Email
@@ -38,7 +38,7 @@ function ContactLinks() {
           href="https://linkedin.com/in/alexanderdphan"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-caption font-medium hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="touch-target text-caption font-medium hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
           style={{ color: "var(--text-primary)" }}
         >
           LinkedIn
@@ -47,7 +47,7 @@ function ContactLinks() {
           href="https://x.com/alexdphan"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-caption font-medium hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="touch-target text-caption font-medium hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
           style={{ color: "var(--text-primary)" }}
         >
           X
@@ -56,7 +56,7 @@ function ContactLinks() {
           href="https://alexdphan-github-io-alexander-phans-projects.vercel.app/projects"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-caption font-medium hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="touch-target text-caption font-medium hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2"
           style={{ color: "var(--text-primary)" }}
         >
           Archive
@@ -106,7 +106,9 @@ export default function AnimatedDropdowns({
             transition={transition}
             className="w-full"
             style={{
-              overflow: "hidden",
+              // Clip only vertically so the project list can bleed to the screen edge.
+              overflowX: "visible",
+              overflowY: "clip",
               pointerEvents: isActive ? "auto" : "none",
             }}
             role="region"
