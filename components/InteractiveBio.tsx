@@ -37,20 +37,35 @@ export default function InteractiveBio() {
   useEffect(() => {
     if (!activePreview) return;
 
+    // Close on a tap or click outside, but not when a touch starts a scroll.
+    let press: { x: number; y: number } | null = null;
+    const startOutsidePress = (event: PointerEvent) => {
+      press = rootRef.current?.contains(event.target as Node)
+        ? null
+        : { x: event.clientX, y: event.clientY };
+    };
     const closeOnOutsidePress = (event: PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) {
-        setActivePreview(null);
-      }
+      if (!press) return;
+      const moved = Math.hypot(event.clientX - press.x, event.clientY - press.y);
+      press = null;
+      if (moved < 10) setActivePreview(null);
+    };
+    const cancelOutsidePress = () => {
+      press = null;
     };
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") setActivePreview(null);
     };
 
-    document.addEventListener("pointerdown", closeOnOutsidePress);
+    document.addEventListener("pointerdown", startOutsidePress);
+    document.addEventListener("pointerup", closeOnOutsidePress);
+    document.addEventListener("pointercancel", cancelOutsidePress);
     document.addEventListener("keydown", closeOnEscape);
 
     return () => {
-      document.removeEventListener("pointerdown", closeOnOutsidePress);
+      document.removeEventListener("pointerdown", startOutsidePress);
+      document.removeEventListener("pointerup", closeOnOutsidePress);
+      document.removeEventListener("pointercancel", cancelOutsidePress);
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, [activePreview]);
@@ -77,7 +92,9 @@ export default function InteractiveBio() {
     };
 
     const handlePointerDown = (event: PointerEvent) => {
+      // Marquee selection is a mouse affordance; touch drags should scroll.
       if (!event.isPrimary || event.button !== 0) return;
+      if (event.pointerType !== "mouse") return;
 
       const target = event.target as HTMLElement;
       const isInteractive =
@@ -175,7 +192,7 @@ export default function InteractiveBio() {
             growth engineer at{" "}
             <button
               type="button"
-              className="inline-preview-trigger"
+              className="inline-preview-trigger touch-target"
               {...previewButtonProps("rho")}
             >
               Rho
@@ -183,7 +200,7 @@ export default function InteractiveBio() {
             and{" "}
             <button
               type="button"
-              className="inline-preview-trigger"
+              className="inline-preview-trigger touch-target"
               {...previewButtonProps("browserbase")}
             >
               Browserbase
@@ -197,7 +214,7 @@ export default function InteractiveBio() {
           >
             <button
               type="button"
-              className="inline-preview-trigger"
+              className="inline-preview-trigger touch-target"
               {...previewButtonProps("nyc")}
             >
               NYC
@@ -205,7 +222,7 @@ export default function InteractiveBio() {
             based,{" "}
             <button
               type="button"
-              className="inline-preview-trigger"
+              className="inline-preview-trigger touch-target"
               {...previewButtonProps("sf")}
             >
               SF
@@ -213,7 +230,7 @@ export default function InteractiveBio() {
             frequent. Feel free to{" "}
             <button
               type="button"
-              className="inline-preview-trigger"
+              className="inline-preview-trigger touch-target"
               {...previewButtonProps("contact")}
             >
               reach out

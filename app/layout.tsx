@@ -1,9 +1,16 @@
 import { AgentationToolbar } from "@/components/AgentationToolbar";
+import type { Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { metadata, profilePageJsonLd } from "./metadata";
 
 export { metadata };
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 const openRunde = localFont({
   src: "./fonts/open-runde-latin-subset-400.woff2",
@@ -60,7 +67,7 @@ export default function RootLayout({
           style={{ backgroundColor: "var(--bg-outer)" }}
         >
           <main
-            className="relative z-0 w-full max-w-lg px-6 py-16 sm:py-20"
+            className="page-shell relative z-0 w-full max-w-lg"
             style={{ backgroundColor: "var(--bg-content)" }}
           >
             {children}

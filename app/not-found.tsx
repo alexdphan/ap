@@ -11,19 +11,19 @@ export default function NotFound() {
         these canonical routes instead.
       </p>
       <nav aria-label="Page recovery" className="flex flex-wrap gap-x-5 gap-y-2">
-        <Link href="/" className="underline underline-offset-4">
+        <Link href="/" className="touch-target underline underline-offset-4">
           Home
         </Link>
-        <Link href="/about" className="underline underline-offset-4">
+        <Link href="/about" className="touch-target underline underline-offset-4">
           About
         </Link>
-        <Link href="/contact" className="underline underline-offset-4">
+        <Link href="/contact" className="touch-target underline underline-offset-4">
           Contact
         </Link>
-        <a href="/sitemap.xml" className="underline underline-offset-4">
+        <a href="/sitemap.xml" className="touch-target underline underline-offset-4">
           Sitemap
         </a>
-        <a href="/llms.txt" className="underline underline-offset-4">
+        <a href="/llms.txt" className="touch-target underline underline-offset-4">
           Agent guide
         </a>
       </nav>
